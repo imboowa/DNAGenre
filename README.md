@@ -29,9 +29,7 @@ helps learners know what is bioinformatics under the hood.
 4. Data encryption before, during and after application usage
 5. Show time on most processes.
 
-
-    Run only the GUI.py file to see the project in action.
-
+**Note: Run only the `GUI.py` file to see the project in action.**
 
 ## Bugs Found ##
 **DataTools.py**
