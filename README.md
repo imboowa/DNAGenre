@@ -30,6 +30,9 @@ helps learners know what is bioinformatics under the hood.
 5. Show time on most processes.
 
 
+    Run only the GUI.py file to see the project in action.
+
+
 ## Bugs Found ##
 **DataTools.py**
 ``` python

@@ -89,7 +89,7 @@ class K_mer_Length:
         """ Frame For Analysis """
         self.frame_3 = CTkScrollableFrame(self.window, fg_color=bright_colors[3], scrollbar_fg_color=bright_colors[3],
                                           scrollbar_button_color=bright_colors[3], scrollbar_button_hover_color=bright_colors[3],
-                                          height=100, orientation=HORIZONTAL)
+                                          height=300, orientation=HORIZONTAL)
         self.frame_3.pack(fill='both')
         """ Frame For Navigation Buttons """
         self.frame_4 = CTkFrame(self.window, fg_color=color_scheme)
