@@ -3,7 +3,7 @@ import datetime
 from user_app.DNAsite import *
 from DNAtoolkit.DataTools import *
 from pathlib import Path
-# Is Done
+
 
 class User_Home:
 
@@ -27,7 +27,7 @@ class User_Home:
                                                            f"{datetime.datetime.now().minute:02}")
         """ User Home Page Window """
         self.user_home_window = Tk()
-        self.user_home_window.title(f"{username}")
+        self.user_home_window.title(f"{username[:string_threshold]}..." if len(username) > string_threshold else f"{username}")
         self.user_home_window.geometry(f"1080x{self.user_home_window.winfo_screenheight()}")
         self.user_home_window.config(bg=f"{color_scheme}")
         self.user_home_window.eval("tk::PlaceWindow . center")
@@ -37,7 +37,7 @@ class User_Home:
                               height=(self.user_home_window.winfo_height() / 0.25), width=(self.user_home_window.winfo_width() / 0.5))
         self.frame_1.grid(row=0, column=0, padx=50)
         """ Show Username """
-        username_label = CTkLabel(self.frame_1, text=str(username), font=(window_font, (window_font_size + 20)), fg_color=color_scheme, text_color=bright_colors[5])
+        username_label = CTkLabel(self.frame_1, text=f"{username[:string_threshold]}..." if len(username) > string_threshold else f"{username}", font=(window_font, (window_font_size + 20)), fg_color=color_scheme, text_color=bright_colors[5])
         username_label.grid(row=0, column=0, pady=50, padx=50)
         """ Frame For User Info """
         self.frame_2 = CTkFrame(self.user_home_window, fg_color=color_scheme, corner_radius=corner,
@@ -47,9 +47,9 @@ class User_Home:
         last_session_label = CTkLabel(self.frame_2, text=f"{str(last_month_day_year)} {str(last_hour_minute)}", font=(window_font, window_font_size),
                                       fg_color=color_scheme, text_color=text_color)
         last_session_label.pack(anchor='w', pady=10)
-        firstname_label = CTkLabel(self.frame_2, text=str(firstname), font=(window_font, window_font_size), fg_color=color_scheme, text_color=text_color)
+        firstname_label = CTkLabel(self.frame_2, text=f"{firstname[:string_threshold]}..." if len(firstname) > string_threshold else f"{firstname}", font=(window_font, window_font_size), fg_color=color_scheme, text_color=text_color)
         firstname_label.pack(anchor='w', pady=10)
-        lastname_label = CTkLabel(self.frame_2, text=str(lastname), font=(window_font, window_font_size), fg_color=color_scheme, text_color=text_color)
+        lastname_label = CTkLabel(self.frame_2, text=f"{lastname[:string_threshold]}..." if len(lastname) > string_threshold else f"{lastname}", font=(window_font, window_font_size), fg_color=color_scheme, text_color=text_color)
         lastname_label.pack(anchor='w', pady=10)
         """ Everything Frame Files, Folder """
         self.frame_3 = CTkScrollableFrame(self.user_home_window, fg_color=bright_colors[3], corner_radius=corner, height=300,
@@ -178,37 +178,50 @@ class User_Home:
                     label = CTkLabel(self.user_home_window, text="Error Creating Folder",
                                      font=(window_font, window_font_size), fg_color=color_scheme, text_color=bright_colors[1])
                     label.place(rely=0.87, relx=0.4)
-                    self.user_home_window.after(1000, label.destroy)
+                    try: self.user_home_window.after(1000, label.destroy)
+                    except tkinter.TclError: return None
                     return None
                 else:
                     # No Errors Hence Make New Directory
-                    os.mkdir(str(new_dir))
+                    try:
+                        os.mkdir(str(new_dir))
+                    # Any Exception Here, Is An Error
+                    except Exception:
+                        return None
                     label = CTkLabel(self.user_home_window, text="Success Creating Folder",
                                      font=(window_font, window_font_size), fg_color=color_scheme, text_color=bright_colors[3])
                     label.place(rely=0.87, relx=0.4)
-                    self.user_home_window.after(1000, label.destroy)
+                    try: self.user_home_window.after(1000, label.destroy)
+                    except tkinter.TclError: return None
                     return 0
             # If User Entered A Good Folder Path, We Just Check If It Exists Or Not Empty
             elif os.path.exists(folder_path) or not folder_path:
                 label = CTkLabel(self.user_home_window, text="Error Creating Folder",
                                  font=(window_font, window_font_size), fg_color=color_scheme, text_color=bright_colors[1])
                 label.place(rely=0.87, relx=0.4)
-                self.user_home_window.after(1000, label.destroy)
+                try: self.user_home_window.after(1000, label.destroy)
+                except tkinter.TclError: return None
                 return None
             # If Absolute Path Is Received And Checked, Then Create A File At That Location
             else:
-                os.mkdir(folder_path)
+                try:
+                    os.mkdir(folder_path)
+                # Any Exception, Is An Error
+                except Exception:
+                    return None
                 label = CTkLabel(self.user_home_window, text="Success Creating Folder",
                                  font=(window_font, window_font_size), fg_color=color_scheme, text_color=bright_colors[3])
                 label.place(rely=0.87, relx=0.4)
-                self.user_home_window.after(1000, label.destroy)
+                try: self.user_home_window.after(1000, label.destroy)
+                except tkinter.TclError: return None
                 return 0
         # Any Exception, Is An Error
         except Exception:
             label = CTkLabel(self.user_home_window, text="Error Creating Folder",
                              font=(window_font, window_font_size), fg_color=color_scheme, text_color=bright_colors[1])
             label.place(rely=0.87, relx=0.4)
-            self.user_home_window.after(1000, label.destroy)
+            try: self.user_home_window.after(1000, label.destroy)
+            except tkinter.TclError: return None
             return None
 
 
@@ -236,7 +249,8 @@ class User_Home:
             warning_2 = CTkLabel(self.user_home_window, text="File Problem", font=(window_font, window_font_size), fg_color=color_scheme,
                                  text_color=bright_colors[1])
             warning_2.place(rely=0.87, relx=0.4)
-            self.user_home_window.after(1000, warning_2.destroy)
+            try: self.user_home_window.after(1000, warning_2.destroy)
+            except tkinter.TclError: return
             return
 
 
@@ -256,7 +270,8 @@ class User_Home:
                 warning_1 = CTkLabel(self.user_home_window, text="Folder Problem", font=(window_font, window_font_size), fg_color=color_scheme,
                                    text_color=bright_colors[1])
                 warning_1.place(rely=0.87, relx=0.4)
-                self.user_home_window.after(1000, warning_1.destroy)
+                try: self.user_home_window.after(1000, warning_1.destroy)
+                except tkinter.TclError: return
                 return
             # Counter For The Folder Files Limit
             folder_files_limit_2 = 0
@@ -316,10 +331,14 @@ class User_Home:
             if self.folder_stop < len(new_folder_path_files_1):
                 self.folder_start += view_limit
                 self.folder_stop += view_limit
-                self.location_label.configure(text=f"{int(self.folder_start/view_limit)+1}/{int(round(len(new_folder_path_files_1)/view_limit))+1}")
-            # Clear Frame
-            for widget_2 in self.frame_3_1.winfo_children():
-                widget_2.destroy()
+                try: self.location_label.configure(text=f"{(self.folder_start // view_limit) + 1}/{math.ceil(len(new_folder_path_files_1) / view_limit)}")
+                except tkinter.TclError: return
+            try:
+                # Clear Frame
+                for widget_2 in self.frame_3_1.winfo_children():
+                    widget_2.destroy()
+            except tkinter.TclError:
+                return
             # Show The Files
             if new_folder_path_1 is not None:
                 for file in new_folder_path_files_1[self.folder_start: self.folder_stop]:
@@ -346,10 +365,14 @@ class User_Home:
             if self.folder_start >= view_limit:
                 self.folder_start -= view_limit
                 self.folder_stop -= view_limit
-                self.location_label.configure(text=f"{int(self.folder_start/view_limit)+1}/{int(round(len(new_folder_path_files_2)/view_limit))+1}")
-            # Clear Frame
-            for widget_2 in self.frame_3_1.winfo_children():
-                widget_2.destroy()
+                try: self.location_label.configure(text=f"{int(self.folder_start/view_limit)+1}/{math.ceil(len(new_folder_path_files_2)/view_limit)}")
+                except tkinter.TclError: return
+            try:
+                # Clear Frame
+                for widget_2 in self.frame_3_1.winfo_children():
+                    widget_2.destroy()
+            except tkinter.TclError:
+                return
             # Show The Files
             if new_folder_path_2 is not None:
                 for file in new_folder_path_files_2[self.folder_start: self.folder_stop]:

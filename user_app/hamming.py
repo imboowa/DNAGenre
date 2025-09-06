@@ -1,5 +1,5 @@
 from user_analysis.k_mer_search import *
-
+import math
 
 class Hamming:
 
@@ -15,6 +15,7 @@ class Hamming:
         # Helpful Variables
         self.reverse_switch = 0
         self.isReverse = "False"
+        self.result_length = 0
         # Window
         self.window = Tk()
         self.window.config(bg=color_scheme)
@@ -82,7 +83,7 @@ class Hamming:
                                      corner_radius=corner)
         self.intersection.grid(row=0, column=5, sticky='w', padx=5, pady=10)
         """ isReversed Label """
-        self.isReversed_label = CTkLabel(self.frame_3, text="ReverseComplement",
+        self.isReversed_label = CTkLabel(self.frame_3, text="ReverseC",
                                            font=(window_font, (window_font_size - 10)),
                                            fg_color=bright_colors[2], text_color=bright_colors[4], corner_radius=corner)
         self.isReversed_label.grid(row=0, column=6, padx=5, pady=10)
@@ -105,6 +106,20 @@ class Hamming:
                                           orientation=HORIZONTAL, scrollbar_button_color=bright_colors[3],
                                           scrollbar_button_hover_color=bright_colors[3])
         self.frame_6.pack(side='right', fill='both', expand=True, padx=1, pady=1)
+        # Useful Variables For Moving Between Pages
+        self.start, self.stop = 0, (view_limit + 5)
+        """ Frame For Navigation Buttons """
+        self.frame_7 = CTkFrame(self.window, fg_color=color_scheme)
+        self.frame_7.pack(fill='both')
+        # Navigation Buttons
+        move_left = CTkButton(self.frame_7, text='<', fg_color=color_scheme, text_color=bright_colors[4], hover_color=color_scheme,
+                              font=(window_font, window_font_size), command=lambda: self.move_pages("Left"))
+        move_left.pack(side='left')
+        self.tracker_label = CTkLabel(self.frame_7, text='', fg_color=color_scheme, text_color=bright_colors[5], font=(window_font, window_font_size))
+        self.tracker_label.place(relx=0.45, rely=0.0)
+        move_right = CTkButton(self.frame_7, text='>', fg_color=color_scheme, text_color=bright_colors[4], hover_color=color_scheme,
+                               font=(window_font, window_font_size), command=lambda: self.move_pages("Right"))
+        move_right.pack(side='right')
         """ Bottom Buttons For Back To Codon Analysis And K_mer Analysis """
         self.back_to_codon = CTkButton(self.window, text="Menu", font=(window_font, window_font_size), fg_color=color_scheme,
                                        text_color=bright_colors[4], corner_radius=corner, hover_color=bright_colors[2], height=50,
@@ -117,54 +132,101 @@ class Hamming:
         self.window.mainloop()
 
 
+    def move_pages(self, direction):
+
+        """ Controls Display """
+        if self.result_length < 1:
+            return
+        if direction == "Left":
+            if self.start >= (view_limit + 5):
+                self.start -= (view_limit + 5)
+                self.stop -= (view_limit + 5)
+                try:
+                    # Cleaning The Screen
+                    for widget in self.frame_5.winfo_children():
+                        widget.destroy()
+                    for widget in self.frame_6.winfo_children():
+                        widget.destroy()
+                    self.show_hamming(self.DNA_data)
+                    # Update Label If Exists
+                    self.tracker_label.configure(text=f"{(self.start // (view_limit + 5))+1}/{math.ceil(self.result_length / (view_limit + 5))}") if self.result_length >= 1 else 0
+                except tkinter.TclError:
+                    pass
+        elif direction == "Right":
+            if self.stop < self.result_length:
+                self.start += (view_limit + 5)
+                self.stop += (view_limit + 5)
+                try:
+                    # Cleaning The Screen
+                    for widget in self.frame_5.winfo_children():
+                        widget.destroy()
+                    for widget in self.frame_6.winfo_children():
+                        widget.destroy()
+                    self.show_hamming(self.DNA_data)
+                    # Update Label If Exists
+                    self.tracker_label.configure(text=f"{(self.start // (view_limit + 5))+1}/{math.ceil(self.result_length / (view_limit + 5))}") if self.result_length >= 1 else 0
+                except tkinter.TclError:
+                    pass
+
+
     def next_window(self):
 
         """ Go To Next Window """
-        self.window.destroy()
-        K_mer_Analysis(self.username, self.firstname, self.lastname, self.DNA_data, self.sequence_type, self.menu_window)
+        try: self.window.destroy()
+        except tkinter.TclError: return
+        K_mer_Search(self.username, self.firstname, self.lastname, self.DNA_data, self.sequence_type, self.menu_window)
 
 
     def back_to_menu(self):
 
         """ Back To The Menu """
-        self.window.destroy()
+        try: self.window.destroy()
+        except tkinter.TclError: return
         self.menu_window(self.username, self.firstname, self.lastname)
 
 
     def set_reverse(self):
 
         """ Managing Reverse Complement """
-        # Setting Values To None
-        self.hamming_distance.configure(text="None")
-        self.intersection.configure(text="None")
-        self.length_each.configure(text="None")
-        # Clearing Frames
-        for widget_1 in self.frame_5.winfo_children():
-            widget_1.destroy()
-        for widget_2 in self.frame_6.winfo_children():
-            widget_2.destroy()
+        try:
+            # Setting Label Values To None If Exists
+            self.hamming_distance.configure(text="None")
+            self.intersection.configure(text="None")
+            self.length_each.configure(text="None")
+            # Clearing Frames
+            for widget_1 in self.frame_5.winfo_children():
+                widget_1.destroy()
+            for widget_2 in self.frame_6.winfo_children():
+                widget_2.destroy()
+        except tkinter.TclError:
+            return
+
         # Checking Conditions
         if self.reverse_switch == 0:
             self.isReverse = "True"
-            self.isReversed.configure(text='True')
+            try: self.isReversed.configure(text='True')
+            except tkinter.TclError: pass
             self.reverse_switch = 1
             return
         elif self.reverse_switch == 1:
             self.isReverse = "False"
-            self.isReversed.configure(text='False')
+            try: self.isReversed.configure(text='False')
+            except tkinter.TclError: pass
             self.reverse_switch = 0
             return
-        return
 
 
     def show_hamming(self, DNA_data):
 
         """ Showing Hamming Distance """
-        # Cleaning The Screen
-        for widget in self.frame_5.winfo_children():
-            widget.destroy()
-        for widget in self.frame_6.winfo_children():
-            widget.destroy()
+        try:
+            # Cleaning The Screen
+            for widget in self.frame_5.winfo_children():
+                widget.destroy()
+            for widget in self.frame_6.winfo_children():
+                widget.destroy()
+        except tkinter.TclError:
+            return
         # Temporary string Variables
         temp_seq_1 = str()
         temp_seq_2 = str()
@@ -187,21 +249,27 @@ class Hamming:
         # result Has The Hamming Distance
         result = n_distance(temp_seq_1, temp_seq_2)
         if result == -1 or result == -2:
-            # Setting Values To None
-            self.hamming_distance.configure(text="None")
-            self.intersection.configure(text="None")
-            self.length_each.configure(text="None")
+            try:
+                # Setting Label Values To None
+                self.hamming_distance.configure(text="None")
+                self.intersection.configure(text="None")
+                self.length_each.configure(text="None")
+            except tkinter.TclError:
+                return
+            self.result_length = result
             # Error
             self.error = CTkLabel(self.window, text="Sequence(s) Error", font=(window_font, window_font_size),
                                   fg_color=color_scheme, text_color="red")
-            self.error.place(relx=0.4, rely=0.37)
-            self.window.after(1000, self.error.destroy)
+            self.error.place(relx=0.4, rely=0.33)
+            try: self.window.after(1000, self.error.destroy)
+            except tkinter.TclError: return
             return
         else:
+            self.result_length = len(result)
             # Useful Variable For Updates
             hamming_count, intersection_count = 0, 0
             """ Showing The Strands For Visual Comparison"""
-            for i in result:
+            for i in result[self.start:self.stop]:
                 if i[1] != i[2]:
                     hamming_count += 1
                     CTkLabel(self.frame_5, text=f"{i[1]}\n{i[0]+1}", fg_color="white", text_color="black", height=self.frame_5.winfo_height(),
@@ -218,8 +286,11 @@ class Hamming:
                     CTkLabel(self.frame_6, text=f"{i[2]}\n{i[0]+1}", fg_color="black", text_color="white", height=self.frame_6.winfo_height(),
                              width=50, corner_radius=5, font=(window_font, window_font_size)).grid(row=0, column=i[0],
                                                                                               sticky='s', pady=1)
-            # Updating Dormant Labels; Hamming Distance, Length Of Each, Intersection
-            self.hamming_distance.configure(text=f"{hamming_count}|{round(((hamming_count/len(result)) * 100),1)}%")
-            self.intersection.configure(text=f"{intersection_count}|{round(((intersection_count/len(result)) * 100),1)}%")
-            # Since The Length Of Result Is The Length Of Each Strand
-            self.length_each.configure(text=f"{len(result)}")
+            try:
+                # Updating Dormant Labels; Hamming Distance, Length Of Each, Intersection
+                self.hamming_distance.configure(text=f"{hamming_count}|{round(((hamming_count/len(result[self.start:self.stop])) * 100), (rounder - 1))}%")
+                self.intersection.configure(text=f"{intersection_count}|{round(((intersection_count/len(result[self.start:self.stop])) * 100), (rounder - 1))}%")
+                # Since The Length Of Result Is The Length Of Each Strand
+                self.length_each.configure(text=f"{len(result[self.start:self.stop])}|{len(result)}")
+            except tkinter.TclError:
+                return

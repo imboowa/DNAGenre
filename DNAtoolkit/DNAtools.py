@@ -1,6 +1,6 @@
 from DNAtoolkit.structures import *
 import random
-# Is Done
+
 
 def generate_random_seq(length: int, seq_type: str):
     """
@@ -120,7 +120,7 @@ def gc_content(seq: str):
     """
     if not seq:
         return -1
-    return round(((seq.count('G') + seq.count('C')) / len(seq)) * 100, 6)
+    return round(((seq.count('G') + seq.count('C')) / len(seq)) * 100, 2)
 
 def gc_content_per_subseq(seq: str, k=5):
     """
@@ -167,9 +167,9 @@ def at_content(seq: str, seq_type: str):
     if not seq:
         return -1
     if seq_type == 'DNA':
-        return round(((seq.count('A') + seq.count('T')) / len(seq)) * 100, 6)
+        return round(((seq.count('A') + seq.count('T')) / len(seq)) * 100, 2)
     elif seq_type == 'RNA':
-        return round(((seq.count('A') + seq.count('U')) / len(seq)) * 100, 6)
+        return round(((seq.count('A') + seq.count('U')) / len(seq)) * 100, 2)
     else:
         return -2
 

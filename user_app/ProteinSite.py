@@ -1,10 +1,11 @@
+import tkinter
 from interface.GUI_attr import *
 import threading
 from DNAtoolkit.DNAtools import *
 from interface.GUI_methods import *
 import time
 from user_app.hamming import Hamming
-# Is Done
+
 
 class Protein:
 
@@ -17,9 +18,10 @@ class Protein:
         # Useful
         self.menu_window = menu_window
         # Destroy prev_window
-        prev_window.destroy()
+        try: prev_window.destroy()
+        except tkinter.TclError: return
         # Making A Dictionary To Store The Read Index: Frame, Proteins
-        self.sane_DNA_data = dict()
+        self.proteins_data = dict()
         # Saving DNA_data For Future Use
         self.DNA_data = DNA_data
         # Saving seq_type
@@ -116,7 +118,7 @@ class Protein:
         self.read_index_entry.grid(row=0, column=0, sticky='w', padx=10, pady=10)
         """ Search Button """
         self.search_button = CTkButton(self.frame_3, text="Search", font=(window_font, window_font_size), fg_color=color_scheme, text_color=bright_colors[4],
-                                       corner_radius=corner, hover_color=bright_colors[2], command=lambda: self.draw_proteins(self.sane_DNA_data))
+                                       corner_radius=corner, hover_color=bright_colors[2], command=lambda: self.draw_proteins(self.proteins_data))
         self.search_button.grid(row=0, column=1, sticky='w', padx=50, pady=10)
         """ Reverse Button """
         self.reverse_button = CTkButton(self.frame_3, text="Reverse", font=(window_font, window_font_size), fg_color=color_scheme, text_color=bright_colors[4],
@@ -167,7 +169,7 @@ class Protein:
                     index_and_proteins = f"{index}|{str(temp_proteins)}"
                     read_index_proteins_dict[key].append(index_and_proteins)
         self.isRunning = False
-        self.sane_DNA_data = read_index_proteins_dict
+        self.proteins_data = read_index_proteins_dict
 
 
     def set_isReverseComplement(self):
@@ -175,47 +177,56 @@ class Protein:
         """ Toggles Between 0 And 1 For self.isReverseComplement """
         if self.reverse_normal_switch == 0:
             self.isReverseComplement = "True"
-            self.reading_frame_1_label.configure(text='Frame 1-', text_color='green')
-            self.reading_frame_2_label.configure(text='Frame 2-', text_color='green')
-            self.reading_frame_3_label.configure(text='Frame 3-', text_color='green')
-            self.reverse_complement.configure(text='True,')
-            for widget_4 in self.reading_frame_1.winfo_children():
-                widget_4.destroy()
-            for widget_5 in self.reading_frame_2.winfo_children():
-                widget_5.destroy()
-            for widget_6 in self.reading_frame_3.winfo_children():
-                widget_6.destroy()
+            try:
+                self.reading_frame_1_label.configure(text='Frame 1-', text_color='green')
+                self.reading_frame_2_label.configure(text='Frame 2-', text_color='green')
+                self.reading_frame_3_label.configure(text='Frame 3-', text_color='green')
+                self.reverse_complement.configure(text='True,')
+                for widget_4 in self.reading_frame_1.winfo_children():
+                    widget_4.destroy()
+                for widget_5 in self.reading_frame_2.winfo_children():
+                    widget_5.destroy()
+                for widget_6 in self.reading_frame_3.winfo_children():
+                    widget_6.destroy()
+            except tkinter.TclError:
+                return
             self.reverse_normal_switch = 1
             return
         elif self.reverse_normal_switch == 1:
             self.isReverseComplement = "False"
-            self.reading_frame_1_label.configure(text='Frame 1+', text_color='lightgreen')
-            self.reading_frame_2_label.configure(text='Frame 2+', text_color='lightgreen')
-            self.reading_frame_3_label.configure(text='Frame 3+', text_color='lightgreen')
-            self.reverse_complement.configure(text="False,")
-            for widget_1 in self.reading_frame_1.winfo_children():
-                widget_1.destroy()
-            for widget_2 in self.reading_frame_2.winfo_children():
-                widget_2.destroy()
-            for widget_3 in self.reading_frame_3.winfo_children():
-                widget_3.destroy()
+            try:
+                self.reading_frame_1_label.configure(text='Frame 1+', text_color='lightgreen')
+                self.reading_frame_2_label.configure(text='Frame 2+', text_color='lightgreen')
+                self.reading_frame_3_label.configure(text='Frame 3+', text_color='lightgreen')
+                self.reverse_complement.configure(text="False,")
+                for widget_1 in self.reading_frame_1.winfo_children():
+                    widget_1.destroy()
+                for widget_2 in self.reading_frame_2.winfo_children():
+                    widget_2.destroy()
+                for widget_3 in self.reading_frame_3.winfo_children():
+                    widget_3.destroy()
+            except tkinter.TclError:
+                return
             self.reverse_normal_switch = 0
             return
         return
 
 
-    def draw_proteins(self, sane_DNA_data):
+    def draw_proteins(self, proteins_data):
 
         """ Draw Proteins Or No-Protein Sequence On Screen """
         if str(self.read_index_entry.get()).lower() == "hamming":
             # Destroy Window
-            self.window.destroy()
+            try: self.window.destroy()
+            except tkinter.TclError:
+                return
             # Calling Hamming Distance Window
             Hamming(self.username, self.firstname, self.lastname, self.DNA_data, self.sequence_type, self.menu_window)
             return
-        for key, value in sane_DNA_data.items():
+        for key, value in proteins_data.items():
             if key == str(self.read_index_entry.get()):
-                self.read_index.configure(text=str(key)+"," if len(str(key)) < 5 else f"{str(key)[:2]}...,")
+                try: self.read_index.configure(text=str(key)+"," if len(str(key)) < 5 else f"{str(key)[:2]}...,")
+                except tkinter.TclError: return
                 # Used For Reverse Complement
                 temp_reversed_complement = reverseComplement(self.DNA_data[key], self.sequence_type)
                 if temp_reversed_complement != -1:
@@ -224,8 +235,10 @@ class Protein:
                     # Separating Frame From Protein(s)
                     frame, proteins = i.split("|")
                     if int(frame) == 0 and self.isReverseComplement == "False":
-                        for widget_1 in self.reading_frame_1.winfo_children():
-                            widget_1.destroy()
+                        try:
+                            for widget_1 in self.reading_frame_1.winfo_children():
+                                widget_1.destroy()
+                        except tkinter.TclError: return
                         if proteins == '[]':
                             self.label_1 = CTkLabel(self.reading_frame_1, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                      fg_color=bright_colors[3], text_color=color_scheme)
@@ -263,8 +276,10 @@ class Protein:
                                         col_counter_1 = 0
                                 i_1 += 1
                     elif int(frame) == 1 and self.isReverseComplement == "False":
-                        for widget_2 in self.reading_frame_2.winfo_children():
-                            widget_2.destroy()
+                        try:
+                            for widget_2 in self.reading_frame_2.winfo_children():
+                                widget_2.destroy()
+                        except tkinter.TclError: return
                         if proteins == '[]':
                             self.label_3 = CTkLabel(self.reading_frame_2, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                      fg_color=bright_colors[3], text_color=color_scheme)
@@ -282,7 +297,7 @@ class Protein:
                             i_2 = 0
                             for letter_2 in proteins:
                                 # We Want Proteins That Are From 'M' Codon To '_' Stop Codon (No Duplicates In Showcase)
-                                if letter_2 == "M" and proteins[i_2] == '\'':
+                                if letter_2 == "M" and proteins[i_2 - 1] == '\'':
                                     # No Using random Module Because It Can Generate The Same Color
                                     color_2 = colors_2[color_counter_2]
                                     if color_counter_2 == 0:
@@ -302,8 +317,10 @@ class Protein:
                                         col_counter_2 = 0
                                 i_2 += 1
                     elif int(frame) == 2 and self.isReverseComplement == "False":
-                        for widget_3 in self.reading_frame_3.winfo_children():
-                            widget_3.destroy()
+                        try:
+                            for widget_3 in self.reading_frame_3.winfo_children():
+                                widget_3.destroy()
+                        except tkinter.TclError: return
                         if proteins == '[]':
                             self.label_5 = CTkLabel(self.reading_frame_3, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                      fg_color=bright_colors[3], text_color=color_scheme)
@@ -341,9 +358,11 @@ class Protein:
                                         col_counter_3 = 0
                                 i_3 += 1
                     elif int(frame) == 3 and self.isReverseComplement == "True":
-                        # Clear The Frame For New Stuff
-                        for widget_4 in self.reading_frame_1.winfo_children():
-                            widget_4.destroy()
+                        try:
+                            # Clear The Frame For New Stuff
+                            for widget_4 in self.reading_frame_1.winfo_children():
+                                widget_4.destroy()
+                        except tkinter.TclError: return
                         if proteins == '[]':
                             self.label_7 = CTkLabel(self.reading_frame_1, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                                     fg_color=bright_colors[3], text_color=color_scheme)
@@ -386,9 +405,11 @@ class Protein:
                                         col_counter_4 = 0
                                 i_4 += 1
                     elif int(frame) == 4 and self.isReverseComplement == "True":
-                        # Clear The Frame For New Stuff
-                        for widget_5 in self.reading_frame_2.winfo_children():
-                            widget_5.destroy()
+                        try:
+                            # Clear The Frame For New Stuff
+                            for widget_5 in self.reading_frame_2.winfo_children():
+                                widget_5.destroy()
+                        except tkinter.TclError: return
                         if proteins == '[]':
                             self.label_9 = CTkLabel(self.reading_frame_2, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                                     fg_color=bright_colors[3], text_color=color_scheme)
@@ -431,9 +452,11 @@ class Protein:
                                         col_counter_5 = 0
                                 i_5 += 1
                     elif int(frame) == 5 and self.isReverseComplement == "True":
-                        # Clear The Frame For New Stuff
-                        for widget_6 in self.reading_frame_3.winfo_children():
-                            widget_6.destroy()
+                        try:
+                            # Clear The Frame For New Stuff
+                            for widget_6 in self.reading_frame_3.winfo_children():
+                                widget_6.destroy()
+                        except tkinter.TclError: return
                         if proteins == '[]':
                             self.label_11 = CTkLabel(self.reading_frame_3, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                                     fg_color=bright_colors[3], text_color=color_scheme)

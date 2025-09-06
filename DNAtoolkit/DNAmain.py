@@ -1,5 +1,5 @@
 from DNAtools import *
-# Is Done
+
 
 seq_type = 'RNA'
 DNAstr = generate_random_seq(50, seq_type)
@@ -21,15 +21,3 @@ for i in gen_openReading_frames(DNAstr, seq_type):
 print(f"[10] Proteins in DNA Strand:\n")
 for protein in protein_generator(DNAstr, seq_type, big_to_small=True):
     print(protein)
-
-
-#fib_list_1 = DNA_fib_list(len(DNAstr))
-#codon_frequency = dict()
-#for i in fib_list_1:
-#    key = DNAstr[i:i+3]
-#    if len(key) != 3: break
-#    if DNAstr[i:i+3] in codon_frequency.keys(): codon_frequency[key] += 1
-#    else: codon_frequency[key] = 1
-#print('\n',[f"{DNA_Codons[key]}->{key}: {value}" for key, value in codon_frequency.items()])
-
-#print(n_distance("AGATC", "CGCTA"))

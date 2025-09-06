@@ -47,4 +47,15 @@ view_limit = 5
 tip_switch = 0
 tips = [f"The Above Frame Accumulates Only {view_limit} Graphs",
         "Commas Are Database Delimiters",
-        "GUI Colors Are Used For Differentiation"]
+        "GUI Colors Are Used For Differentiation",
+        "Navigation Buttons Help Show Overlapped Content",
+        "Frames Act Weird With Massive Labels At Them"]
+
+# Number Threshold
+number_threshold = 1e+6
+
+# Word Length Threshold
+string_threshold = 10
+
+# Rounding Threshold
+rounder = 2

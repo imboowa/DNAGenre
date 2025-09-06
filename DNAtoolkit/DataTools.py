@@ -1,5 +1,5 @@
 from collections import defaultdict
-# Is Done
+
 
 def validate_file(filepath):
     """
@@ -19,7 +19,6 @@ def validate_file(filepath):
     # Any Exception Is An Error
     except Exception:
         return -1
-
 
 def clean_data(filepath, label_char):
     """
@@ -46,3 +45,19 @@ def clean_data(filepath, label_char):
     # Any Exception Is An Error
     except Exception:
         return None
+
+def validate_requirements(filepath, label_char):
+    """
+    Receives a filepath and label_char
+    Checks if read indexes are not greater than 100
+    Checks if in each read index there are not more than 50 nucleotides
+    Returns 0 if all requirements are met
+    Returns -1 if nucleotides at one of the read indexes is longer than 50
+    """
+    file_data = clean_data(filepath, label_char)
+    if len(list(file_data.keys())) <= 100:
+        for value in file_data.values():
+            if len(str(value)) > 50:
+                return -1
+        return 0
+    return -1

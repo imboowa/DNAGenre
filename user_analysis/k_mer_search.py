@@ -1,7 +1,7 @@
 from user_analysis.k_mer_length import *
 
 
-class K_mer_Analysis:
+class K_mer_Search:
 
     def __init__(self, username, firstname, lastname, DNA_data, sequence_type, menu_window):
 
@@ -15,6 +15,8 @@ class K_mer_Analysis:
         # Helpful Variables
         self.isReverse = "False"
         self.reverse_switch = 0
+        self.start, self.stop = 0, (view_limit + 5)
+        self.results_length = 0
         # Window
         self.window = Tk()
         self.window.title("K-mer Search")
@@ -59,7 +61,7 @@ class K_mer_Analysis:
                                     font=(window_font, (window_font_size - 10), font_style))
         self.k_mer_count_label.grid(row=0, column=0, sticky='w', padx=10, pady=10)
         """ K-mer Count """
-        self.k_mer_count = CTkLabel(self.frame_2, text="None, ", fg_color=bright_colors[2],
+        self.k_mer_count = CTkLabel(self.frame_2, text="None,", fg_color=bright_colors[2],
                                           text_color=bright_colors[4],
                                           font=(window_font, (window_font_size - 10)))
         self.k_mer_count.grid(row=0, column=1, sticky='w', pady=10)
@@ -76,6 +78,18 @@ class K_mer_Analysis:
                                           scrollbar_button_hover_color=bright_colors[3], fg_color=bright_colors[3], orientation=HORIZONTAL,
                                           height=100)
         self.frame_3.pack(fill='both', padx=10, pady=10, expand=True)
+        """ Frame For Navigation """
+        self.frame_4 = CTkFrame(self.window, fg_color=color_scheme)
+        self.frame_4.pack(fill='both')
+        # Navigation Buttons
+        move_left = CTkButton(self.frame_4, text='<', font=(window_font, window_font_size), fg_color=color_scheme,
+                              text_color=bright_colors[4], hover_color=color_scheme, command=lambda: self.move_pages("Left"))
+        move_left.pack(side='left')
+        self.tracker_label = CTkLabel(self.frame_4, text='', fg_color=color_scheme, text_color=bright_colors[5], font=(window_font, window_font_size))
+        self.tracker_label.place(relx=0.45, rely=0.0)
+        move_right = CTkButton(self.frame_4, text='>', font=(window_font, window_font_size), fg_color=color_scheme,
+                               text_color=bright_colors[4], hover_color=color_scheme, command=lambda: self.move_pages("Right"))
+        move_right.pack(side='right')
         """ Button For Next Window """
         self.k_mer_length = CTkButton(self.window, text="K-mer Length", font=(window_font, window_font_size), fg_color=color_scheme,
                                       text_color=bright_colors[4], corner_radius=corner, hover_color=bright_colors[2],
@@ -84,10 +98,40 @@ class K_mer_Analysis:
         self.window.mainloop()
 
 
+    def move_pages(self, direction):
+
+        """" Navigates Pages """
+        if direction == "Left":
+            if self.start >= (view_limit + 5):
+                self.start -= (view_limit + 5)
+                self.stop -= (view_limit + 5)
+                try:
+                    # Clean Frame
+                    for widget_1 in self.frame_3.winfo_children():
+                        widget_1.destroy()
+                    # Redraw
+                    self.show_k_mer()
+                    self.tracker_label.configure(text=f"{(self.start // (view_limit + 5))+1}/{math.ceil(self.results_length/(view_limit + 5))}") if self.results_length >= 1 else 0
+                except tkinter.TclError: return
+        elif direction == "Right":
+            if self.stop < self.results_length:
+                self.start += (view_limit + 5)
+                self.stop += (view_limit + 5)
+                try:
+                    # Clean Frame
+                    for widget_2 in self.frame_3.winfo_children():
+                        widget_2.destroy()
+                    # Redraw
+                    self.show_k_mer()
+                    self.tracker_label.configure(text=f"{(self.start // (view_limit + 5))+1}/{math.ceil(self.results_length/(view_limit + 5))}") if self.results_length >= 1 else 0
+                except tkinter.TclError: return
+
+
     def next_window(self):
 
         """ Next Window """
-        self.window.destroy()
+        try: self.window.destroy()
+        except tkinter.TclError: return
         K_mer_Length(self.username, self.firstname, self.lastname, self.DNA_data, self.sequence_type, self.menu_window)
 
 
@@ -95,18 +139,23 @@ class K_mer_Analysis:
 
         """ Manage Reverse Complement """
         # Setting Values To None
-        self.k_mer_count.configure(text="None, ")
-        # Clearing Frames
-        for widget in self.frame_3.winfo_children():
-            widget.destroy()
+        try:
+            self.k_mer_count.configure(text="None,")
+            # Clearing Frames
+            for widget in self.frame_3.winfo_children():
+                widget.destroy()
+        except tkinter.TclError:
+            return
         if self.reverse_switch == 0:
             self.isReverse = "True"
-            self.isReversed.configure(text="True")
+            try: self.isReversed.configure(text="True")
+            except tkinter.TclError: return
             self.reverse_switch = 1
             return
         elif self.reverse_switch == 1:
             self.isReverse = "False"
-            self.isReversed.configure(text="False")
+            try: self.isReversed.configure(text="False")
+            except tkinter.TclError: return
             self.reverse_switch = 0
             return
         return
@@ -117,11 +166,15 @@ class K_mer_Analysis:
         """ Making And Showing K-mer """
 
         # Cleaning Frame
-        for widget in self.frame_3.winfo_children():
-            widget.destroy()
+        try:
+            for widget in self.frame_3.winfo_children():
+                widget.destroy()
+        except tkinter.TclError:
+            return
         if not str(self.read_index_entry.get()):
             # Setting Values To None
-            self.k_mer_count.configure(text="None, ")
+            try: self.k_mer_count.configure(text="None,")
+            except tkinter.TclError: return
             # Error
             error_label_1 = CTkLabel(self.window, text="Empty Read Index", font=(window_font, window_font_size),
                                      fg_color=color_scheme, text_color=bright_colors[1])
@@ -131,7 +184,6 @@ class K_mer_Analysis:
         # List For Our Read Indexes
         result_k_mer_indexes = list()
         for key, value in self.DNA_data.items():
-            # Bug Review Here
             if key == str(self.read_index_entry.get()):
                 if self.isReverse == "True":
                     result_k_mer_indexes = k_mer_indexes(reverseComplement(str(value), self.sequence_type), self.sequence_type, str(self.k_mer_entry.get()).upper())
@@ -140,35 +192,44 @@ class K_mer_Analysis:
                 """ Checking For Errors """
                 if result_k_mer_indexes == -2:
                     # Setting Values To None
-                    self.k_mer_count.configure(text="None, ")
+                    try: self.k_mer_count.configure(text="None,")
+                    except tkinter.TclError: return
                     # Error
                     error_label_1 = CTkLabel(self.window, text="Empty K-mer", font=(window_font, window_font_size),
                                              fg_color=color_scheme, text_color=bright_colors[1])
                     error_label_1.place(relx=0.4, rely=0.25)
-                    self.window.after(1000, error_label_1.destroy)
+                    try: self.window.after(1000, error_label_1.destroy)
+                    except tkinter.TclError: return
                     return
                 elif result_k_mer_indexes == -1:
                     # Setting Values To None
-                    self.k_mer_count.configure(text="None, ")
+                    try: self.k_mer_count.configure(text="None,")
+                    except tkinter.TclError: return
                     # Error
                     error_label_2 = CTkLabel(self.window, text="Bad Seq Types", font=(window_font, window_font_size),
                                              fg_color=color_scheme, text_color=bright_colors[1])
                     error_label_2.place(relx=0.4, rely=0.25)
-                    self.window.after(1000, error_label_2.destroy)
+                    try: self.window.after(1000, error_label_2.destroy)
+                    except tkinter.TclError: return
                     return
                 # If Input K-mer Is Greater Than The Sequence
                 elif len(str(self.k_mer_entry.get())) > len(str(value)):
                     # Setting Values To None
-                    self.k_mer_count.configure(text="None, ")
+                    try: self.k_mer_count.configure(text="None,")
+                    except tkinter.TclError: return
                     # Error
                     error_label_3 = CTkLabel(self.window, text="Longer K-mer", font=(window_font, window_font_size),
                                              fg_color=color_scheme, text_color=bright_colors[1])
                     error_label_3.place(relx=0.4, rely=0.25)
-                    self.window.after(1000, error_label_3.destroy)
+                    try: self.window.after(1000, error_label_3.destroy)
+                    except tkinter.TclError: return
                     return
+                # Set The self.result_length To result_k_mer_indexes
+                self.results_length = len(result_k_mer_indexes)
                 """ No Errors Then Update Our K-mer Count And Frame """
-                self.k_mer_count.configure(text=f"{len(result_k_mer_indexes)},")
-                for i in result_k_mer_indexes:
+                try: self.k_mer_count.configure(text=f"{len(result_k_mer_indexes)}," if len(result_k_mer_indexes) < number_threshold else f"{len(result_k_mer_indexes):,.2e},")
+                except tkinter.TclError: return
+                for i in result_k_mer_indexes[self.start:self.stop]:
                     CTkLabel(self.frame_3, text=f"{i+1}", font=(window_font, window_font_size), fg_color=color_scheme,
                              text_color=bright_colors[5], corner_radius=corner,
                              height=self.frame_3.winfo_height()).pack(side='left')

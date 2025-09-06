@@ -4,7 +4,7 @@ from interface.GUI_attr import button_system
 from customtkinter import *
 from tkinter import *
 import datetime
-# Is Done
+
 
 class App:
 
@@ -42,7 +42,8 @@ class App:
         """ Login Page """
         if button == "Start" and button_system["Start"] > 0:
             # Destroy Window And Call Next Window
-            self.window.destroy()
+            try: self.window.destroy()
+            except tkinter.TclError: return
             User_Credential_Page()
 
 

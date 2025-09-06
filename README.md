@@ -22,6 +22,13 @@ helps learners know what is bioinformatics under the hood.
 5. Codon Analysis
 6. Protein Analysis
 
+**Future Prospects**
+1. Able to process an entire folder of DNA/RNA files.
+2. Has a group chat to collaborate.
+3. User can delete a created account.
+4. Data encryption before, during and after application usage
+5. Show time on most processes.
+
 
 ## Bugs Found ##
 **DataTools.py**
@@ -539,6 +546,9 @@ Hence
 
     1- means that is a reversed complement read of that sequence
 
+**Note:** My proteinsynthesis function does not show partial proteins (proteins that have a start but have no stop codon
+downstream) but only shows full proteins (proteins that have a start codon and a stop codon).
+
 **8. Proteinsynthesis Time Calculation**
 
 ![Screenshot 2025-08-07 at 11.10.50.png](addons/Screenshot%202025-08-07%20at%2011.10.50.png)
@@ -555,6 +565,9 @@ The GIL allows one thread to execute at a time which boosts the interpreter's sp
 ![Screenshot 2025-08-16 at 20.58.31.png](addons/Screenshot%202025-08-16%20at%2020.58.31.png)
 When entering the read index, enter the actual read index (for our scenario, the read index would be `@1`) depending on
 which indexes you want to "ham".
+
+    Note: LengthOfEach - is the length of the current view and its analysis | is the entire 
+                         length of each of the strands
 
 **10. K-mer By Search**
 
