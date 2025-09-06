@@ -47,6 +47,7 @@ class App:
             User_Credential_Page()
 
 
+
 if color_scheme == 'white':
     for i in range(len(bright_colors)):
         bright_colors[i] = dull_colors[i]
