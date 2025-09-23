@@ -188,7 +188,7 @@ class K_mer_Length:
             # Error
             error_label_1 = CTkLabel(self.window, text="Empty Read Index", font=(window_font, window_font_size),
                                      fg_color=color_scheme, text_color=bright_colors[1])
-            error_label_1.place(relx=0.4, rely=0.4)
+            error_label_1.place(relx=0.4, rely=0.25)
             try: self.window.after(1000, error_label_1.destroy)
             except tkinter.TclError: return
             return
@@ -224,7 +224,7 @@ class K_mer_Length:
                     # Error
                     error_label_2 = CTkLabel(self.window, text="Bad Length", font=(window_font, window_font_size),
                                              fg_color=color_scheme, text_color=bright_colors[1])
-                    error_label_2.place(relx=0.4, rely=0.4)
+                    error_label_2.place(relx=0.4, rely=0.25)
                     try: self.window.after(1000, error_label_2.destroy)
                     except tkinter.TclError: return
                     return
