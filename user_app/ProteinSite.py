@@ -9,7 +9,7 @@ from user_app.hamming import Hamming
 
 class Protein:
 
-    def __init__(self, username, firstname, lastname, prev_window, DNA_data, seq_type, menu_window):
+    def __init__(self, username, firstname, lastname, prev_window, DNA_data, seq_type, menu_window, signing_window):
 
         # Information on User
         self.username = username
@@ -17,6 +17,7 @@ class Protein:
         self.lastname = lastname
         # Useful
         self.menu_window = menu_window
+        self.signing_window = signing_window
         # Destroy prev_window
         try: prev_window.destroy()
         except tkinter.TclError: return
@@ -36,8 +37,6 @@ class Protein:
         self.window.eval('tk::PlaceWindow . center')
         self.window.propagate(True)
         self.window.resizable(False, False)
-        # Calling Threads After Rendering The Window
-        self.window.after(100, lambda: self.start_threads(DNA_data, seq_type))
         """ Making Variables For The Presentable Data """
         self.current_read_index = "None"
         self.isReverseComplement = "False"
@@ -112,7 +111,7 @@ class Protein:
         self.frame_3 = CTkFrame(self.window, fg_color=color_scheme)
         self.frame_3.pack(fill='both', expand=True)
         """ Read Index Entry """
-        self.read_index_entry = CTkEntry(self.frame_3, placeholder_text="Enter Read Index/\"hamming\"", placeholder_text_color=bright_colors[0],
+        self.read_index_entry = CTkEntry(self.frame_3, placeholder_text="Enter Read Index or hamming", placeholder_text_color=bright_colors[0],
                                          border_width=border, border_color=bright_colors[3], font=(window_font, window_font_size), text_color=bright_colors[5],
                                          fg_color=color_scheme, width=600)
         self.read_index_entry.grid(row=0, column=0, sticky='w', padx=10, pady=10)
@@ -124,15 +123,21 @@ class Protein:
         self.reverse_button = CTkButton(self.frame_3, text="Reverse", font=(window_font, window_font_size), fg_color=color_scheme, text_color=bright_colors[4],
                                         corner_radius=5, hover_color=bright_colors[2], command=self.set_isReverseComplement)
         self.reverse_button.grid(row=0, column=2, sticky='w', padx=0, pady=10)
+        # Run When Window Is Ready
+        self.window.after_idle(lambda: self.start_threads(DNA_data, seq_type))
         self.window.mainloop()
 
 
     def start_threads(self, DNA_data, seq_type):
 
-        # Calling proteinsynthesis And timer In Parallel
+        # Disable Buttons
+        self.search_button.configure(state='disabled')
+        self.reverse_button.configure(state='disabled')
+        self.read_index_entry.configure(state='disabled')
+        # Calling proteinsynthesis And timer In "Parallel"
         self.time_counter = 0
         self.isRunning = True
-        # daemon - Die Once The Main Thread (tkinter GUI) Dies (closes)
+        # daemon - Die Once The Main Thread (tkinter GUI) Dies (Closes)
         time_threader = threading.Thread(target=self.time_thread, daemon=True)
         time_threader.start()
         protein_threader = threading.Thread(target=self.proteinsynthesis_thread, args=(DNA_data, seq_type), daemon=True)
@@ -142,6 +147,7 @@ class Protein:
     def time_thread(self):
 
         """ Calculates Time Taken For Proteinsynthesis """
+
         while self.isRunning:
             weeks, days, hours, minutes, seconds = time_calculator(self.time_counter)
             self.time_counter += 1
@@ -154,11 +160,20 @@ class Protein:
     def proteinsynthesis_thread(self, DNA_data, seq_type):
 
         """ Storing Read Index: Codons (Both Normal And Reverse Complement) """
+
         key_value_codons = dict()
         for key, value in DNA_data.items():
             temp_open_reading_frames = gen_openReading_frames(value, seq_type)
             if temp_open_reading_frames != -1 and temp_open_reading_frames != -2:
                 key_value_codons[key] = temp_open_reading_frames
+            else:
+                """ Imagine There Are No Open Reading Frames Hence Let's Stop Process """
+                # Enable Buttons So That User Can Leave Window
+                self.search_button.configure(state='normal')
+                self.reverse_button.configure(state='normal')
+                self.read_index_entry.configure(state='normal')
+                self.isRunning = False
+                return
         """ Read Index: List Of Tuples (Index, Proteins) """
         read_index_proteins_dict = dict()
         for key, value in key_value_codons.items():
@@ -168,6 +183,10 @@ class Protein:
                 if temp_proteins != -1:
                     index_and_proteins = f"{index}|{str(temp_proteins)}"
                     read_index_proteins_dict[key].append(index_and_proteins)
+        # Enable Buttons
+        self.search_button.configure(state='normal')
+        self.reverse_button.configure(state='normal')
+        self.read_index_entry.configure(state='normal')
         self.isRunning = False
         self.proteins_data = read_index_proteins_dict
 
@@ -175,6 +194,10 @@ class Protein:
     def set_isReverseComplement(self):
 
         """ Toggles Between 0 And 1 For self.isReverseComplement """
+
+        # Did We Really Finish Proteinsynthesis
+        if not self.proteins_data:
+            return
         if self.reverse_normal_switch == 0:
             self.isReverseComplement = "True"
             try:
@@ -215,13 +238,18 @@ class Protein:
     def draw_proteins(self, proteins_data):
 
         """ Draw Proteins Or No-Protein Sequence On Screen """
+
         if str(self.read_index_entry.get()).lower() == "hamming":
             # Destroy Window
             try: self.window.destroy()
             except tkinter.TclError:
                 return
             # Calling Hamming Distance Window
-            Hamming(self.username, self.firstname, self.lastname, self.DNA_data, self.sequence_type, self.menu_window)
+            Hamming(self.username, self.firstname, self.lastname, self.DNA_data, self.sequence_type, self.menu_window, self.signing_window)
+            return
+        """ Did We Really Finish Proteinsynthesis """
+        # If This Was Before The Check For hamming, When Problems Occur, User Will Not Go To Hamming Page Hence Stuck Here
+        if not proteins_data:
             return
         for key, value in proteins_data.items():
             if key == str(self.read_index_entry.get()):
@@ -231,6 +259,9 @@ class Protein:
                 temp_reversed_complement = reverseComplement(self.DNA_data[key], self.sequence_type)
                 if temp_reversed_complement != -1:
                     self.desired_reverse_seq = temp_reversed_complement
+                else:
+                    # Set self.desired_reverse_seq To A String So Python Does Not Error
+                    self.desired_reverse_seq = ""
                 for i in value:
                     # Separating Frame From Protein(s)
                     frame, proteins = i.split("|")
@@ -244,7 +275,7 @@ class Protein:
                                      fg_color=bright_colors[3], text_color=color_scheme)
                             self.label_1.grid(row=0, column=0, sticky='w', padx=5, pady=5)
                             self.label_2 = CTkLabel(self.reading_frame_1, text=f"{self.DNA_data[key][0:10]}...{self.DNA_data[key][-1]}"
-                                                    if len(self.DNA_data[key]) > 10 else f"{self.DNA_data[key]}",
+                                                    if len(self.DNA_data[key]) > 10 else f"{self.DNA_data[key][0:10]}",
                                      font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
                                                      corner_radius=corner)
                             self.label_2.grid(row=1, column=0, sticky='w', padx=5, pady=5)
@@ -284,8 +315,8 @@ class Protein:
                             self.label_3 = CTkLabel(self.reading_frame_2, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                      fg_color=bright_colors[3], text_color=color_scheme)
                             self.label_3.grid(row=0, column=0, sticky='w', padx=5, pady=5)
-                            self.label_4 = CTkLabel(self.reading_frame_2, text=f"{self.DNA_data[key][0:10]}...{self.DNA_data[key][-1]}"
-                                                    if len(self.DNA_data[key]) > 10 else f"{self.DNA_data[key]}",
+                            self.label_4 = CTkLabel(self.reading_frame_2, text=f"{self.DNA_data[key][1:10]}...{self.DNA_data[key][-2:]}"
+                                                    if len(self.DNA_data[key]) > 10 else f"{self.DNA_data[key][1:10]}",
                                      font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
                                                      corner_radius=corner)
                             self.label_4.grid(row=1, column=0, sticky='w', padx=5, pady=5)
@@ -325,8 +356,8 @@ class Protein:
                             self.label_5 = CTkLabel(self.reading_frame_3, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                      fg_color=bright_colors[3], text_color=color_scheme)
                             self.label_5.grid(row=0, column=0, sticky='w', padx=5, pady=5)
-                            self.label_6 = CTkLabel(self.reading_frame_3, text=f"{self.DNA_data[key][0:10]}...{self.DNA_data[key][-1]}"
-                                                    if len(self.DNA_data[key]) > 10 else f"{self.DNA_data[key]}",
+                            self.label_6 = CTkLabel(self.reading_frame_3, text=f"{self.DNA_data[key][2:10]}...{self.DNA_data[key][-3:]}"
+                                                    if len(self.DNA_data[key]) > 10 else f"{self.DNA_data[key][2:10]}",
                                      font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
                                                      corner_radius=5)
                             self.label_6.grid(row=1, column=0, sticky='w', padx=5, pady=5)
@@ -367,13 +398,22 @@ class Protein:
                             self.label_7 = CTkLabel(self.reading_frame_1, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                                     fg_color=bright_colors[3], text_color=color_scheme)
                             self.label_7.grid(row=0, column=0, sticky='w', padx=5, pady=5)
-                            self.label_8 = CTkLabel(self.reading_frame_1,
-                                                    text=f"{self.desired_reverse_seq[0:10]}"
-                                                         f"...{self.desired_reverse_seq[-1]}"
-                                                    if len(self.DNA_data[key]) > 10 else f"{self.desired_reverse_seq}",
-                                                    font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
-                                                     corner_radius=corner)
-                            self.label_8.grid(row=1, column=0, sticky='w', padx=5, pady=5)
+                            # If self.desired_reverse_seq Is Not The Reverse Complement
+                            if temp_reversed_complement == -1:
+                                self.label_8 = CTkLabel(self.reading_frame_1,
+                                                        text="Unobtained",
+                                                        font=(window_font, (window_font_size + 20)),
+                                                        fg_color=bright_colors[2], text_color=color_scheme,
+                                                        corner_radius=corner)
+                                self.label_8.grid(row=1, column=0, sticky='w', padx=5, pady=5)
+                            else:
+                                self.label_8 = CTkLabel(self.reading_frame_1,
+                                                        text=f"{self.desired_reverse_seq[0:10]}"
+                                                             f"...{self.desired_reverse_seq[-1]}"
+                                                        if len(self.desired_reverse_seq) > 10 else f"{self.desired_reverse_seq[0:10]}",
+                                                        font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
+                                                         corner_radius=corner)
+                                self.label_8.grid(row=1, column=0, sticky='w', padx=5, pady=5)
                         else:
                             # Helpful Variables
                             color_counter_4 = 3
@@ -414,13 +454,22 @@ class Protein:
                             self.label_9 = CTkLabel(self.reading_frame_2, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                                     fg_color=bright_colors[3], text_color=color_scheme)
                             self.label_9.grid(row=0, column=0, sticky='w', padx=5, pady=5)
-                            self.label_10= CTkLabel(self.reading_frame_2,
-                                                    text=f"{self.desired_reverse_seq[0:10]}"
-                                                         f"...{self.desired_reverse_seq[-1]}"
-                                                    if len(self.DNA_data[key]) > 10 else f"{self.desired_reverse_seq}",
-                                                    font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
-                                                     corner_radius=corner)
-                            self.label_10.grid(row=1, column=0, sticky='w', padx=5, pady=5)
+                            # If self.desired_reverse_seq Is Not The Reverse Complement
+                            if temp_reversed_complement == -1:
+                                self.label_10 = CTkLabel(self.reading_frame_2,
+                                                        text="Unobtained",
+                                                        font=(window_font, (window_font_size + 20)),
+                                                        fg_color=bright_colors[2], text_color=color_scheme,
+                                                        corner_radius=corner)
+                                self.label_10.grid(row=1, column=0, sticky='w', padx=5, pady=5)
+                            else:
+                                self.label_10= CTkLabel(self.reading_frame_2,
+                                                        text=f"{self.desired_reverse_seq[1:10]}"
+                                                             f"...{self.desired_reverse_seq[-2:]}"
+                                                        if len(self.desired_reverse_seq) > 10 else f"{self.desired_reverse_seq[1:10]}",
+                                                        font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
+                                                         corner_radius=corner)
+                                self.label_10.grid(row=1, column=0, sticky='w', padx=5, pady=5)
                         else:
                             # Helpful Variables
                             color_counter_5 = 3
@@ -461,13 +510,22 @@ class Protein:
                             self.label_11 = CTkLabel(self.reading_frame_3, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                                     fg_color=bright_colors[3], text_color=color_scheme)
                             self.label_11.grid(row=0, column=0, sticky='w', padx=5, pady=5)
-                            self.label_12 = CTkLabel(self.reading_frame_3,
-                                                    text=f"{self.desired_reverse_seq[0:10]}"
-                                                         f"...{self.desired_reverse_seq[-1]}"
-                                                    if len(self.DNA_data[key]) > 10 else f"{self.desired_reverse_seq}",
-                                                    font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
-                                                     corner_radius=corner)
-                            self.label_12.grid(row=1, column=0, sticky='w', padx=5, pady=5)
+                            # If self.desired_reverse_seq Is Not The Reverse Complement
+                            if temp_reversed_complement == -1:
+                                self.label_12 = CTkLabel(self.reading_frame_3,
+                                                        text="Unobtained",
+                                                        font=(window_font, (window_font_size + 20)),
+                                                        fg_color=bright_colors[2], text_color=color_scheme,
+                                                        corner_radius=corner)
+                                self.label_12.grid(row=1, column=0, sticky='w', padx=5, pady=5)
+                            else:
+                                self.label_12 = CTkLabel(self.reading_frame_3,
+                                                        text=f"{self.desired_reverse_seq[2:10]}"
+                                                             f"...{self.desired_reverse_seq[-3:]}"
+                                                        if len(self.desired_reverse_seq) > 10 else f"{self.desired_reverse_seq[2:10]}",
+                                                        font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
+                                                         corner_radius=corner)
+                                self.label_12.grid(row=1, column=0, sticky='w', padx=5, pady=5)
                         else:
                             # Helpful Variables
                             color_counter_6 = 3

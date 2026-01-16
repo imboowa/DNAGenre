@@ -3,13 +3,14 @@ import math
 
 class Hamming:
 
-    def __init__(self, username, firstname, lastname, DNA_data, sequence_type, menu_window):
+    def __init__(self, username, firstname, lastname, DNA_data, sequence_type, menu_window, signing_window):
 
         # Useful Information
         self.username = username
         self.firstname = firstname
         self.lastname = lastname
         self.menu_window = menu_window
+        self.signing_window = signing_window
         self.DNA_data = DNA_data
         self.sequence_type = sequence_type
         # Helpful Variables
@@ -45,7 +46,7 @@ class Hamming:
         self.middle_frame.pack(fill='both')
         """ Button For Hamming Distance Call """
         self.ham_it = CTkButton(self.middle_frame, text="Ham It", font=(window_font, window_font_size), fg_color=color_scheme, text_color=bright_colors[4],
-                                corner_radius=corner, hover_color=bright_colors[2], height=50, command=lambda: self.show_hamming(DNA_data))
+                                corner_radius=corner, hover_color=bright_colors[2], height=50, command= lambda: self.show_hamming(self.DNA_data, True))
         self.ham_it.pack(side="left", fill='both', expand=True, padx=10, pady=10)
         """ Button For Reverse Complement """
         self.reverse = CTkButton(self.middle_frame, text="Reverse", font=(window_font, window_font_size), fg_color=color_scheme,
@@ -106,8 +107,6 @@ class Hamming:
                                           orientation=HORIZONTAL, scrollbar_button_color=bright_colors[3],
                                           scrollbar_button_hover_color=bright_colors[3])
         self.frame_6.pack(side='right', fill='both', expand=True, padx=1, pady=1)
-        # Useful Variables For Moving Between Pages
-        self.start, self.stop = 0, (view_limit + 5)
         """ Frame For Navigation Buttons """
         self.frame_7 = CTkFrame(self.window, fg_color=color_scheme)
         self.frame_7.pack(fill='both')
@@ -135,6 +134,7 @@ class Hamming:
     def move_pages(self, direction):
 
         """ Controls Display """
+
         if self.result_length < 1:
             return
         if direction == "Left":
@@ -147,8 +147,9 @@ class Hamming:
                         widget.destroy()
                     for widget in self.frame_6.winfo_children():
                         widget.destroy()
-                    self.show_hamming(self.DNA_data)
+                    self.show_hamming(self.DNA_data, False)
                     # Update Label If Exists
+                    self.tracker_label.configure(text_color=bright_colors[5])
                     self.tracker_label.configure(text=f"{(self.start // (view_limit + 5))+1}/{math.ceil(self.result_length / (view_limit + 5))}") if self.result_length >= 1 else 0
                 except tkinter.TclError:
                     pass
@@ -162,8 +163,9 @@ class Hamming:
                         widget.destroy()
                     for widget in self.frame_6.winfo_children():
                         widget.destroy()
-                    self.show_hamming(self.DNA_data)
+                    self.show_hamming(self.DNA_data, False)
                     # Update Label If Exists
+                    self.tracker_label.configure(text_color=bright_colors[5])
                     self.tracker_label.configure(text=f"{(self.start // (view_limit + 5))+1}/{math.ceil(self.result_length / (view_limit + 5))}") if self.result_length >= 1 else 0
                 except tkinter.TclError:
                     pass
@@ -172,22 +174,25 @@ class Hamming:
     def next_window(self):
 
         """ Go To Next Window """
+
         try: self.window.destroy()
         except tkinter.TclError: return
-        K_mer_Search(self.username, self.firstname, self.lastname, self.DNA_data, self.sequence_type, self.menu_window)
+        K_mer_Search(self.username, self.firstname, self.lastname, self.DNA_data, self.sequence_type, self.menu_window, self.signing_window)
 
 
     def back_to_menu(self):
 
         """ Back To The Menu """
+
         try: self.window.destroy()
         except tkinter.TclError: return
-        self.menu_window(self.username, self.firstname, self.lastname)
+        self.menu_window(self.username, self.firstname, self.lastname, self.signing_window)
 
 
     def set_reverse(self):
 
         """ Managing Reverse Complement """
+
         try:
             # Setting Label Values To None If Exists
             self.hamming_distance.configure(text="None")
@@ -198,6 +203,10 @@ class Hamming:
                 widget_1.destroy()
             for widget_2 in self.frame_6.winfo_children():
                 widget_2.destroy()
+            # Reset self.tracker_label And Bounds
+            self.start, self.stop = 0, (view_limit + 5)
+            self.tracker_label.configure(
+                    text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.result_length / (view_limit + 5))}") if self.result_length >= 1 else 0
         except tkinter.TclError:
             return
 
@@ -205,20 +214,21 @@ class Hamming:
         if self.reverse_switch == 0:
             self.isReverse = "True"
             try: self.isReversed.configure(text='True')
-            except tkinter.TclError: pass
+            except tkinter.TclError: return
             self.reverse_switch = 1
             return
         elif self.reverse_switch == 1:
             self.isReverse = "False"
             try: self.isReversed.configure(text='False')
-            except tkinter.TclError: pass
+            except tkinter.TclError: return
             self.reverse_switch = 0
             return
 
 
-    def show_hamming(self, DNA_data):
+    def show_hamming(self, DNA_data, isFromHammingCall):
 
         """ Showing Hamming Distance """
+
         try:
             # Cleaning The Screen
             for widget in self.frame_5.winfo_children():
@@ -256,6 +266,7 @@ class Hamming:
                 self.length_each.configure(text="None")
             except tkinter.TclError:
                 return
+            # Making self.result_length Store The Result And Error Codes
             self.result_length = result
             # Error
             self.error = CTkLabel(self.window, text="Sequence(s) Error", font=(window_font, window_font_size),
@@ -268,6 +279,11 @@ class Hamming:
             self.result_length = len(result)
             # Useful Variable For Updates
             hamming_count, intersection_count = 0, 0
+            # We Want To Reset The Boundaries Only When New Sequences Are Hammed
+            if isFromHammingCall:
+                self.start, self.stop = 0, (view_limit + 5)
+                self.tracker_label.configure(
+                    text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.result_length / (view_limit + 5))}") if self.result_length >= 1 else 0
             """ Showing The Strands For Visual Comparison"""
             for i in result[self.start:self.stop]:
                 if i[1] != i[2]:

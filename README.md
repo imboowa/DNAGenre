@@ -21,13 +21,14 @@ helps learners know what is bioinformatics under the hood.
 4. Bioinformatic analysis
 5. Codon Analysis
 6. Protein Analysis
+7. Simple Inbuilt Programming Language called `Decode`
+8. User can delete a created account.
+9. Show time on some processes.
+10. Able to process an entire folder of DNA/RNA files.
 
 **Future Prospects**
-1. Able to process an entire folder of DNA/RNA files.
-2. Has a group chat to collaborate.
-3. User can delete a created account.
-4. Data encryption before, during and after application usage
-5. Show time on most processes.
+1. Has a group chat to collaborate.
+2. Data encryption before, during and after application usage.
 
 **Note: Run only the `GUI.py` file to see the project in action.**
 
@@ -337,15 +338,15 @@ def start_DNA_analysis(self, filename):
         self.user_home_window.after(1000, warning_2.destroy)
         return
 ```
-When you use the proper version, even some of the file formats that are forbidden (as shown above), this part of code
+When you use the proper version, even some of the file formats that are forbidden (as shown above). This part of code
 will run in order to get the read index (the text tagged on each sequence read) from the user.
 
 **1. Imagine Something Like This**
 
 After selecting a file to read and analyze, the widget for getting the read index (the text tagged on each sequence read)
-pops up and asks the user for the read index (the text tagged on each sequence read), the user well instead of putting in
+pops up and asks the user for the read index (the text tagged on each sequence read). The user well instead of putting in
 the most-common character in the read indexes (like for our scenario files, the most is `@`), the user puts in `@1` or
-chooses `@` plus some of the other numbers (like `@2` and so on), but remember our function in `DataTools.py` that cleans
+chooses `@` plus some of the other numbers (like `@2` and so on). Remember our function in `DataTools.py` that cleans
 the file data.
 That `clean_data` function will get the label we put (for instance `@1`). The function will look for only this (`@1`) and
 add stuff (this time both the read indexes and the nucleotide characters because they are not the label) hence getting key
@@ -361,7 +362,7 @@ in it) and gave it the next nucleotide characters `GTTACACAAGGATCGCTACAGATATCGGT
 **2. Imagine The Next Scenario Like This**
 
 A user puts in `@2` as the most-common read index. The first iteration, the loop finds `@1`, but `@1` doesn't have `@2`
-in it so the the code is makes it a `?` and then will add the next line of nucleotide characters. On second iteration, the loop
+in it so the code is makes it a `?` and then will add the next line of nucleotide characters. On second iteration, the loop
 finds `@2` and it sets `@2` as key and adds the next line of nucleotide characters. As the iterations go on and overwrites
 happen it will reach the last line of nucleotide characters hence adding that and ending the loop.
 
@@ -397,8 +398,8 @@ scenario above, the if statement starts in the loop and let's say maybe user ent
 read index 2 for `Hamming Distance` (Hamming distance checks index by index for not matching nucleotides while respecting
 the index, if I am checking index 1 of seq 1 then I must check index 1 of seq 2 too), it checks (is `key` == `@1` and yes)
 so it sets `temp_seq_1` to the nucleotide characters for `@1` and the if statement breaks out (like it doesn't check again)
-so we leave the iteration with `@1` and go to the next iterations that have other keys (not `@1`) hence if seq 2 is `@1`,
-its shot at appearing is lost.
+so we leave the iteration with `@1` and go to the next iterations that have other keys (not `@1`) hence if seq 2 is `@1`.
+The shot of `@2` is lost.
 
 ![Screenshot 2025-08-10 at 09.07.03.png](addons/Screenshot%202025-08-10%20at%2009.07.03.png)
 
@@ -427,7 +428,6 @@ will take more time on big data and secondly, it is known that a sequence compar
 optimization hence I left scenario 1 as default. Let me know which is best.**
 
 ## Usage ##
-
 `Big Note`
 
     In computers, counting starts at 0 (zero) but to simplify this for you I have added 1 (one)
@@ -481,7 +481,7 @@ format for nice and clean results and not to encounter some of the bugs that are
 
 ![Screenshot 2025-08-16 at 19.11.04.png](addons/Screenshot%202025-08-16%20at%2019.11.04.png)
 When signing up, avoid commas because I used them for separating data in the database. What happens in most cases is that
-when they are passed, they hinder the healthy retrival of data from the database hence causing injections, data breaches
+when they are passed, they hinder the healthy retrieval of data from the database hence causing injections, data breaches
 and so much database problems. I have put good measures to prevent this by not allowing commas from users.
 
 **Note: If you are a security expert or have a better way, please reach out to me via the contacts in the contacts section.**
@@ -489,7 +489,7 @@ and so much database problems. I have put good measures to prevent this by not a
 **3. File Creation and File Reading tutorial**
 
 ![Screenshot 2025-08-16 at 19.19.29.png](addons/Screenshot%202025-08-16%20at%2019.19.29.png)
-When entering a folder name to create, by default I have redirected the folder creation to the `Desktop` hence all created
+When entering a folder name to create, by default I have redirected the folder creation to the `Desktop`. All created
 folder names without a full path (absolute file path) to where to create them will be put in the Desktop. If there is an
 absolute file path, that is where the folder creation will happen.
 
@@ -511,13 +511,15 @@ When entering the `Read Index`, please enter a character that is most-common in 
 reasonable results.
 ![Screenshot 2025-08-05 at 11.26.39.png](addons/Screenshot%202025-08-05%20at%2011.26.39.png)
 This where part two of file validation occurs, when you enter the file, it will also ask you to enter a sequence type
-either it is `DNA` or `RNA`, and if all do not match what it has from the file then you cannot proceed to analysis.
+either it is `DNA` or `RNA`. If all do not match what it has from the file then you cannot proceed to analysis.
 
 **6. Codon Usage Entry**
 
 ![Screenshot 2025-08-16 at 20.01.55.png](addons/Screenshot%202025-08-16%20at%2020.01.55.png)
-When entering a Read Index to get the codon activity, just enter the number (like `1` or `2`) this is used as a reference
-that the user wants codons in read index number `1` or read index number `2`.
+When entering a Read Index to get the codon activity, just enter a number (like `1` or `2`) this is used as a reference
+that the user wants codons in read index number `1` or read index number `2`. Do not use `@1` or `@2` depending on what
+read index you want, just use `1` or `2` or whatever read index you want but without other characters (in this case those
+characters are `@` just type in a number)
 
 **Note:**
 
@@ -536,7 +538,8 @@ that there are proteins inside of proteins. For instance as in the picture, a lo
 ![Screenshot 2025-08-06 at 08.18.28.png](addons/Screenshot%202025-08-06%20at%2008.18.28.png)
 
 Since I knew this was a string (it is NOT a list), I added this line of code 
-`if letter_6 == "M" and proteins[i_6 - 1] == '\'':`. This helps see the full picture and also shows all possible proteins.
+`if letter_6 == "M" and proteins[i_6 - 1] == '\'':`. The long protein has a protein subunit but with the new code inserted,
+the long protein is shown and the next "protein(s)" is a protein subunit(s) of the long protein above it.
 
 Hence
 ![Screenshot 2025-08-07 at 09.35.33.png](addons/Screenshot%202025-08-07%20at%2009.35.33.png)
@@ -548,18 +551,18 @@ Hence
     1- means that is a reversed complement read of that sequence
 
 **Note:** My proteinsynthesis function does not show partial proteins (proteins that have a start but have no stop codon
-downstream) but only shows full proteins (proteins that have a start codon and a stop codon).
+downstream) but only shows full proteins (proteins that have a start codon and a stop codon). Which means that I used **open
+reading frames** NOT **reading frames**.
 
 **8. Proteinsynthesis Time Calculation**
 
 ![Screenshot 2025-08-07 at 11.10.50.png](addons/Screenshot%202025-08-07%20at%2011.10.50.png)
-My time calculator starts after 0.1 seconds or 100 milliseconds giving time for the GUI(Graphical User Interface) to
-render. It is also a huge range so that old computers can catch up rendering the screen in that small time.
-My timer can be off by 2-3 minutes or more because of factors like laptop updating time late due to it finishing other tasks and
-mostly due to using threads which can be interrupted by python's Global Interpreter Lock(GIL).
-The GIL allows one thread to execute at a time which boosts the interpreter's speed but giving up true parallelism of process.
 
-**Note: For just keeping track of time and proteinsynthesis, I decided to use threads (easy to understand and computer friendly).**
+My timer can be off by some amount of time because of factors like laptop updating time late due to it finishing other
+tasks and mostly due to using python threads which can be interrupted by python's Global Interpreter Lock (GIL). The GIL
+allows one thread to execute at a time which boosts the interpreter's speed but giving up true parallelism of processes.
+
+**Note: For just keeping track of time and proteinsynthesis, I decided to use threads (easy to understand).**
 
 **9. Hamming Distance**
 
@@ -596,7 +599,7 @@ get the stop position) forward and that is where the `K-mer` stops.**
 Enter the Read Index as shown on the left of the screen and enter a valid k-mer length on the right of the screen. When
 `Search` is pressed, it looks for all two-longed k-mer and gives you a visualization of k-mer by length.
 
-`Appearance(s)` - This the number of time a two-longed k-mer was found.
+`Appearance(s)` - This is the number of times a two-longed k-mer or n-longed k_mer was found.
 
 `Length` - Length of the sequence.
 
@@ -606,6 +609,64 @@ Enter the Read Index as shown on the left of the screen and enter a valid k-mer 
     single-longed nucleotides characters hence getting all nucleotides and their count
 
 ![Screenshot 2025-08-17 at 07.24.54.png](addons/Screenshot%202025-08-17%20at%2007.24.54.png)
+
+## Decode ##
+
+Decode is a primitive programming language that will help users complete more custom tasks that are not premade in the
+app. In this case it has just features like `setting variables` `comments` mathematical operations like
+`addition` `subtraction` `division` `multiplication` and `loops` `logcial statements` `printr`. All of these can help a user
+get a simple task done like `GC Content` `Nucleotide Count` `AT Content` `Some Mathematical Algorithms`.
+
+**Cannot Handle Decimals**
+
+Let's say user starts by setting 5.4 to a variable called x then sets 0.0 to a variable y that will later store our result.
+When user tries to divide the value in x by 3.2, Decode will error saying that 3.2 is not an integer.
+
+![Screenshot 2026-01-12 at 17.42.18.png](addons/Screenshot%202026-01-12%20at%2017.42.18.png)
+
+REASON: Every variable receives a string version of the value user gives it. When you set 5.4 to x, Decode thinks it is
+string version of 5.4 which is 5.4 into x hence no error. When user divides x by 3.2, Decode recognizes that these are not
+integers and errors saying `not_integer`
+
+\
+Let's say user sets a variable called x which we will be our result variable and set it to 0. Later user tries to divide
+3 by 2 which will result into a decimal. Decode uses integer division in division (quotients are stripped of their
+decimal part and made integers by leaving the floor - the whole number like 3 divided by 2 is 1.5 but the .5 is removed
+and the 1 is left as the answer)
+
+![Screenshot 2026-01-12 at 18.08.13.png](addons/Screenshot%202026-01-12%20at%2018.08.13.png)
+
+REASON: Decode first checks if the divisor and the dividend are integers and proceeds and uses integer division
+
+**Cannot Handle Nested Loops**
+
+Let's say user sets two loops, one outside and one inside the other forming nested loops.
+
+![Screenshot 2026-01-12 at 18.54.18.png](addons/Screenshot%202026-01-12%20at%2018.54.18.png)
+
+When `when` is called, its program counter or location is stored and used as a reference to start from next time the loop
+needs to start again if condition is not met. In this scenario the first `when` location is saved and the loop goes on but
+another `when` is encountered which overwrites the previous `when` saved location. Since this current `when` is the one
+remembered, its loop in run and when finished, the program breaks out and continues. When the outer loop's `end` is found,
+the other loop that ran overwrote or reset important variables needed for this `end` to execute hence this `end` is skipped
+and program continues without errors. The program does not run as intended since one loop can run at a time NOT loop
+inside a loop.
+
+**Cannot Handle Nested If Statements**
+
+If statements have many twists and turns. In this scenario user sets up an if statement inside an if statement. An if
+statement does not need to save anything so no worry at the `if k 1` part but when Decode reaches `done` it checks if the
+program is running, if it is then `done` is skipped. If the program is NOT running, `done` will release the program from
+not running to running and if there is unbugged code following then that unbugged code will always be run.
+
+![Screenshot 2026-01-12 at 20.35.40.png](addons/Screenshot%202026-01-12%20at%2020.35.40.png)
+
+**Stops Responding When In Infinite Loops**
+
+In `when d` Decode is checking if `d` is zero and if not, then the program will run forever or indefinitely. The app will
+stop responding and the program will go on.
+
+![Screenshot 2026-01-12 at 20.40.16.png](addons/Screenshot%202026-01-12%20at%2020.40.16.png)
 
 ## Tech Stack ##
 ```
@@ -638,7 +699,7 @@ When I add `I would love a well-polished college essay` the word `I would love` 
 
 When I add `like those college essays in the early 2000s` it takes the models attention to college essays written in
 the early 2000s (I do this because college essays by then have changed over time and this makes humans not even close
-to thinking it was AI) so it will use the slang and language by then hence I can remove that.
+to thinking it was AI). It will use the slang and language by then hence I can edit the output essay to an appropriate level.
 
 `Use simple English` this amplifies the 2000 timeline produced college essay
 `Use less words` this makes the model use less word but if I said `Use 200-500 words`, I am using the data of today mostly

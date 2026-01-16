@@ -55,6 +55,9 @@ def validate_requirements(filepath, label_char):
     Returns -1 if nucleotides at one of the read indexes is longer than 50
     """
     file_data = clean_data(filepath, label_char)
+    # If Data Was Not Cleaned, Then Return -1
+    if file_data is None:
+        return -1
     if len(list(file_data.keys())) <= 100:
         for value in file_data.values():
             if len(str(value)) > 50:

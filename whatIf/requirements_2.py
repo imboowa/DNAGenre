@@ -5,7 +5,7 @@ from user_app.hamming import *
 
 class Requirements_2:
 
-    def __init__(self, username, firstname, lastname, DNA_data, filename, seq_type, menu_window):
+    def __init__(self, username, firstname, lastname, DNA_data, filename, seq_type, menu_window, signing_window):
 
         # Useful Variables
         self.DNA_data = DNA_data
@@ -13,6 +13,7 @@ class Requirements_2:
         self.key_and_proteins = dict()
         self.sequence_type = seq_type
         self.isReverseComplement = False
+        # To Prevent Drawing By Accident
         self.current_frame = -1
         self.draw_proteins = False
         # Windows
@@ -78,17 +79,17 @@ class Requirements_2:
         """ Button For Hamming Distance """
         self.hamming_distance = CTkButton(self.window, text="Hamming", font=(window_font, window_font_size), fg_color=color_scheme,
                                           text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner, height=50,
-                                          command=lambda: self.ham_window(username, firstname, lastname, DNA_data, seq_type, menu_window))
+                                          command=lambda: self.ham_window(username, firstname, lastname, DNA_data, seq_type, menu_window, signing_window))
         self.hamming_distance.pack(side='bottom', fill='both', padx=15, pady=10)
         self.window.mainloop()
 
 
-    def ham_window(self, username, firstname, lastname, DNA_data, seq_type, menu_window):
+    def ham_window(self, username, firstname, lastname, DNA_data, seq_type, menu_window, signing_window):
 
         """ Calls Hamming Window """
         try: self.window.destroy()
         except tkinter.TclError: return
-        Hamming(username, firstname, lastname, DNA_data, seq_type, menu_window)
+        Hamming(username, firstname, lastname, DNA_data, seq_type, menu_window, signing_window)
 
 
     def reverse_toggler(self):
@@ -100,6 +101,13 @@ class Requirements_2:
             self.window.after(5000, self.tip_off.destroy)
             interface.GUI_attr.tip_switch = 3
             return
+        # Clear Frame
+        try:
+            for widget in self.scroll_frame.winfo_children():
+                widget.destroy()
+        except tkinter.TclError:
+            return
+        # Set Some Variables
         self.draw_proteins = True
         self.current_frame = (self.current_frame + 1) % 6
         if self.current_frame >= 3:
@@ -123,6 +131,7 @@ class Requirements_2:
     def start_thread(self):
 
         """ Start Proteinsynthesis Thread """
+
         protein_thread = threading.Thread(target=self.proteinsynthesis_thread, daemon=True)
         protein_thread.start()
 
@@ -130,12 +139,15 @@ class Requirements_2:
     def proteinsynthesis_thread(self):
 
         """ Makes The Proteins And Updates The self.key_and_proteins With The Read Index: [Frame, Protein(s)] """
+
         # Getting The 6 Possible Reading Frames
         key_and_ORF = dict()
         for key, value in self.DNA_data.items():
             temp_ORF = gen_openReading_frames(str(value), self.sequence_type)
             if temp_ORF != -1 and temp_ORF != -2:
                 key_and_ORF[key] = temp_ORF
+            else:
+                return
         # Getting Major Proteins From The Generated 6 Possible Frames
         read_index_proteins = dict()
         for key, value in key_and_ORF.items():
@@ -154,6 +166,10 @@ class Requirements_2:
 
         # If User Draws Without Frame Selected
         if not self.draw_proteins:
+            return
+
+        # Did We Really Finish Proteinsynthesis
+        if not self.key_and_proteins:
             return
 
         for key, value in self.key_and_proteins.items():
@@ -180,7 +196,7 @@ class Requirements_2:
                         if proteins == '[]' and not self.isReverseComplement:
                             CTkLabel(self.scroll_frame, text="No Protein(s)", font=(window_font, (window_font_size + 30), font_style), fg_color=bright_colors[3],
                                      text_color=color_scheme).pack(fill='both', padx=10, pady=10)
-                            CTkLabel(self.scroll_frame, text=f"{self.DNA_data[key]}" if len(str(self.DNA_data[key])) < string_threshold else f"{self.DNA_data[key][0:10]}...{self.DNA_data[key][-1]}",
+                            CTkLabel(self.scroll_frame, text=f"{self.DNA_data[key]}" if len(str(self.DNA_data[key])) < string_threshold else f"{self.DNA_data[key][target_frame:10]}...{self.DNA_data[key][(target_frame + 1) * -1:]}",
                                      fg_color=bright_colors[2], text_color=color_scheme, font=(window_font, (window_font_size + 30), font_style), corner_radius=corner).pack(fill='both', padx=10, pady=10)
                         elif proteins == '[]' and self.isReverseComplement:
                             temp_reversed_seq = reverseComplement(self.DNA_data[key], self.sequence_type)
@@ -188,8 +204,14 @@ class Requirements_2:
                                 reversed_seq = temp_reversed_seq
                                 CTkLabel(self.scroll_frame, text="No Protein(s)", font=(window_font, (window_font_size + 30), font_style), fg_color=bright_colors[3],
                                      text_color=color_scheme).pack(fill='both', padx=10, pady=10)
-                                CTkLabel(self.scroll_frame, text=f"{reversed_seq}" if len(str(reversed_seq)) < string_threshold else f"{reversed_seq[0:10]}...{reversed_seq[-1]}",
+                                CTkLabel(self.scroll_frame, text=f"{reversed_seq}" if len(str(reversed_seq)) < string_threshold else f"{reversed_seq[(target_frame - 3):10]}...{reversed_seq[((target_frame - 3) + 1) * -1:]}",
                                      fg_color=bright_colors[2], text_color=color_scheme, font=(window_font, (window_font_size + 30), font_style), corner_radius=corner).pack(fill='both', padx=10, pady=10)
+                            else:
+                                # If Reverse Complement Was Unobtained
+                                CTkLabel(self.scroll_frame, text="No Protein(s)", font=(window_font, (window_font_size + 30), font_style), fg_color=bright_colors[3],
+                                         text_color=color_scheme).pack(fill='both', padx=10, pady=10)
+                                CTkLabel(self.scroll_frame, text="Unobtained", font=(window_font, (window_font_size + 30), font_style), fg_color=bright_colors[3],
+                                         text_color=color_scheme).pack(fill='both', padx=10, pady=10)
                         else:
                             # Iterate Through Proteins And Display A Codon By Codon Independently
                             color_counter = 0

@@ -8,7 +8,7 @@ from interface.GUI_attr import *
 
 class K_mer_Length:
 
-    def __init__(self, username, firstname, lastname, DNA_data, sequence_type, menu_window):
+    def __init__(self, username, firstname, lastname, DNA_data, sequence_type, menu_window, signing_window):
 
         # Useful Variables
         self.username = username
@@ -17,12 +17,10 @@ class K_mer_Length:
         self.DNA_data = DNA_data
         self.sequence_type = sequence_type
         self.menu_window = menu_window
+        self.signing_window = signing_window
         # Helpful Variables
         self.isReverse = "False"
         self.reverse_switch = 0
-        self.start, self.stop = 0, view_limit
-        # Update Once k_mer_dict length Is Got
-        self.k_mer_dict_length = 0
         # Window
         self.window = Tk()
         self.window.title("K-mer Length")
@@ -53,7 +51,7 @@ class K_mer_Length:
         """ Buttons """
         self.search_length = CTkButton(self.middle_frame, text="Search", font=(window_font, window_font_size), fg_color=color_scheme,
                                        text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner, height=50,
-                                       command=self.get_k_mer)
+                                       command=lambda: self.get_k_mer(True))
         self.search_length.pack(fill='both', side="left", padx=10, pady=10, expand=True)
         self.isReversed = CTkButton(self.middle_frame, text="Reverse", font=(window_font, window_font_size), fg_color=color_scheme,
                                        text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner, height=50,
@@ -114,12 +112,14 @@ class K_mer_Length:
     def move_pages(self, direction):
 
         """ Navigates Pages """
+
         if direction == "Left":
             if self.start >= view_limit:
                 self.start -= view_limit
                 self.stop -= view_limit
-                self.get_k_mer()
+                self.get_k_mer(False)
                 try:
+                    self.tracker_label.configure(text_color=bright_colors[5])
                     self.tracker_label.configure(text=f"{(self.start // view_limit) + 1}/{math.ceil(self.k_mer_dict_length / view_limit)}") if self.k_mer_dict_length >= 1 else 0
                 except tkinter.TclError:
                     return
@@ -127,8 +127,9 @@ class K_mer_Length:
             if self.stop < self.k_mer_dict_length:
                 self.start += view_limit
                 self.stop += view_limit
-                self.get_k_mer()
+                self.get_k_mer(False)
                 try:
+                    self.tracker_label.configure(text_color=bright_colors[5])
                     self.tracker_label.configure(text=f"{(self.start // view_limit) + 1}/{math.ceil(self.k_mer_dict_length / view_limit)}") if self.k_mer_dict_length >= 1 else 0
                 except tkinter.TclError:
                     return
@@ -137,14 +138,16 @@ class K_mer_Length:
     def call_menu(self):
 
         """ Calling Menu """
+
         try: self.window.destroy()
         except tkinter.TclError: return
-        self.menu_window(self.username, self.firstname, self.lastname)
+        self.menu_window(self.username, self.firstname, self.lastname, self.signing_window)
 
 
     def set_reversed(self):
 
         """ Managing Reverse Complement """
+
         try:
             # Setting Values To None
             self.appearance.configure(text="None,")
@@ -152,6 +155,10 @@ class K_mer_Length:
             # Cleaning Frame
             for widget in self.frame_3.winfo_children():
                 widget.destroy()
+            # Reset Bounds and self.tracker_label
+            self.start, self.stop = 0, view_limit
+            self.k_mer_dict_length = 0
+            self.tracker_label.configure(text=f"")
         except tkinter.TclError:
             return
         if self.reverse_switch == 0:
@@ -169,9 +176,10 @@ class K_mer_Length:
         return
 
 
-    def get_k_mer(self):
+    def get_k_mer(self, isFrom_k_mer):
 
         """ Making and Showing K-mer """
+
         try:
             # Cleaning Frame
             for widget in self.frame_3.winfo_children():
@@ -230,6 +238,10 @@ class K_mer_Length:
                     return
                 # If No Errors
                 self.k_mer_dict_length = len(k_mer_dict.keys())
+                # Reset Bounds And self.tracker_label If New K-mer Length Is Got
+                if isFrom_k_mer:
+                    self.start, self.stop = 0, view_limit
+                    self.tracker_label.configure(text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.k_mer_dict_length / (view_limit + 5))}") if self.k_mer_dict_length >= 1 else 0
                 for i, (x, y) in enumerate(list(k_mer_dict.items())[self.start: self.stop]):
                     CTkLabel(self.frame_3, text=str(x), text_color=color_scheme, fg_color=bright_colors[3],
                              font=(window_font, window_font_size - 10)).grid(row=i, column=0, sticky='w', padx=1, pady=1)

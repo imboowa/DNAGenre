@@ -7,12 +7,15 @@ from pathlib import Path
 
 class User_Home:
 
-    def __init__(self, username, firstname, lastname):
+    def __init__(self, username, firstname, lastname, signing_window):
 
         """ User's Home Page """
+
         self.username = username
         self.firstname = firstname
         self.lastname = lastname
+        # Saving Signing Window
+        self.signing_window = signing_window
         # Get The Folder Path And Previous Last Session Before They Are Overwritten
         self.folder_path, last_session = self.get_user_data(username)
         # Is The Got Data Healthy
@@ -36,6 +39,11 @@ class User_Home:
         self.frame_1 = CTkFrame(self.user_home_window, fg_color=color_scheme, corner_radius=corner,
                               height=(self.user_home_window.winfo_height() / 0.25), width=(self.user_home_window.winfo_width() / 0.5))
         self.frame_1.grid(row=0, column=0, padx=50)
+        """ Option To Remove An Account """
+        self.delete_account_button = CTkButton(self.user_home_window, text=f"Delete Account", font=(window_font, window_font_size - 15),
+                                          fg_color=color_scheme, hover_color=color_scheme, text_color=bright_colors[4],
+                                               command=lambda: self.delete_account(username))
+        self.delete_account_button.place(rely=0.025, relx=0.0, anchor='w')
         """ Show Username """
         username_label = CTkLabel(self.frame_1, text=f"{username[:string_threshold]}..." if len(username) > string_threshold else f"{username}", font=(window_font, (window_font_size + 20)), fg_color=color_scheme, text_color=bright_colors[5])
         username_label.grid(row=0, column=0, pady=50, padx=50)
@@ -44,8 +52,8 @@ class User_Home:
                               height=(self.user_home_window.winfo_height() / 0.25), width=(self.user_home_window.winfo_width() / 0.5))
         self.frame_2.grid(row=0, column=1)
         """ User Info """
-        last_session_label = CTkLabel(self.frame_2, text=f"{str(last_month_day_year)} {str(last_hour_minute)}", font=(window_font, window_font_size),
-                                      fg_color=color_scheme, text_color=text_color)
+        last_session_label = CTkLabel(self.frame_2, text=f"{str(last_month_day_year)} {str(last_hour_minute)}" if len(str(last_month_day_year)) <= string_threshold else f"{str(last_month_day_year)[:string_threshold]}... {str(last_hour_minute)}",
+                                      font=(window_font, window_font_size), fg_color=color_scheme, text_color=text_color)
         last_session_label.pack(anchor='w', pady=10)
         firstname_label = CTkLabel(self.frame_2, text=f"{firstname[:string_threshold]}..." if len(firstname) > string_threshold else f"{firstname}", font=(window_font, window_font_size), fg_color=color_scheme, text_color=text_color)
         firstname_label.pack(anchor='w', pady=10)
@@ -81,8 +89,8 @@ class User_Home:
             read_folder.place(relx=0.01, rely=0.55)
             # If Folder Path In Database Was Invalid (blocked here), The User Could Still Enter A New Choice
             # Open Folder, Put Frame And Populate It With The Folder Files
-            folder_path_files = open_folder(str(self.folder_path))
-            if folder_path_files is None:
+            self.folder_path_files = open_folder(str(self.folder_path))
+            if self.folder_path_files is None:
                 return
             """ Viewport Controllers """
             end_label_1 = CTkButton(self.user_home_window, text="<", font=(window_font, window_font_size),
@@ -96,7 +104,8 @@ class User_Home:
                                     command=lambda: self.increase_button("Show Additional Files+", username))
             end_label_2.grid(row=2, column=1, padx=10, sticky="news")
             # Label To Show Location In Navigation
-            self.location_label = CTkLabel(self.user_home_window, text=f"", font=(window_font,window_font_size), fg_color=color_scheme, text_color=text_color)
+            self.location_label = CTkLabel(self.user_home_window, text=f"", font=(window_font, window_font_size),
+                                           fg_color=color_scheme, text_color=text_color)
             self.location_label.place(relx=0.5, rely=0.45)
             """ Displaying The Files """
             self.frame_3_1 = CTkScrollableFrame(self.user_home_window, scrollbar_button_color=bright_colors[3], fg_color=bright_colors[3],
@@ -104,12 +113,13 @@ class User_Home:
                                            corner_radius=corner, height=300, width=(self.user_home_window.winfo_width() - 40))
             self.frame_3_1.place(rely=0.5, relx=0.010)
             """ Show Files """
-            for file in folder_path_files:
+            for file in self.folder_path_files:
                 if folder_files_limit_1 == view_limit:
                     break
                 path_start_index = str(self.folder_path).rindex('/') + 1
+                temp_string = str(self.folder_path[path_start_index:]) + "/" + str(file)
                 file_label = CTkButton(self.frame_3_1,
-                                       text=f"{str(self.folder_path[path_start_index:])}/{str(file)}",
+                                       text=temp_string if len(temp_string) < string_threshold * 3 else f"{temp_string[:string_threshold * 3]}...",
                                        font=(window_font, window_font_size), fg_color=color_scheme,
                                        text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner,
                                        command=lambda f='/' + file: self.start_DNA_analysis(str(self.folder_path) + str(f)))
@@ -139,6 +149,7 @@ class User_Home:
     def get_database(self):
 
         """ Reading Database """
+
         database_content = open_file(usage_database_file)
         if database_content is None:
             return None
@@ -149,6 +160,7 @@ class User_Home:
     def get_user_data(self, username):
 
         """ Getting User Data """
+
         data = self.get_database()
         if data is None:
             return None, None
@@ -162,9 +174,68 @@ class User_Home:
         return None, None
 
 
+    def delete_account(self, username):
+
+        """ Initiating Deletion Of Account """
+
+        # Show Two Buttons For Yes Or No
+        yes_button = CTkButton(self.user_home_window, text="Yes", font=(window_font, window_font_size - 20),
+                               fg_color=bright_colors[5], border_color=bright_colors[5], border_width=border,
+                               text_color=color_scheme, hover_color=bright_colors[5], corner_radius=corner,
+                               width=100, command=lambda: delete(True))
+        yes_button.place(relx=0.1, rely=0.05)
+        no_button = CTkButton(self.user_home_window, text="No", font=(window_font, window_font_size - 20),
+                              fg_color=bright_colors[5], border_color=bright_colors[5], border_width=border,
+                              text_color=color_scheme, hover_color=bright_colors[5], corner_radius=corner,
+                              width=100, command=lambda: delete(False))
+        no_button.place(relx=0.0, rely=0.05)
+
+        def delete(value: bool):
+
+            """ Deleting User Data """
+
+            # If not value, Do NOT Delete User
+            if not value:
+                try:
+                    yes_button.destroy()
+                    no_button.destroy()
+                except TclError: return
+                return
+            # Else Delete Account
+            result_1 = delete_user(user_database_file, username)
+            result_2 = delete_data(usage_database_file, username)
+            if result_1 == 0 and result_2 == 0:
+                # Account Was Deleted
+                try:
+                    # Resetting Sensitive Data
+                    interface.GUI_attr.button_system = defaultdict(int)
+                    interface.GUI_attr.place_holder = ""
+                    interface.GUI_attr.tip_switch = 0
+                    # withdraw To Let tkinter To Finish Click Animations But Hide Window
+                    self.user_home_window.withdraw()
+                    self.signing_window()
+                except TclError: return
+            else:
+                # Account Was Not Deleted
+                try:
+                    yes_button.destroy()
+                    no_button.destroy()
+                except TclError: return
+                # Show A Temporary Label Saying Not Deleted
+                label = CTkLabel(self.user_home_window, text="Error Deleting User",
+                                 font=(window_font, window_font_size - 15),
+                                 fg_color=color_scheme, text_color=bright_colors[1])
+                label.place(relx=0.0, rely=0.05)
+                try:
+                    self.user_home_window.after(1000, label.destroy)
+                except TclError: return
+            return
+
+
     def create_dir(self):
 
         """ Get User Folder To Create It """
+
         folder_path = str(self.folder_entry.get())
         try:
             # If '/' Not In Folder Path, Then We Will Create It At Desktop
@@ -228,21 +299,22 @@ class User_Home:
     def start_DNA_analysis(self, filename):
 
         """ Validating File """
+
         if validate_file(filename) == 0:
             DNA_label_entry = CTkEntry(self.user_home_window, placeholder_text="Enter Read Index",
                                  font=(window_font, (window_font_size - 10)), fg_color=color_scheme, text_color=bright_colors[5],
                                  height=30, width=300, border_width=border, border_color=bright_colors[2],
                                  placeholder_text_color=bright_colors[0])
-            DNA_label_entry.place(rely=0.915, relx=0.09)
+            DNA_label_entry.place(rely=0.915, relx=0.05)
             seq_type_entry = CTkEntry(self.user_home_window, placeholder_text="Enter DNA or RNA",
                                        font=(window_font, (window_font_size - 10)), fg_color=color_scheme, text_color=bright_colors[5],
                                        height=30, width=300, border_width=border, border_color=bright_colors[2],
                                        placeholder_text_color=bright_colors[0])
-            seq_type_entry.place(rely=0.915, relx=0.45)
+            seq_type_entry.place(rely=0.915, relx=0.41)
             submit_DNA_label_button = CTkButton(self.user_home_window, text="Submit", font=(window_font, (window_font_size - 5)),
                                       text_color=bright_colors[4], corner_radius=corner, fg_color=color_scheme, hover_color=bright_colors[2],
-                                      command=lambda: DNA_analysis(filename, str(DNA_label_entry.get()), str(seq_type_entry.get()).upper(), self.user_home_window, self.username, self.firstname, self.lastname, User_Home))
-            submit_DNA_label_button.place(rely=0.915, relx=0.8)
+                                      command=lambda: DNA_analysis(filename, str(DNA_label_entry.get()), str(seq_type_entry.get()).upper(), self.user_home_window, self.username, self.firstname, self.lastname, User_Home, self.signing_window))
+            submit_DNA_label_button.place(rely=0.915, relx=0.82)
             return
         # If File Is Invalid, Show Error
         else:
@@ -257,6 +329,7 @@ class User_Home:
     def increase_button(self, button, username):
 
         """ Button Manager """
+
         button_system[button] += 1
 
         """ Assessing Buttons """
@@ -275,10 +348,18 @@ class User_Home:
                 return
             # Counter For The Folder Files Limit
             folder_files_limit_2 = 0
+            # Reset Navigation Thresholds
+            self.folder_start, self.folder_stop = 0, view_limit
             # If User Folder Path Is Right, Then Reconfirm If It Is Indeed And Check If It Has The '/'
             if os.path.isdir(str(self.folder_entry.get())) and str(self.folder_entry.get()).find("/") != -1:
-                """ Put Folder Path Into Usage Database """
+                if os.path.isdir(str(self.folder_path)):
+                    # Remove Old Navigation Label
+                    try: self.location_label.destroy()
+                    except tkinter.TclError: return
+                """ Put Folder Path Into Usage Database - Update Database """
                 insert_folder_path(usage_database_file, username, str(self.folder_entry.get()))
+                # Update self.folder_path_files With New Folder Files
+                self.folder_path_files = folder_path_files_1
                 """ Viewport Controllers """
                 # Arrows For Left And Right Navigation
                 end_label_1 = CTkButton(self.user_home_window, text="<", font=(window_font, window_font_size),
@@ -304,12 +385,13 @@ class User_Home:
                                            height=300, width=(self.user_home_window.winfo_width() - 40))
                 self.frame_3_1.place(rely=0.5, relx=0.010)
                 """ Displaying The Files In The Folder From User """
-                for file in folder_path_files_1:
+                for file in self.folder_path_files:
                     # Check First If View Limit Is Reached
                     if folder_files_limit_2 == view_limit:
                         break
                     path_start_index = self.folder_entry.get().rindex('/') + 1
-                    file_label = CTkButton(self.frame_3_1, text=f"{str(self.folder_entry.get()[path_start_index:])}/{str(file)}", font=(window_font, window_font_size), fg_color=color_scheme,
+                    temp_string = str(self.folder_entry.get()[path_start_index:]) + "/" + str(file)
+                    file_label = CTkButton(self.frame_3_1, text=temp_string if len(temp_string) < string_threshold * 3 else f"{temp_string[:string_threshold * 3]}...", font=(window_font, window_font_size), fg_color=color_scheme,
                                            text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner,
                                            command=lambda f='/'+file: self.start_DNA_analysis(str(self.folder_entry.get())+str(f)))
                     file_label.pack(anchor='w', pady=5)
@@ -323,15 +405,12 @@ class User_Home:
             new_folder_path_1, last_session = self.get_user_data(username)
             if new_folder_path_1 is None or last_session is None:
                 return
-            # Using That New Folder Path To Reopen Folder
-            new_folder_path_files_1 = open_folder(str(new_folder_path_1))
-            if new_folder_path_files_1 is None:
-                return
             # If The Stop Is Less Than Files In Folder, Increment Till The End Hence Showing Forward Files
-            if self.folder_stop < len(new_folder_path_files_1):
+            if self.folder_stop < len(self.folder_path_files):
                 self.folder_start += view_limit
                 self.folder_stop += view_limit
-                try: self.location_label.configure(text=f"{(self.folder_start // view_limit) + 1}/{math.ceil(len(new_folder_path_files_1) / view_limit)}")
+                try:
+                    self.location_label.configure(text=f"{(self.folder_start // view_limit) + 1}/{math.ceil(len(self.folder_path_files) / view_limit)}")
                 except tkinter.TclError: return
             try:
                 # Clear Frame
@@ -340,15 +419,15 @@ class User_Home:
             except tkinter.TclError:
                 return
             # Show The Files
-            if new_folder_path_1 is not None:
-                for file in new_folder_path_files_1[self.folder_start: self.folder_stop]:
-                    file_label = CTkButton(self.frame_3_1,
-                                           text=f"{str(new_folder_path_1)[str(new_folder_path_1).rfind('/')+1:]}/{str(file)}",
-                                           font=(window_font, window_font_size), fg_color=color_scheme,
-                                           text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner,
-                                           command=lambda f='/' + file: self.start_DNA_analysis(str(new_folder_path_1) + str(f)))
-                    file_label.pack(anchor='w', pady=5)
-                return
+            for file in self.folder_path_files[self.folder_start: self.folder_stop]:
+                temp_string = str(new_folder_path_1)[str(new_folder_path_1).rfind('/')+1:] + "/" + str(file)
+                file_label = CTkButton(self.frame_3_1,
+                                       text=temp_string if len(temp_string) < string_threshold * 3 else f"{temp_string[:string_threshold * 3]}...",
+                                       font=(window_font, window_font_size), fg_color=color_scheme,
+                                       text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner,
+                                       command=lambda f='/' + file: self.start_DNA_analysis(str(new_folder_path_1) + str(f)))
+                file_label.pack(anchor='w', pady=5)
+            return
 
 
         elif button == "Show Additional Files-" and button_system[button] > 0:
@@ -357,15 +436,12 @@ class User_Home:
             new_folder_path_2, last_session = self.get_user_data(username)
             if new_folder_path_2 is None or last_session is None:
                 return
-            # Using That New Folder Path To Reopen Folder
-            new_folder_path_files_2 = open_folder(str(new_folder_path_2))
-            if new_folder_path_files_2 is None:
-                return
             # If Start Is Getting Greater Than Or Equal To, Then Subtract Back Hence Showing Previous Files
             if self.folder_start >= view_limit:
                 self.folder_start -= view_limit
                 self.folder_stop -= view_limit
-                try: self.location_label.configure(text=f"{int(self.folder_start/view_limit)+1}/{math.ceil(len(new_folder_path_files_2)/view_limit)}")
+                try:
+                    self.location_label.configure(text=f"{int(self.folder_start/view_limit)+1}/{math.ceil(len(self.folder_path_files) / view_limit)}")
                 except tkinter.TclError: return
             try:
                 # Clear Frame
@@ -374,12 +450,12 @@ class User_Home:
             except tkinter.TclError:
                 return
             # Show The Files
-            if new_folder_path_2 is not None:
-                for file in new_folder_path_files_2[self.folder_start: self.folder_stop]:
-                    file_label = CTkButton(self.frame_3_1,
-                                           text=f"{str(new_folder_path_2)[str(new_folder_path_2).rfind('/')+1:]}/{str(file)}",
-                                           font=(window_font, window_font_size), fg_color=color_scheme,
-                                           text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner,
-                                           command=lambda f='/' + file: self.start_DNA_analysis(str(new_folder_path_2) + str(f)))
-                    file_label.pack(anchor='w', pady=5)
-                return
+            for file in self.folder_path_files[self.folder_start: self.folder_stop]:
+                temp_string = str(new_folder_path_2)[str(new_folder_path_2).rfind('/')+1:] + "/" + str(file)
+                file_label = CTkButton(self.frame_3_1,
+                                       text=temp_string if len(temp_string) < string_threshold * 3 else f"{temp_string[:string_threshold * 3]}...",
+                                       font=(window_font, window_font_size), fg_color=color_scheme,
+                                       text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner,
+                                       command=lambda f='/' + file: self.start_DNA_analysis(str(new_folder_path_2) + str(f)))
+                file_label.pack(anchor='w', pady=5)
+            return

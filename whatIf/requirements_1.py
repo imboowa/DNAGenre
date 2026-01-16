@@ -1,17 +1,16 @@
 import math
 import statistics
-import tkinter
 from DNAtoolkit.DNAtools import *
-from interface.GUI_attr import *
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import interface
 from interface.GUI_methods import *
+from user_app.user_script import *
 
 
 class Requirements_1:
 
-    def __init__(self, username, firstname, lastname, filename, DNA_data, seq_type, next_window, menu_window):
+    def __init__(self, username, firstname, lastname, filename, DNA_data, seq_type, next_window, menu_window, signing_window):
 
         # Useful Variables
         self.DNA_data = DNA_data
@@ -36,13 +35,20 @@ class Requirements_1:
         total_len = 0
         for i in DNA_data.values():
             total_len += len(i)
-        try: self.seq_len.configure(text=f"Seq(s) Length {total_len:.3e}" if total_len >= number_threshold else f"Seq(s) Length {total_len:,}",
+        try: self.seq_len.configure(text=f"Seq(s) Length {total_len:.3e}" if len(str(total_len)) > number_threshold else f"Seq(s) Length {total_len:,}",
                                fg_color=bright_colors[5], text_color=color_scheme, corner_radius=corner)
         except tkinter.TclError: return
         """ Nuc Count """
         self.nuc_count = CTkLabel(self.mother_frame, text=f"Nucleotide Count", font=(window_font, window_font_size),
                                   fg_color=color_scheme, text_color=bright_colors[5])
         self.nuc_count.grid(row=1, column=0, sticky='w', padx=5, pady=5)
+        """ Script Button """
+        script_label_button = CTkButton(self.mother_frame, text="Script", font=(window_font, window_font_size),
+                                        text_color=bright_colors[4], corner_radius=corner, fg_color=bright_colors[2],
+                                        hover_color=bright_colors[2],
+                                        command=lambda: User_Script(filename, DNA_data, username,
+                                                                    firstname, lastname, self.window, menu_window, signing_window))
+        script_label_button.place(relx=0.35, rely=0.055)
         # Frame For Nucleotide Count
         self.framer_1 = CTkFrame(self.mother_frame, fg_color=color_scheme)
         self.framer_1.grid(row=2, column=0, sticky='w', padx=5, pady=5)
@@ -71,19 +77,19 @@ class Requirements_1:
             nuc_count_median = statistics.median(DNA_count.values())
             nuc_count_mode = statistics.mode(DNA_count.values())
             nuc_count_range = max(DNA_count.values()) - min(DNA_count.values())
-            mean_label = CTkLabel(self.frame_1, text=f"Mean Nuc Count {nuc_count_mean:,.3e}" if nuc_count_mean > number_threshold else f"Mean Nuc Count {nuc_count_mean:,}",
+            mean_label = CTkLabel(self.frame_1, text=f"Mean Nuc Count {nuc_count_mean:.3e}" if len(str(nuc_count_mean)) > number_threshold else f"Mean Nuc Count: {nuc_count_mean:,}",
                      text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner, font=(window_font, (window_font_size - 10)))
             mean_label.grid(row=0, column=0, sticky='w', padx=5, pady=5)
-            median_label = CTkLabel(self.frame_1, text=f"Median Nuc Count {nuc_count_median:,.3e}" if nuc_count_median > number_threshold else f"Median Nuc Count {nuc_count_median:,}",
+            median_label = CTkLabel(self.frame_1, text=f"Median Nuc Count {nuc_count_median:.3e}" if len(str(nuc_count_median)) > number_threshold else f"Median Nuc Count: {nuc_count_median:,}",
                      text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner, font=(window_font, (window_font_size - 10)))
             median_label.grid(row=1, column=0, sticky='w', padx=5, pady=5)
-            mode_label = CTkLabel(self.frame_1, text=f"Mode Nuc Count {nuc_count_mode:,.3e}" if nuc_count_mode > number_threshold else f"Mode Nuc Count {nuc_count_mode:,}",
+            mode_label = CTkLabel(self.frame_1, text=f"Mode Nuc Count {nuc_count_mode:.3e}" if len(str(nuc_count_mode)) > number_threshold else f"Mode Nuc Count: {nuc_count_mode:,}",
                      text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner, font=(window_font, (window_font_size - 10)))
             mode_label.grid(row=2, column=0, sticky='w', padx=5, pady=5)
-            range_label = CTkLabel(self.frame_1, text=f"Range Nuc Count {nuc_count_range:,.3e}\n" if nuc_count_range > number_threshold else f"Range Nuc Count {nuc_count_range:,}\n",
+            range_label = CTkLabel(self.frame_1, text=f"Range Nuc Count {nuc_count_range:.3e}\n" if len(str(nuc_count_range)) > number_threshold else f"Range Nuc Count: {nuc_count_range:,}\n",
                      text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner, font=(window_font, (window_font_size - 10)))
             range_label.grid(row=3, column=0, sticky='w', padx=5, pady=5)
-            nuc_count_label = CTkLabel(self.frame_1, text=''.join({f"{key}: {value:,.3e}\n" if value > number_threshold else f"{key}: {value:,}\n" for key, value in DNA_count.items()}), font=(window_font, (window_font_size - 10)),
+            nuc_count_label = CTkLabel(self.frame_1, text=''.join({f"{key}: {value:.3e}\n" if len(str(value)) > number_threshold else f"{key}: {value:,}\n" for key, value in DNA_count.items()}), font=(window_font, (window_font_size - 10)),
                                        fg_color=bright_colors[3], text_color=color_scheme, corner_radius=corner)
             nuc_count_label.grid(row=4, column=0, sticky='w', pady=5, padx=5)
             """ Percentages """
@@ -92,7 +98,7 @@ class Requirements_1:
             for i in DNA_data.values():
                 ac_total += str(i).count("A") + str(i).count("C")
             overall_ac_percent = float((ac_total / total_len) * 100) if total_len > 0 else 0.0
-            AC_percent = CTkLabel(self.frame_1, text=f"AC {round(overall_ac_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
+            AC_percent = CTkLabel(self.frame_1, text=f"AC: {round(overall_ac_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
                                   text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner)
             AC_percent.grid(row=5, column=0, sticky='w', padx=5, pady=5)
             # AT Percent
@@ -102,14 +108,14 @@ class Requirements_1:
                 for i in DNA_data.values():
                     at_total += str(i).count("A") + str(i).count("T")
                 overall_at_percent = float((at_total / total_len) * 100) if total_len > 0 else 0.0
-                AT_percent = CTkLabel(self.frame_1, text=f"AT {round(overall_at_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
+                AT_percent = CTkLabel(self.frame_1, text=f"AT: {round(overall_at_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
                                       text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner)
                 AT_percent.grid(row=6, column=0, sticky='w', padx=5, pady=5)
             elif seq_type == list(NUCLEOTIDE_BASE.keys())[1]:
                 for i in DNA_data.values():
                     au_total += str(i).count("A") + str(i).count("U")
                 overall_au_percent = float((au_total / total_len) * 100) if total_len > 0 else 0.0
-                AU_percent = CTkLabel(self.frame_1, text=f"AU {round(overall_au_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
+                AU_percent = CTkLabel(self.frame_1, text=f"AU: {round(overall_au_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
                                       text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner)
                 AU_percent.grid(row=6, column=0, sticky='w', padx=5, pady=5)
             # AG Percent
@@ -117,7 +123,7 @@ class Requirements_1:
             for i in DNA_data.values():
                 ag_total += str(i).count("A") + str(i).count("G")
             overall_ag_percent = float((ag_total / total_len) * 100) if total_len > 0 else 0.0
-            AG_percent = CTkLabel(self.frame_1, text=f"AG {round(overall_ag_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
+            AG_percent = CTkLabel(self.frame_1, text=f"AG: {round(overall_ag_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
                                   text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner)
             AG_percent.grid(row=7, column=0, sticky='w', padx=5, pady=5)
             # CT Percent
@@ -127,14 +133,14 @@ class Requirements_1:
                 for i in DNA_data.values():
                     ct_total += str(i).count("C") + str(i).count("T")
                 overall_ct_percent = float((ct_total / total_len) * 100) if total_len > 0 else 0.0
-                CT_percent = CTkLabel(self.frame_1, text=f"CT {round(overall_ct_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
+                CT_percent = CTkLabel(self.frame_1, text=f"CT: {round(overall_ct_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
                                       text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner)
                 CT_percent.grid(row=8, column=0, sticky='w', padx=5, pady=5)
             elif seq_type == list(NUCLEOTIDE_BASE.keys())[1]:
                 for i in DNA_data.values():
                     cu_total += str(i).count("C") + str(i).count("U")
                 overall_cu_percent = float((cu_total / total_len) * 100) if total_len > 0 else 0.0
-                CU_percent = CTkLabel(self.frame_1, text=f"CU {round(overall_cu_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
+                CU_percent = CTkLabel(self.frame_1, text=f"CU: {round(overall_cu_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
                                   text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner)
                 CU_percent.grid(row=8, column=0, sticky='w', padx=5, pady=5)
             # CG Percent
@@ -142,7 +148,7 @@ class Requirements_1:
             for i in DNA_data.values():
                 cg_total += str(i).count("C") + str(i).count("G")
             overall_cg_percent = float((cg_total / total_len) * 100) if total_len > 0 else 0.0
-            CG_percent = CTkLabel(self.frame_1, text=f"CG {round(overall_cg_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
+            CG_percent = CTkLabel(self.frame_1, text=f"CG: {round(overall_cg_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
                                   text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner)
             CG_percent.grid(row=9, column=0, sticky='w', padx=5, pady=5)
             # TG Percent
@@ -152,7 +158,7 @@ class Requirements_1:
                 for i in DNA_data.values():
                     tg_total += str(i).count("T") + str(i).count("G")
                 overall_tg_percent = float((tg_total / total_len) * 100) if total_len > 0 else 0.0
-                TG_percent = CTkLabel(self.frame_1, text=f"TG {round(overall_tg_percent, rounder)}%",
+                TG_percent = CTkLabel(self.frame_1, text=f"TG: {round(overall_tg_percent, rounder)}%",
                                       font=(window_font, (window_font_size - 10)),
                                       text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner)
                 TG_percent.grid(row=10, column=0, sticky='w', padx=5, pady=5)
@@ -160,7 +166,7 @@ class Requirements_1:
                 for i in DNA_data.values():
                     ug_total += str(i).count("U") + str(i).count("G")
                 overall_tu_percent = float((ug_total / total_len) * 100) if total_len > 0 else 0.0
-                TU_percent = CTkLabel(self.frame_1, text=f"UG {round(overall_tu_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
+                TU_percent = CTkLabel(self.frame_1, text=f"UG: {round(overall_tu_percent, rounder)}%", font=(window_font, (window_font_size - 10)),
                                   text_color=color_scheme, fg_color=bright_colors[3], corner_radius=corner)
                 TU_percent.grid(row=10, column=0, sticky='w', padx=5, pady=5)
         """ Frame For Word Analysis On Nucleotide Count """
@@ -174,7 +180,7 @@ class Requirements_1:
         for key, value in list(DNA_data.items())[:view_limit]:
             gc_result = gc_content(str(value))
             if gc_result != -1:
-                gc_per_subseq[f"{key[:2]}..." if len(key) > 2 else f"{key}"] = round(gc_result, rounder)
+                gc_per_subseq[key] = round(gc_result, rounder)
         # Making A Graph
         self.framer_2 = CTkFrame(self.frame_3, fg_color=color_scheme)
         self.framer_2.pack(fill='both')
@@ -208,7 +214,7 @@ class Requirements_1:
         for key, value in list(DNA_data.items())[:view_limit]:
             at_result = at_content(str(value), seq_type)
             if at_result != -1 and at_result != -2:
-                at_per_subseq[f"{key[:2]}..." if len(key) > 2 else f"{key}"] = round(at_result, rounder)
+                at_per_subseq[key] = round(at_result, rounder)
         # Making A Graph
         self.framer_3 = CTkFrame(self.frame_3, fg_color=color_scheme)
         self.framer_3.pack(fill='both')
@@ -280,11 +286,11 @@ class Requirements_1:
         self.frame_6.pack(fill='both', side='bottom')
         """ Navigation Buttons """
         button_left = CTkButton(self.frame_6, text="Back", fg_color=color_scheme, text_color=bright_colors[4],
-                                hover_color=color_scheme, font=(window_font, window_font_size), command=lambda: self.call_menu_window(username, firstname, lastname, menu_window))
-        button_left.pack(side='left')
+                                hover_color=color_scheme, font=(window_font, window_font_size), command=lambda: self.call_menu_window(username, firstname, lastname, signing_window, menu_window))
+        button_left.pack(side="left")
         button_right = CTkButton(self.frame_6, text="Next", fg_color=color_scheme, text_color=bright_colors[4],
-                                hover_color=color_scheme,font=(window_font, window_font_size), command=lambda: next_window(username, firstname, lastname, self.window, DNA_data, menu_window, seq_type, menu_window, filename, from_requirements=True))
-        button_right.pack(side='right')
+                                hover_color=color_scheme,font=(window_font, window_font_size), command=lambda: next_window(username, firstname, lastname, self.window, DNA_data, menu_window, seq_type, menu_window, filename, signing_window, from_requirements=True))
+        button_right.pack(side="right")
         try:
             # Configure The Height Since It Depends On The Navigation Height
             self.frame_3.configure(height=(self.window.winfo_height() - (self.frame_6.winfo_height() + 145)))
@@ -292,9 +298,10 @@ class Requirements_1:
         self.window.mainloop()
 
 
-    def call_menu_window(self, username, firstname, lastname, menu):
+    def call_menu_window(self, username, firstname, lastname, signing_window, menu):
 
         """ Calling Menu Window """
+
         # A Tip On App Usage
         if interface.GUI_attr.tip_switch == 0:
             frame_1 = CTkFrame(self.window, fg_color=bright_colors[5], width=100, height=5)
@@ -307,12 +314,13 @@ class Requirements_1:
             return
         try: self.window.destroy()
         except tkinter.TclError: return
-        menu(username, firstname, lastname)
+        menu(username, firstname, lastname, signing_window)
 
 
     def increase_button(self, button):
 
         """ Manage Button System  """
+
         button_system[button] += 1
 
         # The Graph Cannot Show Long X Values, Need Explanation Here

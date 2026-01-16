@@ -1,15 +1,18 @@
 <component name="ProjectDictionaryState">
   <dictionary name="project">
     <words>
+      <w>argtypes</w>
       <w>atgc</w>
       <w>augc</w>
       <w>batatus</w>
       <w>channie</w>
+      <w>charp</w>
       <w>claucie</w>
       <w>cmboowa</w>
       <w>darkblue</w>
       <w>darktblue</w>
       <w>dmboowa</w>
+      <w>editr</w>
       <w>gmboowa</w>
       <w>imboowa</w>
       <w>jmboowa</w>
@@ -25,9 +28,16 @@
       <w>readlines</w>
       <w>snamutosi</w>
       <w>solistice</w>
+      <w>stdbool</w>
+      <w>strcmp</w>
+      <w>strcspn</w>
+      <w>strncmp</w>
+      <w>strncpy</w>
+      <w>strtok</w>
       <w>tacg</w>
       <w>uacg</w>
       <w>usagedb</w>
+      <w>userdb</w>
     </words>
   </dictionary>
 </component>

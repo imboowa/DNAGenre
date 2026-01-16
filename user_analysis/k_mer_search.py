@@ -3,7 +3,7 @@ from user_analysis.k_mer_length import *
 
 class K_mer_Search:
 
-    def __init__(self, username, firstname, lastname, DNA_data, sequence_type, menu_window):
+    def __init__(self, username, firstname, lastname, DNA_data, sequence_type, menu_window, signing_window):
 
         # Useful Variables
         self.username = username
@@ -12,11 +12,10 @@ class K_mer_Search:
         self.DNA_data = DNA_data
         self.sequence_type = sequence_type
         self.menu_window = menu_window
+        self.signing_window = signing_window
         # Helpful Variables
         self.isReverse = "False"
         self.reverse_switch = 0
-        self.start, self.stop = 0, (view_limit + 5)
-        self.results_length = 0
         # Window
         self.window = Tk()
         self.window.title("K-mer Search")
@@ -47,7 +46,7 @@ class K_mer_Search:
         """ Buttons """
         self.search_button = CTkButton(self.middle_frame, text="Search", font=(window_font, window_font_size), fg_color=color_scheme,
                                        text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner,
-                                       height=50, command=self.show_k_mer)
+                                       height=50, command=lambda: self.show_k_mer(True))
         self.search_button.pack(fill='both', side='left', padx=10, expand=True)
         self.reverse_button = CTkButton(self.middle_frame, text="Reverse", font=(window_font, window_font_size), fg_color=color_scheme,
                                        text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner,
@@ -101,6 +100,7 @@ class K_mer_Search:
     def move_pages(self, direction):
 
         """" Navigates Pages """
+
         if direction == "Left":
             if self.start >= (view_limit + 5):
                 self.start -= (view_limit + 5)
@@ -110,7 +110,8 @@ class K_mer_Search:
                     for widget_1 in self.frame_3.winfo_children():
                         widget_1.destroy()
                     # Redraw
-                    self.show_k_mer()
+                    self.show_k_mer(False)
+                    self.tracker_label.configure(text_color=bright_colors[5])
                     self.tracker_label.configure(text=f"{(self.start // (view_limit + 5))+1}/{math.ceil(self.results_length/(view_limit + 5))}") if self.results_length >= 1 else 0
                 except tkinter.TclError: return
         elif direction == "Right":
@@ -122,7 +123,8 @@ class K_mer_Search:
                     for widget_2 in self.frame_3.winfo_children():
                         widget_2.destroy()
                     # Redraw
-                    self.show_k_mer()
+                    self.show_k_mer(False)
+                    self.tracker_label.configure(text_color=bright_colors[5])
                     self.tracker_label.configure(text=f"{(self.start // (view_limit + 5))+1}/{math.ceil(self.results_length/(view_limit + 5))}") if self.results_length >= 1 else 0
                 except tkinter.TclError: return
 
@@ -130,20 +132,26 @@ class K_mer_Search:
     def next_window(self):
 
         """ Next Window """
+
         try: self.window.destroy()
         except tkinter.TclError: return
-        K_mer_Length(self.username, self.firstname, self.lastname, self.DNA_data, self.sequence_type, self.menu_window)
+        K_mer_Length(self.username, self.firstname, self.lastname, self.DNA_data, self.sequence_type, self.menu_window, self.signing_window)
 
 
     def set_reversed(self):
 
         """ Manage Reverse Complement """
+
         # Setting Values To None
         try:
             self.k_mer_count.configure(text="None,")
             # Clearing Frames
             for widget in self.frame_3.winfo_children():
                 widget.destroy()
+            # Reset Bounds And self.tracker_label
+            self.start, self.stop = 0, (view_limit + 5)
+            self.results_length = 0
+            self.tracker_label.configure(text=f"")
         except tkinter.TclError:
             return
         if self.reverse_switch == 0:
@@ -161,7 +169,7 @@ class K_mer_Search:
         return
 
 
-    def show_k_mer(self):
+    def show_k_mer(self, isFrom_k_mer):
 
         """ Making And Showing K-mer """
 
@@ -226,6 +234,10 @@ class K_mer_Search:
                     return
                 # Set The self.result_length To result_k_mer_indexes
                 self.results_length = len(result_k_mer_indexes)
+                # Reset Bounds Whenever New Sequences Are Got
+                if isFrom_k_mer:
+                    self.start, self.stop = 0, (view_limit + 5)
+                    self.tracker_label.configure(text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.results_length / (view_limit + 5))}") if self.results_length >= 1 else 0
                 """ No Errors Then Update Our K-mer Count And Frame """
                 try: self.k_mer_count.configure(text=f"{len(result_k_mer_indexes)}," if len(result_k_mer_indexes) < number_threshold else f"{len(result_k_mer_indexes):,.2e},")
                 except tkinter.TclError: return
