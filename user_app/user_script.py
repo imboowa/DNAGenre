@@ -1,3 +1,4 @@
+import threading
 import tkinter
 from tkinter import *
 from customtkinter import *
@@ -20,6 +21,7 @@ class User_Script:
         self.DNA_data = DNA_data
         self.desired_read_index_data = list()
         self.debugging = False
+        self.stop_running_code = True
         # Length For Updated List In Normal Mode
         self.updatedList_length = 0
 
@@ -43,10 +45,18 @@ class User_Script:
                                     text_color=bright_colors[5], font=(window_font, window_font_size), fg_color=color_scheme,
                                     height=60, width=600, border_width=border, border_color=bright_colors[2])
         self.read_index_entry.pack(side="left", padx=40)
-        # Get Button
-        self.run_button = CTkButton(self.frame_1, text="Run", font=(window_font, window_font_size), fg_color=color_scheme,
-                               text_color=bright_colors[4], corner_radius=corner, hover_color=bright_colors[2], width=300,
-                               height=60, command=lambda: self.run_script())
+        # Mini-frame
+        mini_frame = CTkFrame(self.frame_1, fg_color=color_scheme)
+        mini_frame.pack(side="right")
+        # Stop Running Code Button
+        stop_code = CTkButton(mini_frame, text="Stop", font=(window_font, window_font_size), fg_color=color_scheme,
+                              text_color=bright_colors[4], corner_radius=corner, hover_color=color_scheme,
+                              command=lambda: self.stop_code())
+        stop_code.pack(side="left", padx=40)
+        # Run Button
+        self.run_button = CTkButton(mini_frame, text="Run", font=(window_font, window_font_size), fg_color=color_scheme,
+                               text_color=bright_colors[4], corner_radius=corner, hover_color=color_scheme, width=300,
+                               height=60, command=lambda: self.start_code())
         self.run_button.pack(side="right", padx=40)
         # Mother Frame
         self.mother_frame_1 = CTkFrame(self.script_window, fg_color=color_scheme)
@@ -62,11 +72,11 @@ class User_Script:
         information_label = CTkLabel(self.frame_2, text="Information", font=(window_font, window_font_size), fg_color=color_scheme,
                                      text_color=bright_colors[5])
         information_label.grid(row=0, column=0, padx=10, pady=5)
-        # Run Button
-        set_button = CTkButton(self.frame_2, text="Set", font=(window_font, window_font_size), fg_color=color_scheme,
-                               text_color=bright_colors[4], corner_radius=corner, hover_color=bright_colors[2],
+        # Set Mode Button
+        self.set_mode_button = CTkButton(self.frame_2, text="Set", font=(window_font, window_font_size), fg_color=color_scheme,
+                               text_color=bright_colors[4], corner_radius=corner, hover_color=color_scheme,
                                command=lambda: self.set_debug())
-        set_button.grid(row=0, column=1, padx=5, pady=5)
+        self.set_mode_button.grid(row=0, column=1, padx=5, pady=5)
         # Debug Button
         self.debug_label = CTkLabel(self.frame_2, text=f"Debug\n{self.debugging}", font=(window_font, window_font_size - 10), fg_color=color_scheme,
                                  text_color=bright_colors[4])
@@ -114,6 +124,20 @@ class User_Script:
                                 command=lambda: self.back_to_menu(username, firstname, lastname, menu_window, sign_window))
         menu_button.pack(side="bottom")
         self.script_window.mainloop()
+
+
+    def stop_code(self):
+
+        """ Stops Running Code """
+
+        self.stop_running_code = True
+
+
+    def start_code(self):
+
+        """ Starts Running Code """
+
+        threading.Thread(target=self.run_script, daemon=True).start()
 
 
     def back_to_menu(self, username, firstname, lastname, menu_window, sign_window):
@@ -202,6 +226,9 @@ class User_Script:
             # Clear Tag
             self.code_editor.tag_remove("tag", "1.0", "end")
             self.debug_label.configure(text=f"Debug\n{self.debugging}")
+
+            # Enable Code Editor
+            self.code_editor.configure(state="normal")
         elif not self.debugging:
 
             # Get Code
@@ -247,6 +274,9 @@ class User_Script:
             self.debugging = True
             self.debug_label.configure(text=f"Debug\n{self.debugging}")
 
+            # Disable Code Editor
+            self.code_editor.configure(state="disabled")
+
 
     def draw_updatedList(self, tempData, updatedList):
 
@@ -254,9 +284,11 @@ class User_Script:
 
         """ Showing Results """
         # Clear Frame
-        if self.mother_frame_3.winfo_children():
+        if self.mother_frame_3.winfo_exists():
             for widget in self.mother_frame_3.winfo_children():
-                widget.destroy()
+                widget.grid_forget()
+        else:
+            return
         # Showing Results
         # Remember We Are Shifting In The updatedList So We Need To Use The Values In The Shift Because They Reflect What Is Current
         # If We Start From 0 Then We Are Always Just Showing Values From 0 To viewLimit * 4 Hence Showing Wrong Values In updatedList
@@ -336,6 +368,9 @@ class User_Script:
             self.run_debug_script()
             return
 
+        # Indicate That Code Is Now Running
+        self.stop_running_code = False
+
         # Reset Boundaries
         self.start = 0
         self.end = view_limit * 4
@@ -343,6 +378,9 @@ class User_Script:
         self.index_label.configure(text=f"[{self.start}-{self.end})" if len(str(self.end)) <= string_threshold else f"[{self.start}-{self.end}...)")
         # Disable The Button
         self.run_button.configure(state="disabled")
+        self.set_mode_button.configure(state="disabled")
+
+        self.code_editor.configure(state="disabled")
         # Update The Window
         self.script_window.update_idletasks()
 
@@ -351,6 +389,9 @@ class User_Script:
         if not codeLines:
             # Enable The Disabled Buttons
             self.run_button.configure(state="normal")
+            self.set_mode_button.configure(state="normal")
+
+            self.code_editor.configure(state="normal")
 
             # Force Window To Redraw
             self.script_window.update_idletasks()
@@ -362,6 +403,9 @@ class User_Script:
         if tempData is None:
             # Enable The Disabled Buttons
             self.run_button.configure(state="normal")
+            self.set_mode_button.configure(state="normal")
+
+            self.code_editor.configure(state="normal")
 
             # Force Window To Redraw
             self.script_window.update_idletasks()
@@ -398,9 +442,9 @@ class User_Script:
         tempIndex: int = 0
         # Program Counter
         execCounter: int = 0
-        while len(codeLines) > execCounter >= 0 and error_flags["no_errors"] and not self.debugging:
+        while len(codeLines) > execCounter >= 0 and error_flags["no_errors"] and not self.debugging and not self.stop_running_code:
             try:
-                vars, error_flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList = executeLine(codeLines[execCounter], vars, error_flags, execCounter, tempIndex, tempValue, IF_FLAG, tempData, updatedList)
+                vars, error_flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList = executeLine(codeLines[execCounter], vars, error_flags, execCounter, tempIndex, tempValue, IF_FLAG, tempData, updatedList, len(codeLines))
             except IndexError:
                 # User Did Not Give Full Arguments On A Function Call
                 error_flags["argument_error"] = 1
@@ -412,9 +456,11 @@ class User_Script:
             execCounter += 1
 
         # Is self.frame_3 Full, Remove Widgets
-        if self.frame_3.winfo_children():
+        if self.frame_3.winfo_exists():
             for widget in self.frame_3.winfo_children():
-                widget.destroy()
+                widget.pack_forget()
+        else:
+            return
         # Subframe For Variable Showcase
         frame_1 = CTkScrollableFrame(self.frame_3, fg_color="blue")
         frame_1.pack(side="top", expand=True, fill="both", padx=10, pady=5)
@@ -422,34 +468,33 @@ class User_Script:
         row_counter = 0
         column_counter = 0
         for key, value in vars.items():
-            if len(str(key)) > string_threshold:
-                CTkLabel(frame_1, text=f"{key[:string_threshold]}...::{value[:string_threshold]}",
+            if len(str(key)) <= string_threshold - 5 and len(str(value)) <= string_threshold - 5:
+                CTkLabel(frame_1, text=f"{key}::{value}", font=(window_font, window_font_size - 10), text_color=bright_colors[5],
+                         fg_color=color_scheme, corner_radius=corner).grid(row=row_counter,column=column_counter,padx=10, pady=5,sticky="w")
+            elif len(str(key)) > string_threshold - 5 and len(str(value)) > string_threshold - 5:
+                CTkLabel(frame_1, text=f"{key[:string_threshold - 5]}...::{value[:string_threshold - 5]}...",
                          text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
                          corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
-            elif len(str(value)) > string_threshold:
-                CTkLabel(frame_1, text=f"{key[:string_threshold]}::{value[:string_threshold]}...",
+            elif len(str(key)) > string_threshold - 5:
+                CTkLabel(frame_1, text=f"{key[:string_threshold - 5]}...::{value}",
                          text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
                          corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
-            elif len(str(key)) > string_threshold and len(str(value)) > string_threshold:
-                CTkLabel(frame_1, text=f"{key[:string_threshold]}...::{value[:string_threshold]}...",
+            elif len(str(value)) > string_threshold - 5:
+                CTkLabel(frame_1, text=f"{key}::{value[:string_threshold - 5]}...",
                          text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
                          corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
-            else:
-                CTkLabel(frame_1, text=f"{key}::{value}", font=(window_font, window_font_size - 10),
-                         text_color=bright_colors[5], fg_color=color_scheme, corner_radius=corner).grid(row=row_counter,
-                        column=column_counter, padx=10, pady=5, sticky="w")
             column_counter += 1
             if column_counter == 2:
                 row_counter += 1
                 column_counter = 0
         # Showcasing Errors
         if not error_flags["no_errors"]:
-            # Subframe For Showcasing Errors
-            frame_2 = CTkScrollableFrame(self.frame_3, fg_color="black")
-            frame_2.pack(side="bottom", expand=True, fill="both", padx=10, pady=5)
             # Get Error
             for index, value in enumerate(list(error_flags.values())):
                 if value == 1:
+                    # Subframe For Showcasing Errors
+                    frame_2 = CTkScrollableFrame(self.frame_3, fg_color="black")
+                    frame_2.pack(side="bottom", expand=True, fill="both", padx=10, pady=5)
                     CTkLabel(frame_2, text=f"Line: {str(execCounter)}" if len(str(execCounter)) <= string_threshold else f"Line: {str(execCounter)[:string_threshold]}...",
                              font=(window_font, window_font_size - 10), fg_color=color_scheme, corner_radius=corner,
                              text_color=bright_colors[1]).grid(row=0, column=0, sticky="w", padx=5, pady=5)
@@ -473,6 +518,10 @@ class User_Script:
 
         # Enable The Disabled Buttons
         self.run_button.configure(state="normal")
+        self.set_mode_button.configure(state="normal")
+
+        self.code_editor.configure(state="normal")
+
         self.move_right.configure(state="normal")
         self.move_left.configure(state="normal")
         self.move_right.configure(text_color=bright_colors[4])
@@ -491,7 +540,7 @@ class User_Script:
             # Highlight Line
             self.highlight_line(self.execCounter)
             try:
-                self.vars, self.error_flags, self.execCounter, self.tempIndex, self.tempValue, self.IF_FLAG, self.updatedList = executeLine(self.codeLines[self.execCounter], self.vars, self.error_flags, self.execCounter, self.tempIndex, self.tempValue, self.IF_FLAG, self.tempData, self.updatedList)
+                self.vars, self.error_flags, self.execCounter, self.tempIndex, self.tempValue, self.IF_FLAG, self.updatedList = executeLine(self.codeLines[self.execCounter], self.vars, self.error_flags, self.execCounter, self.tempIndex, self.tempValue, self.IF_FLAG, self.tempData, self.updatedList, len(self.codeLines))
             except IndexError:
                 # User Did Not Give Full Arguments On A Function Call
                 self.error_flags["argument_error"] = 1
@@ -503,9 +552,11 @@ class User_Script:
             self.execCounter += 1
 
         # Is self.frame_3 Full, Remove Widgets
-        if self.frame_3.winfo_children():
+        if self.frame_3.winfo_exists():
             for widget in self.frame_3.winfo_children():
-                widget.destroy()
+                widget.pack_forget()
+        else:
+            return
         # Subframe For Variable Showcase
         frame_1 = CTkScrollableFrame(self.frame_3, fg_color="blue")
         frame_1.pack(side="top", expand=True, fill="both", padx=10, pady=5)
@@ -513,34 +564,33 @@ class User_Script:
         row_counter = 0
         column_counter = 0
         for key, value in self.vars.items():
-            if len(str(key)) > string_threshold:
-                CTkLabel(frame_1, text=f"{key[:string_threshold]}...::{value[:string_threshold]}",
-                         text_color=bright_colors[5],font=(window_font, window_font_size - 10), fg_color=color_scheme,
-                         corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
-            elif len(str(value)) > string_threshold:
-                CTkLabel(frame_1, text=f"{key[:string_threshold]}::{value[:string_threshold]}...",
+            if len(str(key)) <= string_threshold - 5 and len(str(value)) <= string_threshold - 5:
+                CTkLabel(frame_1, text=f"{key}::{value}", font=(window_font, window_font_size - 10), text_color=bright_colors[5],
+                         fg_color=color_scheme, corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
+            elif len(str(key)) > string_threshold - 5 and len(str(value)) > string_threshold - 5:
+                CTkLabel(frame_1, text=f"{key[:string_threshold - 5]}...::{value[:string_threshold - 5]}...",
                          text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
                          corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
-            elif len(str(key)) > string_threshold and len(str(value)) > string_threshold:
-                CTkLabel(frame_1, text=f"{key[:string_threshold]}...::{value[:string_threshold]}...",
+            elif len(str(key)) > string_threshold - 5:
+                CTkLabel(frame_1, text=f"{key[:string_threshold - 5]}...::{value}",
                          text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
                          corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
-            else:
-                CTkLabel(frame_1, text=f"{key}::{value}", font=(window_font, window_font_size - 10),
-                         text_color=bright_colors[5], fg_color=color_scheme, corner_radius=corner).grid(row=row_counter,
-                         column=column_counter, padx=10, pady=5, sticky="w")
+            elif len(str(value)) > string_threshold - 5:
+                CTkLabel(frame_1, text=f"{key}::{value[:string_threshold - 5]}...",
+                         text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
+                         corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
             column_counter += 1
             if column_counter == 2:
                 row_counter += 1
                 column_counter = 0
         # Showcasing Errors
         if not self.error_flags["no_errors"]:
-            # Subframe For Showcasing Errors
-            frame_2 = CTkScrollableFrame(self.frame_3, fg_color="black")
-            frame_2.pack(side="bottom", expand=True, fill="both", padx=10, pady=5)
             # Get Error
             for index, value in enumerate(list(self.error_flags.values())):
                 if value == 1:
+                    # Subframe For Showcasing Errors
+                    frame_2 = CTkScrollableFrame(self.frame_3, fg_color="black")
+                    frame_2.pack(side="bottom", expand=True, fill="both", padx=10, pady=5)
                     CTkLabel(frame_2, text=f"Line: {str(self.execCounter)}" if len(
                         str(self.execCounter)) <= string_threshold else f"Line: {str(self.execCounter)[:string_threshold]}...",
                              font=(window_font, window_font_size - 10), fg_color=color_scheme, corner_radius=corner,

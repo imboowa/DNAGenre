@@ -20,6 +20,7 @@ class User_Home:
         self.folder_path, last_session = self.get_user_data(username)
         # Is The Got Data Healthy
         if self.folder_path is None or last_session is None:
+            self.signing_window()
             return
         # Prepare Our Information For Display
         last_month_day_year, last_hour_minute = last_session.split('|')
@@ -225,9 +226,8 @@ class User_Home:
                 label = CTkLabel(self.user_home_window, text="Error Deleting User",
                                  font=(window_font, window_font_size - 15),
                                  fg_color=color_scheme, text_color=bright_colors[1])
-                label.place(relx=0.0, rely=0.05)
-                try:
-                    self.user_home_window.after(1000, label.destroy)
+                label.place(relx=0.01, rely=0.05)
+                try: self.user_home_window.after(1000, label.destroy)
                 except TclError: return
             return
 

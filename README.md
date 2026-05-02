@@ -26,10 +26,6 @@ helps learners know what is bioinformatics under the hood.
 9. Show time on some processes.
 10. Able to process an entire folder of DNA/RNA files.
 
-**Future Prospects**
-1. Has a group chat to collaborate.
-2. Data encryption before, during and after application usage.
-
 **Note: Run only the `GUI.py` file to see the project in action.**
 
 ## Bugs Found ##
@@ -652,21 +648,72 @@ the other loop that ran overwrote or reset important variables needed for this `
 and program continues without errors. The program does not run as intended since one loop can run at a time NOT loop
 inside a loop.
 
-**Cannot Handle Nested If Statements**
+**Cannot Handle Nested If Statements Logically**
 
 If statements have many twists and turns. In this scenario user sets up an if statement inside an if statement. An if
 statement does not need to save anything so no worry at the `if k 1` part but when Decode reaches `done` it checks if the
 program is running, if it is then `done` is skipped. If the program is NOT running, `done` will release the program from
-not running to running and if there is unbugged code following then that unbugged code will always be run.
+not running to running and if there is code following then that code will always be run.
 
 ![Screenshot 2026-01-12 at 20.35.40.png](addons/Screenshot%202026-01-12%20at%2020.35.40.png)
 
-**Stops Responding When In Infinite Loops**
+**Infinite Loops**
 
 In `when d` Decode is checking if `d` is zero and if not, then the program will run forever or indefinitely. The app will
-stop responding and the program will go on.
+stop responding and the program will go on. Threading is a useful library that allows running more than one process at the
+same time. I made the RUN button start the "child" thread that runs the code while the "main" thread runs the GUI interface.
+I added a STOP button that ends the "child" thread hence the GUI interface runs normally and the code is run normally at
+the same time.
 
 ![Screenshot 2026-01-12 at 20.40.16.png](addons/Screenshot%202026-01-12%20at%2020.40.16.png)
+
+## Example Usage For Decode Code That Shows Only "AT" Nucleotides In DNAGenre
+
+`set x a`\
+`// AT counter`\
+`set y 0`
+
+`when x`
+
+`if - A`\
+`branch 15`\
+`done`
+
+`sub x x 1`\
+`add c c 1`
+
+`end`
+
+`if c a`\
+`stop`\
+`done`
+
+`printr 1`\
+`add c c 1`
+
+`if c a`\
+`stop`\
+`done`
+
+`if - T`\
+`printr 1`\
+`sub c c 1`\
+`add y y 1`\
+`branch 9`\
+`done`
+
+`sub c c 1`\
+`printr 0`\
+`branch 9`
+
+**`y` counts how many times `AT` has been found in the sequence but never considers the last `A` because that last `A`
+is NOT followed by a `T`**
+
+**In a scenario like `AA`, `TT`, `GG`, `CC` or other similar k-mers, the algorithm cannot highlight the k-mers logically.**
+
+**Note: As I was doing these 33 lines of code, I realized after debugging that; checking bounds is key; my language is verbose;
+and spacing makes the language more readable. It was tough to write this one. I know it is worse than Assembly but at least it got
+a simple task done.**
 
 ## Tech Stack ##
 ```
@@ -754,5 +801,3 @@ It is very convenient to reach out to me through these contacts below because I 
 within minutes.
 ```
 LinkedIn - [My LinkedIn](https://www.linkedin.com/in/imboowa/)
-
-Email - emboowae@gmail.com
