@@ -1,3 +1,5 @@
+VALID_NUCLEOTIDES = ['A', 'C', 'G', 'T', 'U']
+
 NUCLEOTIDE_BASE = {'DNA': ['A', 'T', 'G', 'C'],
                    'RNA': ['A', 'U', 'G', 'C']}
 

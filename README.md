@@ -12,7 +12,11 @@ commonly be used in labs. The software logs in a user or signs up a user, then t
 the software will provide the insights of the DNA file. The problem the project solves is that it is educational and
 helps learners know what is bioinformatics under the hood.
 
-`Note: This project was 35% AI and 65% me`
+**Notes**
+
+**I.** `This project was 35% AI and 65% me.`
+
+**II.** `This README has @2 and 2. @2 was in the old versions while 2 is the latest version.`
 
 **Features**
 1. Login and User Authentication
@@ -419,9 +423,19 @@ hence no errors.
 
 ![Screenshot 2025-08-10 at 09.11.43.png](addons/Screenshot%202025-08-10%20at%2009.11.43.png)
 
-**Note: If You really love scenario 1 and it is useful to you (scenario 1 uses less computer resources) while scenario 2
-will take more time on big data and secondly, it is known that a sequence compared to itself is a photocopy and I love
+Notes:
+
+**I.** **If You really love scenario 1 and it is useful to you, scenario 1 uses less computer resources. If you love
+scenario 2, it will take more time on big data. It is known that a sequence compared to itself is a photocopy and I love
 optimization hence I left scenario 1 as default. Let me know which is best.**
+
+
+**II.** When entering a Read Index to start hamming, just enter a number (like `1` or `2`) this is used as a reference
+that the user wants sequence at read index number `1` or read index number `2`. Do not use `@1` or `@2` depending on what
+read index you want, just use `1` or `2` or whatever read index you want but without other characters (in this case those
+characters are `@` just type in a number). This is because I just realized that dictionaries do not allow duplicate keys
+but allow duplicate values. Imagine user file has duplicate keys for read index hence wrong data generated. I have decided
+to use numbers because numbers never repeat as a **counter** counts on.
 
 ## Usage ##
 `Big Note`
@@ -509,13 +523,22 @@ reasonable results.
 This where part two of file validation occurs, when you enter the file, it will also ask you to enter a sequence type
 either it is `DNA` or `RNA`. If all do not match what it has from the file then you cannot proceed to analysis.
 
+**Note:**\
+In case user (your) enters the `Read Index`. I use a **Python Dictionary** that does not allow duplicate
+keys but allows duplicate values. Having two or more `Read Indexes` that are literal duplicates--which are treated as
+keys--causes the **Python Dictionary** to naturally consider that last duplicate. To avoid this, always avoid using duplicate `Read Indexes`
+
 **6. Codon Usage Entry**
 
 ![Screenshot 2025-08-16 at 20.01.55.png](addons/Screenshot%202025-08-16%20at%2020.01.55.png)
 When entering a Read Index to get the codon activity, just enter a number (like `1` or `2`) this is used as a reference
 that the user wants codons in read index number `1` or read index number `2`. Do not use `@1` or `@2` depending on what
 read index you want, just use `1` or `2` or whatever read index you want but without other characters (in this case those
-characters are `@` just type in a number)
+characters are `@` just type in a number). This is because I just realized that dictionaries do not allow duplicate keys
+but allow duplicate values. Imagine user file has duplicate keys for read index hence data generated for last Read Index--since
+it is the last duplicate and Python Dictionaries will consider the last duplicate due to overwriting previous Read Indexes
+and their data till the last Read Index has nothing to overwrite it. I have decided to use numbers because numbers never
+repeat as a **counter** counts on.
 
 **Note:**
 
@@ -546,9 +569,19 @@ Hence
 
     1- means that is a reversed complement read of that sequence
 
-**Note:** My proteinsynthesis function does not show partial proteins (proteins that have a start but have no stop codon
-downstream) but only shows full proteins (proteins that have a start codon and a stop codon). Which means that I used **open
-reading frames** NOT **reading frames**.
+
+
+**Note:** My proteinsynthesis function shows protein(s) from **open reading frames**.
+
+![Screenshot 2026-07-26 at 16.13.34.png](addons/Screenshot%202026-07-26%20at%2016.13.34.png)
+
+**Note:**\
+When entering a Read Index to get the protein(s), just enter a number (like `1` or `2`) this is used as a reference
+that the user wants protein(s) in read index number `1` or read index number `2`. Do not use `@1` or `@2` depending on what
+read index you want, just use `1` or `2` or whatever read index you want but without other characters (in this case those
+characters are `@` just type in a number). This is because I just realized that dictionaries do not allow duplicate keys
+but allow duplicate values. Imagine user file has duplicate keys for read index hence wrong data generated. I have decided
+to use numbers because numbers never repeat as a **counter** counts on.
 
 **8. Proteinsynthesis Time Calculation**
 
@@ -606,7 +639,7 @@ Enter the Read Index as shown on the left of the screen and enter a valid k-mer 
 
 ![Screenshot 2025-08-17 at 07.24.54.png](addons/Screenshot%202025-08-17%20at%2007.24.54.png)
 
-## Decode ##
+**12. Decode**
 
 Decode is a primitive programming language that will help users complete more custom tasks that are not premade in the
 app. In this case it has just features like `setting variables` `comments` mathematical operations like
@@ -676,11 +709,15 @@ the same time.
 `when x`
 
 `if - A`\
-`branch 15`\
+`branch 19`\
 `done`
 
 `sub x x 1`\
 `add c c 1`
+
+`if c a`\
+`stop`\
+`done`
 
 `end`
 
@@ -697,7 +734,6 @@ the same time.
 
 `if - T`\
 `printr 1`\
-`sub c c 1`\
 `add y y 1`\
 `branch 9`\
 `done`
@@ -706,19 +742,151 @@ the same time.
 `printr 0`\
 `branch 9`
 
-**`y` counts how many times `AT` has been found in the sequence but never considers the last `A` because that last `A`
-is NOT followed by a `T`**
+**Notes**\
+**I.** `y` counts how many times `AT` has been found in the sequence but never considers the last `A` because that last `A`
+is NOT followed by a `T` (that last occurrence does not meet the task's demands).
 
-**In a scenario like `AA`, `TT`, `GG`, `CC` or other similar k-mers, the algorithm cannot highlight the k-mers logically.**
 
-**Note: As I was doing these 33 lines of code, I realized after debugging that; checking bounds is key; my language is verbose;
-and spacing makes the language more readable. It was tough to write this one. I know it is worse than Assembly but at least it got
-a simple task done.**
+**II.** This program focused on finding `AT` k-mer(s); other variations of this program that are tasked to find k-mers like
+`AA`, `TT`, `GG`, `CC` in case of `AAA` this program will only identify the first two `A`s and not identifying the next two `A`s.
+This is because as it is tasked to check for 2 nucleotides (`AA`) whenever this program finds an `A` it proceeds to one step forward to
+see if there is another `A` and if it does not find another `A` to make `AA` as the task **demands**, it back tracks one step
+and erases any highlights--regardless of what nucleotide was highlighted--which affects the last two `A`s in `AAA`.\
+**III.** This program works well with `AAAA` because `AAAA` k-mer has two pairs of `AA` and if you (user) read **Note 2** that shows how this program works
+this scenario is convenient for this program because this program finds an `A` and checks forward one step and finds another `A` which forms `AA`
+and repeats this for the next two `A`s hence `AAAA` is highlighted.\
+**IV.** One quick note is that this program works as expected with even-length k-mers
+like `AA`, `AAAA`, `AAAAAA` but not `AAA`, `AAAAA`, `AAAAAAA` though it works well for one-length k-mer like `A`.
+
+
+**V.** As I was doing these 39 lines of code, I realized after debugging that checking bounds is key, my language is verbose,
+and spacing makes the language more readable. It was tough to write this one and I realize clearly that it is worse than Assembly but at least it got
+a simple task done.
+
+
+**VI.** DNAGenre saves user code in a file called `user_code.txt` for future use.
+
+**13. Encryption And Decryption**
+
+DNAGenre encrypts files when user closes program--it does not encrypt files when it is stopped by the operating system or in general is stopped
+as a process somehow like shutting down.
+
+**I. Below is how to close DNAGenre to encrypt files.**
+
+![Screenshot 2026-08-01 at 09.41.21.png](addons/Screenshot%202026-08-01%20at%2009.41.21.png)
+
+By pressing the close button (typically red), the program ends and branches into encryption of files. The `user_database.db`, `usage_database.db`, and `user_code.txt`
+are the files encrypted. The keys are stored in files in a folder called **secure** even though there are better and safer ways to store the keys. I just
+picked this one because it is simple to learn, implement, and contains some skills I knew in ARM Assembly.
+
+**II. In case this happens, the best and recommended fix is to have the required files with keys exist then empty them (delete all text in the file).
+Even though these files `user_database.db`, `usage_database.db`, and `user_code.txt` may have data or not, it is fine. As long as the required files
+with the keys exist and are emptied.**
+
+![Screenshot 2026-08-01 at 09.47.50.png](addons/Screenshot%202026-08-01%20at%2009.47.50.png)
+
+**Warning Regarding Encryption And Decryption**
+
+**I.** Whatever data is in these files `user_database.db`, `usage_database.db`, and `user_code.txt` when the files with the keys are recreated or created,
+the data inside them (the files to be encrypted) is deemed as the data to be encrypted. If these files `user_database.db`, `usage_database.db`, and `user_code.txt` were encrypted and keys are lost,
+that data in those files is encrypted again which proves that data is lost.
+
+**II.** During a time when user (you) is using the program, the data in these files `user_database.db`, `usage_database.db`, and `user_code.txt` is unencrypted (literal plain text).
+This is because rewriting the entire code base by having every **function** or **file.read()** from these files decrypt and use the data then encrypt that file's data was going to be hassle
+(but I will do this in a later version to tighten security) hence decryption at the beginning then use literal plain text till user (you) ends the program as instructed finally the file's data can be encrypted.
+
+**14. Compression**
+
+In DNAGenre, I chose to use **2-bit compression** because it was simple to learn and fitted the project. 2-bit compression is when
+a program uses 2-bits in a byte to store a full byte like in byte `00000000`; DNAGenre can store 4 bytes `A,T/U,G,C` into a single
+byte because it can pack `A,T,G,C` into a single byte while in **DNA mode** or pack `A,U,G,C` into a single byte while in **RNA mode**.
+This has given DNAGenre good compression averaging 70% compression of valid data.
+
+Some bits may look similar, for example, `TAAA`'s bits look like the `@`'s bits and `AACC`'s bits look like `\n`'s bits
+so I also added **markers**. I use the character `@` as a marker that guides the program where to allow a newline;
+`\n` (newline character) that guides the program where to allow a `@`. This solves the problem of conflicting bytes and
+makes the program produce trustworthy ouput.
+
+The `Compress` button allows user (you) to compress a file with some DNA/RNA data in it but when that data in decompressed, that
+invalid data is lost and only the valid data--DNA/RNA--remains.
+
+The `Decompress` button allows user (you) to decompress a file with compressed data.
+
+The `Make DNAGenre` button allows user to take any file and make it adhere to DNAGenre format (Check Usage Under File Format) .
+
+**I.** User (you) can open any file to start compress it.
+![Screenshot 2026-08-08 at 12.46.47.png](addons/Screenshot%202026-08-08%20at%2012.46.47.png)
+
+**II.** User (you) can view any compressed file to start to decompress it.
+![Screenshot 2026-08-08 at 12.47.43.png](addons/Screenshot%202026-08-08%20at%2012.47.43.png)
+
+**III.** User (you) can open a decompressed file and start to format it to DNAGenre format.
+![Screenshot 2026-08-08 at 12.48.28.png](addons/Screenshot%202026-08-08%20at%2012.48.28.png)
+
+**IV.** User (you) can view DNAGenre formatted file.
+![Screenshot 2026-08-08 at 12.50.13.png](addons/Screenshot%202026-08-08%20at%2012.50.13.png)
+
+### Warning
+Imagine user wants to compress an invalid file like below.
+
+![Screenshot 2026-08-08 at 16.25.23.png](addons/Screenshot%202026-08-08%20at%2016.25.23.png)
+
+DNAGenre will flag this invalid file as `Improper length` because there is no valid
+DNA/RNA data that nullifies a certain variable that keeps track of divisibility by 4 since 4 nucleotides are needed to compress
+into 1 byte. By default, that variable is set to **invalid length** to counter this incident.
+
+![Screenshot 2026-08-08 at 16.33.52.png](addons/Screenshot%202026-08-08%20at%2016.33.52.png)
+
+If user outsmarts DNAGenre by putting invalid data with valid data into the same file. DNAGenre will compress that data but
+there is a caveat which will make sense later on.
+
+![Screenshot 2026-08-08 at 16.38.16.png](addons/Screenshot%202026-08-08%20at%2016.38.16.png)
+
+After compression, a magic header, file header, and the bytes are embedded in the invalid file.
+
+![bytes.png](addons/bytes.png)
+
+When the invalid file is opened, all user (you) can see is the magic header, file header, and renderable bytes.
+
+![Screenshot 2026-08-08 at 16.39.43.png](addons/Screenshot%202026-08-08%20at%2016.39.43.png)
+
+After decompression, it is now clear that the invalid data was not compressed and only the valid data adhering to the
+rules of compression--compressed without errors--was compressed and decompressed.
+
+![Screenshot 2026-08-08 at 16.40.09.png](addons/Screenshot%202026-08-08%20at%2016.40.09.png)
+
+User can also format the data from decompression or elsewhere into DNAGenre format (Check Usage Under File Format).
+
+![Screenshot 2026-08-08 at 16.41.16.png](addons/Screenshot%202026-08-08%20at%2016.41.16.png)
+
+
+### Big Notes
+**I.** When entering a Read Index to start hamming, k_mer search, or k_mer length, just enter a number (like `1` or `2`) this is
+used as a reference that the user wants the sequence in read index number `1` or read index number `2`. Do not use `@1` or `@2` depending on what
+read index you want, just use `1` or `2` or whatever read index you want but without other characters (in this case those
+characters are `@` just type in a number). This is because I just realized that dictionaries do not allow duplicate keys
+but allow duplicate values. Imagine user file has duplicate keys for read index hence wrong data generated. I have decided
+to use numbers because numbers never repeat as a **counter** counts on.
+
+
+**II.** User can export--in a window with the export button--data generated by DNAGenre into a JSON formated file for standard usage in other programs.
+1. **Look for a button that says `Export`.**
+
+2. **Press it to update a file called `current_export.json` created by the DNAGenre.**
+\
+![Screenshot 2026-07-27 at 21.24.12.png](addons/Screenshot%202026-07-27%20at%2021.24.12.png)
+
+3. **Below is an example of an export.**
+\
+\
+![Screenshot 2026-07-27 at 21.24.51.png](addons/Screenshot%202026-07-27%20at%2021.24.51.png)
+
 
 ## Tech Stack ##
 ```
 Pycharm - Code Editor
 ChatGPT - AI Assistant
+Google's AI Mode - AI Assistant
 ```
 
 I am very fluent with prompting most Large Language Models(LLMs) because I use patterns in my prompts, simple prompts and
@@ -776,7 +944,7 @@ but required.
 I want to be the kind of person who doesn’t just use technology but shapes
 it—who builds tools that make life simpler, smarter, or fairer. I know I’ll keep breaking
 things apart, whether it’s code, ideas, or assumptions. But now, I break them with
-purpose: to build something better.`
+purpose: to build something better.
 ```
 
 

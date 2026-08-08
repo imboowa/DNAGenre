@@ -5,6 +5,7 @@ from DNAtoolkit.DNAtools import *
 from interface.GUI_methods import *
 import time
 from user_app.hamming import Hamming
+import json
 
 
 class Protein:
@@ -18,6 +19,7 @@ class Protein:
         # Useful
         self.menu_window = menu_window
         self.signing_window = signing_window
+        self.read_index_value = None
         # Destroy prev_window
         try: prev_window.destroy()
         except tkinter.TclError: return
@@ -75,6 +77,10 @@ class Protein:
         self.time_execution = CTkLabel(self.frame_1, text=f"", font=(window_font, (window_font_size - 15)), fg_color=bright_colors[2],
                                        text_color=bright_colors[4])
         self.time_execution.grid(row=0, column=7, sticky='w', padx=3, pady=5)
+        """ Export Bioinformatic Data Button """
+        export_button = CTkButton(self.frame_1, text="Export", font=(window_font, (window_font_size - 15), font_style), fg_color=bright_colors[5],
+                                  text_color=bright_colors[4], hover_color=bright_colors[5], command=lambda: self.export_window_data())
+        export_button.grid(row=0, column=8, sticky='w', padx=3, pady=5)
         """ Frame For Protein Showcase """
         self.frame_2 = CTkFrame(self.window, fg_color=color_scheme)
         self.frame_2.pack(fill="both")
@@ -128,6 +134,24 @@ class Protein:
         self.window.mainloop()
 
 
+    def export_window_data(self):
+
+        """ Export Bioinformatic Data To JSON File """
+
+        if not self.proteins_data:
+            return
+
+        bio_data = {
+            "SeqType": self.sequence_type,
+            "ReverseComplement": self.isReverseComplement,
+            "Read Index": self.read_index_value,
+            "Proteinsynthesis": self.proteins_data
+        }
+
+        with open(current_export_file, "w") as file:
+            json.dump(bio_data, file, indent=4)
+
+
     def start_threads(self, DNA_data, seq_type):
 
         # Disable Buttons
@@ -161,11 +185,19 @@ class Protein:
 
         """ Storing Read Index: Codons (Both Normal And Reverse Complement) """
 
+        """
+        Just Realized That Dictionaries Do Not Allow Duplicate Keys But Allow Duplicate Values
+        Imagine User Files Has Duplicate Keys For Read Index And Values For DNA/RNA Hence Wrong Data Generated
+        I have Decided To Use Numbers Because Numbers Never Repeat As A Counter Counts On
+        """
+
         key_value_codons = dict()
+        counter_1 = 1
         for key, value in DNA_data.items():
             temp_open_reading_frames = gen_openReading_frames(value, seq_type)
             if temp_open_reading_frames != -1 and temp_open_reading_frames != -2:
-                key_value_codons[key] = temp_open_reading_frames
+                key_value_codons[str(counter_1)] = temp_open_reading_frames
+                counter_1 += 1
             else:
                 """ Imagine There Are No Open Reading Frames Hence Let's Stop Process """
                 # Enable Buttons So That User Can Leave Window
@@ -253,10 +285,15 @@ class Protein:
             return
         for key, value in proteins_data.items():
             if key == str(self.read_index_entry.get()):
+                # Save Read Index For Global Use
+                self.read_index_value = str(key)
                 try: self.read_index.configure(text=str(key)+"," if len(str(key)) < 5 else f"{str(key)[:2]}...,")
                 except tkinter.TclError: return
+                # Temporary Strand Normal
+                # Subtract 1 To Get The Real Index For Read Index Since User Read Index Is 1 Ahead
+                temp_strand = self.DNA_data[list(self.DNA_data.keys())[int(key) - 1]]
                 # Used For Reverse Complement
-                temp_reversed_complement = reverseComplement(self.DNA_data[key], self.sequence_type)
+                temp_reversed_complement = reverseComplement(temp_strand, self.sequence_type)
                 if temp_reversed_complement != -1:
                     self.desired_reverse_seq = temp_reversed_complement
                 else:
@@ -274,8 +311,8 @@ class Protein:
                             self.label_1 = CTkLabel(self.reading_frame_1, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                      fg_color=bright_colors[3], text_color=color_scheme)
                             self.label_1.grid(row=0, column=0, sticky='w', padx=5, pady=5)
-                            self.label_2 = CTkLabel(self.reading_frame_1, text=f"{self.DNA_data[key][0:10]}...{self.DNA_data[key][-1]}"
-                                                    if len(self.DNA_data[key]) > 10 else f"{self.DNA_data[key][0:10]}",
+                            self.label_2 = CTkLabel(self.reading_frame_1, text=f"{temp_strand[0:10]}...{temp_strand[-1]}"
+                                                    if len(temp_strand) > 10 else f"{temp_strand[0:10]}",
                                      font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
                                                      corner_radius=corner)
                             self.label_2.grid(row=1, column=0, sticky='w', padx=5, pady=5)
@@ -296,9 +333,15 @@ class Protein:
                                     row_counter_1 += 1
                                     col_counter_1 = 0
                                 if letter_1 in DNA_Codons.values():
-                                    letter_label_1 = CTkLabel(self.reading_frame_1, text=str(letter_1), font=(window_font, (window_font_size + 20)),
+                                    # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
+                                    if letter_1 == "M" and col_counter_1 > 0:
+                                        letter_label_1 = CTkLabel(self.reading_frame_1, text=str(letter_1), font=(window_font, (window_font_size + 20)),
+                                                                  fg_color="white", text_color="black", corner_radius=corner)
+                                        letter_label_1.grid(row=row_counter_1, column=col_counter_1, sticky='w', padx=5, pady=5)
+                                    else:
+                                        letter_label_1 = CTkLabel(self.reading_frame_1, text=str(letter_1), font=(window_font, (window_font_size + 20)),
                                                             fg_color=color_1, text_color="white", corner_radius=corner)
-                                    letter_label_1.grid(row=row_counter_1, column=col_counter_1, sticky='w', padx=5, pady=5)
+                                        letter_label_1.grid(row=row_counter_1, column=col_counter_1, sticky='w', padx=5, pady=5)
                                     col_counter_1 += 1
                                     self.window.update_idletasks()
                                     # Putting Codon Labels To New Line When At Edge Of Frame
@@ -315,8 +358,8 @@ class Protein:
                             self.label_3 = CTkLabel(self.reading_frame_2, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                      fg_color=bright_colors[3], text_color=color_scheme)
                             self.label_3.grid(row=0, column=0, sticky='w', padx=5, pady=5)
-                            self.label_4 = CTkLabel(self.reading_frame_2, text=f"{self.DNA_data[key][1:10]}...{self.DNA_data[key][-2:]}"
-                                                    if len(self.DNA_data[key]) > 10 else f"{self.DNA_data[key][1:10]}",
+                            self.label_4 = CTkLabel(self.reading_frame_2, text=f"{temp_strand[1:10]}...{temp_strand[-2:]}"
+                                                    if len(temp_strand) > 10 else f"{temp_strand[1:10]}",
                                      font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
                                                      corner_radius=corner)
                             self.label_4.grid(row=1, column=0, sticky='w', padx=5, pady=5)
@@ -337,9 +380,15 @@ class Protein:
                                     row_counter_2 += 1
                                     col_counter_2 = 0
                                 if letter_2 in DNA_Codons.values():
-                                    letter_label_2 = CTkLabel(self.reading_frame_2, text=str(letter_2), font=(window_font, (window_font_size + 20)),
-                                                            fg_color=color_2, text_color="white", corner_radius=corner)
-                                    letter_label_2.grid(row=row_counter_2, column=col_counter_2, sticky='w', padx=5, pady=5)
+                                    # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
+                                    if letter_2 == "M" and col_counter_2 > 0:
+                                        letter_label_2 = CTkLabel(self.reading_frame_2, text=str(letter_2), font=(window_font, (window_font_size + 20)),
+                                                                  fg_color="white", text_color="black", corner_radius=corner)
+                                        letter_label_2.grid(row=row_counter_2, column=col_counter_2, sticky='w', padx=5, pady=5)
+                                    else:
+                                        letter_label_2 = CTkLabel(self.reading_frame_2, text=str(letter_2), font=(window_font, (window_font_size + 20)),
+                                                                fg_color=color_2, text_color="white", corner_radius=corner)
+                                        letter_label_2.grid(row=row_counter_2, column=col_counter_2, sticky='w', padx=5, pady=5)
                                     col_counter_2 += 1
                                     self.window.update_idletasks()
                                     # Putting Codon Labels To New Line When At Edge Of Frame
@@ -356,8 +405,8 @@ class Protein:
                             self.label_5 = CTkLabel(self.reading_frame_3, text="No Protein(s)", font=(window_font, (window_font_size + 20)),
                                      fg_color=bright_colors[3], text_color=color_scheme)
                             self.label_5.grid(row=0, column=0, sticky='w', padx=5, pady=5)
-                            self.label_6 = CTkLabel(self.reading_frame_3, text=f"{self.DNA_data[key][2:10]}...{self.DNA_data[key][-3:]}"
-                                                    if len(self.DNA_data[key]) > 10 else f"{self.DNA_data[key][2:10]}",
+                            self.label_6 = CTkLabel(self.reading_frame_3, text=f"{temp_strand[2:10]}...{temp_strand[-3:]}"
+                                                    if len(temp_strand) > 10 else f"{temp_strand[2:10]}",
                                      font=(window_font, (window_font_size + 20)), fg_color=bright_colors[2], text_color=color_scheme,
                                                      corner_radius=5)
                             self.label_6.grid(row=1, column=0, sticky='w', padx=5, pady=5)
@@ -378,9 +427,15 @@ class Protein:
                                     row_counter_3 += 1
                                     col_counter_3 = 0
                                 if letter_3 in DNA_Codons.values():
-                                    letter_label_3 = CTkLabel(self.reading_frame_3, text=str(letter_3), font=(window_font, (window_font_size + 20)),
-                                                            fg_color=color_3, text_color="white", corner_radius=corner)
-                                    letter_label_3.grid(row=row_counter_3, column=col_counter_3, sticky='w', padx=5, pady=5)
+                                    # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
+                                    if letter_3 == "M" and col_counter_3 > 0:
+                                        letter_label_3 = CTkLabel(self.reading_frame_3, text=str(letter_3), font=(window_font, (window_font_size + 20)),
+                                                                  fg_color="white", text_color="black", corner_radius=corner)
+                                        letter_label_3.grid(row=row_counter_3, column=col_counter_3, sticky='w', padx=5, pady=5)
+                                    else:
+                                        letter_label_3 = CTkLabel(self.reading_frame_3, text=str(letter_3), font=(window_font, (window_font_size + 20)),
+                                                                fg_color=color_3, text_color="white", corner_radius=corner)
+                                        letter_label_3.grid(row=row_counter_3, column=col_counter_3, sticky='w', padx=5, pady=5)
                                     col_counter_3 += 1
                                     self.window.update_idletasks()
                                     # Putting Codon Labels To New Line When At Edge Of Frame
@@ -431,11 +486,15 @@ class Protein:
                                     row_counter_4 += 1
                                     col_counter_4 = 0
                                 if letter_4 in DNA_Codons.values():
-                                    letter_label_4 = CTkLabel(self.reading_frame_1, text=str(letter_4),
-                                                              font=(window_font, (window_font_size + 20)),
-                                                              fg_color=color_1, text_color="white", corner_radius=corner)
-                                    letter_label_4.grid(row=row_counter_4, column=col_counter_4, sticky='w', padx=5,
-                                                        pady=5)
+                                    # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
+                                    if letter_4 == "M" and col_counter_4 > 0:
+                                        letter_label_4 = CTkLabel(self.reading_frame_1, text=str(letter_4), font=(window_font, (window_font_size + 20)),
+                                                                  fg_color="white", text_color="black", corner_radius=corner)
+                                        letter_label_4.grid(row=row_counter_4, column=col_counter_4, sticky='w', padx=5, pady=5)
+                                    else:
+                                        letter_label_4 = CTkLabel(self.reading_frame_1, text=str(letter_4), font=(window_font, (window_font_size + 20)),
+                                                                  fg_color=color_1, text_color="white", corner_radius=corner)
+                                        letter_label_4.grid(row=row_counter_4, column=col_counter_4, sticky='w', padx=5, pady=5)
                                     col_counter_4 += 1
                                     self.window.update_idletasks()
                                     # Putting Codon Labels To New Line When At Edge Of Frame
@@ -487,11 +546,15 @@ class Protein:
                                     row_counter_5 += 1
                                     col_counter_5 = 0
                                 if letter_5 in DNA_Codons.values():
-                                    letter_label_5 = CTkLabel(self.reading_frame_2, text=str(letter_5),
-                                                              font=(window_font, (window_font_size + 20)),
-                                                              fg_color=color_2, text_color="white", corner_radius=corner)
-                                    letter_label_5.grid(row=row_counter_5, column=col_counter_5, sticky='w', padx=5,
-                                                        pady=5)
+                                    # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
+                                    if letter_5 == "M" and col_counter_5 > 0:
+                                        letter_label_5 = CTkLabel(self.reading_frame_2, text=str(letter_5), font=(window_font, (window_font_size + 20)),
+                                                                  fg_color="white", text_color="black", corner_radius=corner)
+                                        letter_label_5.grid(row=row_counter_5, column=col_counter_5, sticky='w', padx=5, pady=5)
+                                    else:
+                                        letter_label_5 = CTkLabel(self.reading_frame_2, text=str(letter_5), font=(window_font, (window_font_size + 20)),
+                                                                  fg_color=color_2, text_color="white", corner_radius=corner)
+                                        letter_label_5.grid(row=row_counter_5, column=col_counter_5, sticky='w', padx=5, pady=5)
                                     col_counter_5 += 1
                                     self.window.update_idletasks()
                                     # Putting Codon Labels To New Line When At Edge Of Frame
@@ -543,11 +606,15 @@ class Protein:
                                     row_counter_6 += 1
                                     col_counter_6 = 0
                                 if letter_6 in DNA_Codons.values():
-                                    letter_label_6 = CTkLabel(self.reading_frame_3, text=str(letter_6),
-                                                              font=(window_font, (window_font_size + 20)),
-                                                              fg_color=color_3, text_color="white", corner_radius=corner)
-                                    letter_label_6.grid(row=row_counter_6, column=col_counter_6, sticky='w', padx=5,
-                                                        pady=5)
+                                    # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
+                                    if letter_6 == "M" and col_counter_6 > 0:
+                                        letter_label_6 = CTkLabel(self.reading_frame_3, text=str(letter_6), font=(window_font, (window_font_size + 20)),
+                                                                  fg_color="white", text_color="black", corner_radius=corner)
+                                        letter_label_6.grid(row=row_counter_6, column=col_counter_6, sticky='w', padx=5, pady=5)
+                                    else:
+                                        letter_label_6 = CTkLabel(self.reading_frame_3, text=str(letter_6), font=(window_font, (window_font_size + 20)),
+                                                                  fg_color=color_3, text_color="white", corner_radius=corner)
+                                        letter_label_6.grid(row=row_counter_6, column=col_counter_6, sticky='w', padx=5, pady=5)
                                     col_counter_6 += 1
                                     self.window.update_idletasks()
                                     # Putting Codon Labels To New Line When At Edge Of Frame

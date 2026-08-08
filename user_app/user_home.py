@@ -3,6 +3,7 @@ import datetime
 from user_app.DNAsite import *
 from DNAtoolkit.DataTools import *
 from pathlib import Path
+from user_app.melopress import MeloPress
 
 
 class User_Home:
@@ -23,7 +24,9 @@ class User_Home:
             self.signing_window()
             return
         # Prepare Our Information For Display
-        last_month_day_year, last_hour_minute = last_session.split('|')
+        try: last_month_day_year, last_hour_minute = last_session.split('|')
+        except ValueError: last_month_day_year, last_hour_minute = None, None
+        except Exception: last_month_day_year, last_hour_minute = None, None
         # Now Get The Time Now And Overwrite The Old Time in Database
         """ Save Login Time """
         insert_last_session(usage_database_file, username, f"{datetime.datetime.now().month:02}/{datetime.datetime.now().day:02}/"
@@ -36,6 +39,8 @@ class User_Home:
         self.user_home_window.config(bg=f"{color_scheme}")
         self.user_home_window.eval("tk::PlaceWindow . center")
         self.user_home_window.resizable(False, False)
+        # Useful Variable
+        self.melo_press = None
         """ Frame For Username """
         self.frame_1 = CTkFrame(self.user_home_window, fg_color=color_scheme, corner_radius=corner,
                               height=(self.user_home_window.winfo_height() / 0.25), width=(self.user_home_window.winfo_width() / 0.5))
@@ -147,7 +152,16 @@ class User_Home:
         self.user_home_window.mainloop()
 
 
-    def get_database(self):
+    @staticmethod
+    def call_melo_press(username, firstname, lastname, filename, previous_window, user_home, signing_window):
+
+        """ Calls MeloPress Window """
+
+        MeloPress(username, firstname, lastname, filename, previous_window, user_home, signing_window)
+
+
+    @staticmethod
+    def get_database():
 
         """ Reading Database """
 
@@ -167,7 +181,9 @@ class User_Home:
             return None, None
         # If Data Was Fine, Then Loop Through The Data
         for line in data:
-            database_username, database_folder_path, last_session = line[0].split(",")
+            try: database_username, database_folder_path, last_session = line[0].split(",")
+            except ValueError: break
+            except Exception: break
             # If User Is Found, Then Return Their Database Folder Path And Last Session
             if database_username == username:
                 return database_folder_path, last_session
@@ -301,16 +317,28 @@ class User_Home:
         """ Validating File """
 
         if validate_file(filename) == 0:
+
+            # Clear MeloPress Button
+            if self.melo_press is not None:
+                self.melo_press.destroy()
+
+            # Button For MeloPress
+            self.melo_press = CTkButton(self.user_home_window, text="MeloPress", font=(window_font, (window_font_size - 5)), text_color=bright_colors[4],
+                                   hover_color=bright_colors[2], fg_color=color_scheme, corner_radius=corner,
+                                   command=lambda: self.call_melo_press(self.username, self.firstname, self.lastname, filename, self.user_home_window, User_Home, self.signing_window))
+            self.melo_press.place(relx=0.05, rely=0.915)
+
+
             DNA_label_entry = CTkEntry(self.user_home_window, placeholder_text="Enter Read Index",
                                  font=(window_font, (window_font_size - 10)), fg_color=color_scheme, text_color=bright_colors[5],
                                  height=30, width=300, border_width=border, border_color=bright_colors[2],
                                  placeholder_text_color=bright_colors[0])
-            DNA_label_entry.place(rely=0.915, relx=0.05)
+            DNA_label_entry.place(rely=0.915, relx=0.2)
             seq_type_entry = CTkEntry(self.user_home_window, placeholder_text="Enter DNA or RNA",
                                        font=(window_font, (window_font_size - 10)), fg_color=color_scheme, text_color=bright_colors[5],
                                        height=30, width=300, border_width=border, border_color=bright_colors[2],
                                        placeholder_text_color=bright_colors[0])
-            seq_type_entry.place(rely=0.915, relx=0.41)
+            seq_type_entry.place(rely=0.915, relx=0.53)
             submit_DNA_label_button = CTkButton(self.user_home_window, text="Submit", font=(window_font, (window_font_size - 5)),
                                       text_color=bright_colors[4], corner_radius=corner, fg_color=color_scheme, hover_color=bright_colors[2],
                                       command=lambda: DNA_analysis(filename, str(DNA_label_entry.get()), str(seq_type_entry.get()).upper(), self.user_home_window, self.username, self.firstname, self.lastname, User_Home, self.signing_window))
@@ -318,11 +346,22 @@ class User_Home:
             return
         # If File Is Invalid, Show Error
         else:
+
+            # Clear MeloPress Button
+            if self.melo_press is not None:
+                self.melo_press.destroy()
+
             warning_2 = CTkLabel(self.user_home_window, text="File Problem", font=(window_font, window_font_size), fg_color=color_scheme,
                                  text_color=bright_colors[1])
             warning_2.place(rely=0.87, relx=0.4)
             try: self.user_home_window.after(1000, warning_2.destroy)
             except tkinter.TclError: return
+
+            # Button For MeloPress
+            self.melo_press = CTkButton(self.user_home_window, text="MeloPress", font=(window_font, (window_font_size - 5)),
+                               text_color=bright_colors[4], hover_color=bright_colors[2], fg_color=color_scheme, corner_radius=corner,
+                               command=lambda: self.call_melo_press(self.username, self.firstname, self.lastname, filename, self.user_home_window, User_Home, self.signing_window))
+            self.melo_press.place(relx=0.05, rely=0.915)
             return
 
 

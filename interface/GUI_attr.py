@@ -4,6 +4,11 @@ from collections import defaultdict
 button_system = defaultdict(int)
 user_database_file = '../files/user_database.db'
 usage_database_file = '../files/usage_database.db'
+current_export_file = '../../current_export.json'
+user_code_file = '../files/user_code.txt'
+user_info_key_file = '../secure/user_info_key.txt'
+user_usage_key_file = '../secure/user_usage_key.txt'
+user_code_key_file = '../secure/user_code_key.txt'
 
 place_holder = ""
 
@@ -51,10 +56,7 @@ tips = [f"The Above Frame Accumulates Only {view_limit} Graphs",
         "Navigation Buttons Help Show Overlapped Content",
         "Frames Act Weird With Massive Labels At Them"]
 
-# Number Threshold
-number_threshold = 1e+6
-
-# Word Length Threshold
+# Word Length And Number Threshold
 string_threshold = 10
 
 # Rounding Threshold

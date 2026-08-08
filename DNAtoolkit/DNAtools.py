@@ -350,7 +350,7 @@ def n_distance(seq_1: str, seq_2: str):
         return -2
     n_distance_list = list()
     for index, (nuc_1, nuc_2) in enumerate(zip(seq_1, seq_2)):
-        n_distance_list.append((index, nuc_1, nuc_2))
+        n_distance_list.append((index + 1, nuc_1, nuc_2))
     return n_distance_list
 
 def k_mer_indexes(seq: str, seq_type: str, k_mer: str):
@@ -376,7 +376,7 @@ def k_mer_indexes(seq: str, seq_type: str, k_mer: str):
     k_mer_list = list()
     for i in range(len(seq) - len(k_mer) + 1):
         if seq[i:i+len(k_mer)] == k_mer:
-            k_mer_list.append(i)
+            k_mer_list.append(i + 1)
     return k_mer_list
 
 def highest_k_mer_len(seq: str, k_mer_len: str):
@@ -400,7 +400,10 @@ def highest_k_mer_len(seq: str, k_mer_len: str):
         return -1
     if not k_mer_len.isdigit():
         return -2
-    k_mer_len = int(k_mer_len)
+    try:
+        k_mer_len = int(k_mer_len)
+    except ValueError:
+        return -2
     if k_mer_len <= 0 or k_mer_len > len(seq):
         return -3
     k_mers = dict()

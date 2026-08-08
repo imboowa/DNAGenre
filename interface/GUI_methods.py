@@ -18,13 +18,17 @@ def time_calculator(counter=0):
     weeks = int(counter / 604800)
     return weeks, days, hours, minutes, seconds
 
-def custom_progressbar_tips(the_window: Tk, frame: CTkFrame, label_fg_color: str, label: CTkLabel, step: int=0, total_steps: int=5) -> None:
+def custom_progressbar_tips(the_window: Tk, frame: CTkFrame, label_fg_color: str, label: CTkLabel, label_to_destroy: CTkLabel=None, step: int=0, total_steps: int=5) -> None:
 
     """ Needs A Frame To Put Labels Hence Animate It As A Progressbar """
     if step < total_steps:
+        if label_to_destroy is not None:
+            label_to_destroy.pack_forget()
         CTkLabel(frame, text='', fg_color=label_fg_color, corner_radius=5, width=50, height=50).pack(side='left', padx=5, pady=5)
-        the_window.after(1000, lambda: custom_progressbar_tips(the_window, frame, label_fg_color, label, step+1, total_steps))
+        the_window.after(1000, lambda: custom_progressbar_tips(the_window, frame, label_fg_color, label, label_to_destroy, step+1, total_steps))
     else:
+        if label_to_destroy is not None:
+            label_to_destroy.pack(side="left")
         if label.winfo_exists():
             label.destroy()
         if frame.winfo_exists():

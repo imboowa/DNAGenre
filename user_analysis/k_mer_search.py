@@ -1,4 +1,5 @@
 from user_analysis.k_mer_length import *
+import json
 
 
 class K_mer_Search:
@@ -16,6 +17,11 @@ class K_mer_Search:
         # Helpful Variables
         self.isReverse = "False"
         self.reverse_switch = 0
+        self.read_index_value = None
+        self.k_mer_value = None
+        self.k_mer_count_value = None
+        self.results = None
+        self.results_length = 0
         # Window
         self.window = Tk()
         self.window.title("K-mer Search")
@@ -89,12 +95,37 @@ class K_mer_Search:
         move_right = CTkButton(self.frame_4, text='>', font=(window_font, window_font_size), fg_color=color_scheme,
                                text_color=bright_colors[4], hover_color=color_scheme, command=lambda: self.move_pages("Right"))
         move_right.pack(side='right')
-        """ Button For Next Window """
-        self.k_mer_length = CTkButton(self.window, text="K-mer Length", font=(window_font, window_font_size), fg_color=color_scheme,
+        # Mother Frame For K-mer Length And Export
+        mother_frame_1 = CTkFrame(self.window, fg_color=color_scheme)
+        mother_frame_1.pack(fill='both')
+        export_button = CTkButton(mother_frame_1, text='Export', font=(window_font, window_font_size), fg_color=color_scheme,
+                                  text_color=bright_colors[4], corner_radius=corner, hover_color=bright_colors[2],
+                                  command=lambda: self.export_window_data())
+        export_button.pack(side='left', padx=10)
+        self.k_mer_length = CTkButton(mother_frame_1, text="K-mer Length", font=(window_font, window_font_size), fg_color=color_scheme,
                                       text_color=bright_colors[4], corner_radius=corner, hover_color=bright_colors[2],
                                       command=self.next_window)
-        self.k_mer_length.pack(side="bottom", fill='both', pady=10, expand=True, padx=10)
+        self.k_mer_length.pack(side="right", padx=10)
         self.window.mainloop()
+
+
+    def export_window_data(self):
+
+        """ Exports Bioinformatic Data To JSON File """
+
+        if self.results_length < 1:
+            return
+
+        bio_data = {
+            "Read Index": self.read_index_value,
+            "K-mer": self.k_mer_value,
+            "K_mer Count": self.results_length,
+            "Reverse Complement": self.isReverse,
+            "K_mer Search": self.results
+        }
+
+        with open(current_export_file, "w") as file:
+            json.dump(bio_data, file, indent=4)
 
 
     def move_pages(self, direction):
@@ -191,8 +222,9 @@ class K_mer_Search:
             return
         # List For Our Read Indexes
         result_k_mer_indexes = list()
+        counter_1 = 1
         for key, value in self.DNA_data.items():
-            if key == str(self.read_index_entry.get()):
+            if str(counter_1) == str(self.read_index_entry.get()):
                 if self.isReverse == "True":
                     result_k_mer_indexes = k_mer_indexes(reverseComplement(str(value), self.sequence_type), self.sequence_type, str(self.k_mer_entry.get()).upper())
                 elif self.isReverse == "False":
@@ -203,9 +235,9 @@ class K_mer_Search:
                     try: self.k_mer_count.configure(text="None,")
                     except tkinter.TclError: return
                     # Error
-                    error_label_1 = CTkLabel(self.window, text="Empty K-mer", font=(window_font, window_font_size),
+                    error_label_1 = CTkLabel(self.window, text="Empty K-mer/Seq", font=(window_font, window_font_size),
                                              fg_color=color_scheme, text_color=bright_colors[1])
-                    error_label_1.place(relx=0.4, rely=0.25)
+                    error_label_1.place(relx=0.38, rely=0.25)
                     try: self.window.after(1000, error_label_1.destroy)
                     except tkinter.TclError: return
                     return
@@ -232,6 +264,10 @@ class K_mer_Search:
                     try: self.window.after(1000, error_label_3.destroy)
                     except tkinter.TclError: return
                     return
+                # Save For Global Usage
+                self.read_index_value = str(counter_1)
+                self.k_mer_value = str(self.k_mer_entry.get())
+                self.results = result_k_mer_indexes
                 # Set The self.result_length To result_k_mer_indexes
                 self.results_length = len(result_k_mer_indexes)
                 # Reset Bounds Whenever New Sequences Are Got
@@ -239,10 +275,11 @@ class K_mer_Search:
                     self.start, self.stop = 0, (view_limit + 5)
                     self.tracker_label.configure(text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.results_length / (view_limit + 5))}") if self.results_length >= 1 else 0
                 """ No Errors Then Update Our K-mer Count And Frame """
-                try: self.k_mer_count.configure(text=f"{len(result_k_mer_indexes)}," if len(result_k_mer_indexes) < number_threshold else f"{len(result_k_mer_indexes):,.2e},")
+                try: self.k_mer_count.configure(text=f"{len(result_k_mer_indexes)}," if len(str(len(result_k_mer_indexes))) < string_threshold else f"{len(result_k_mer_indexes):,.2e},")
                 except tkinter.TclError: return
                 for i in result_k_mer_indexes[self.start:self.stop]:
-                    CTkLabel(self.frame_3, text=f"{i+1}", font=(window_font, window_font_size), fg_color=color_scheme,
+                    CTkLabel(self.frame_3, text=f"{i}", font=(window_font, window_font_size), fg_color=color_scheme,
                              text_color=bright_colors[5], corner_radius=corner,
                              height=self.frame_3.winfo_height()).pack(side='left')
                 return
+            counter_1 += 1

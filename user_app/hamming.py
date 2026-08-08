@@ -1,5 +1,6 @@
 from user_analysis.k_mer_search import *
 import math
+import json
 
 class Hamming:
 
@@ -17,6 +18,9 @@ class Hamming:
         self.reverse_switch = 0
         self.isReverse = "False"
         self.result_length = 0
+        self.read_index_1 = None
+        self.read_index_2 = None
+        self.result = None
         # Window
         self.window = Tk()
         self.window.config(bg=color_scheme)
@@ -119,16 +123,47 @@ class Hamming:
         move_right = CTkButton(self.frame_7, text='>', fg_color=color_scheme, text_color=bright_colors[4], hover_color=color_scheme,
                                font=(window_font, window_font_size), command=lambda: self.move_pages("Right"))
         move_right.pack(side='right')
-        """ Bottom Buttons For Back To Codon Analysis And K_mer Analysis """
-        self.back_to_codon = CTkButton(self.window, text="Menu", font=(window_font, window_font_size), fg_color=color_scheme,
-                                       text_color=bright_colors[4], corner_radius=corner, hover_color=bright_colors[2], height=50,
+        # Mother Frame
+        mother_frame_1 = CTkFrame(self.window, fg_color=color_scheme)
+        mother_frame_1.pack(fill='both', padx=10, pady=10)
+        # Sub Frames
+        sub_frame_1 = CTkFrame(mother_frame_1, fg_color=color_scheme)
+        sub_frame_1.pack(fill='both', expand=True, side="left")
+        sub_frame_2 = CTkFrame(mother_frame_1, fg_color=color_scheme)
+        sub_frame_2.pack(fill='both', expand=True, side="right")
+        """ Bottom Buttons For Menu, Export, And K_mer Analysis """
+        menu = CTkButton(sub_frame_1, text="Menu", font=(window_font, window_font_size), fg_color=color_scheme,
+                                       text_color=bright_colors[4], corner_radius=corner, hover_color=bright_colors[2],
                                        command=self.back_to_menu)
-        self.back_to_codon.pack(fill="both", side="left", pady=50, padx=10)
-        self.k_mer_analysis = CTkButton(self.window, text="K-mer Analysis", font=(window_font, window_font_size), fg_color=color_scheme,
-                                        text_color=bright_colors[4], corner_radius=corner, hover_color=bright_colors[2], height=50,
+        menu.pack(side="left")
+        export_button = CTkButton(sub_frame_2, text="Export", font=(window_font, window_font_size), fg_color=color_scheme,
+                                  text_color=bright_colors[4], corner_radius=corner, hover_color=bright_colors[2],
+                                  command=lambda: self.export_window_data())
+        export_button.pack(side="left")
+        k_mer_analysis = CTkButton(sub_frame_2, text="K-mer Analysis", font=(window_font, window_font_size), fg_color=color_scheme,
+                                        text_color=bright_colors[4], corner_radius=corner, hover_color=bright_colors[2],
                                         command=self.next_window)
-        self.k_mer_analysis.pack(fill="both", side="right", pady=50, padx=10)
+        k_mer_analysis.pack(side="right")
         self.window.mainloop()
+
+
+    def export_window_data(self):
+
+        """ Exports Bioinformatic Data To JSON File """
+
+        if self.result_length < 1:
+            return
+
+        bio_data = {
+            "Seq 1 Read Index": self.read_index_1,
+            "Seq 2 Read Index": self.read_index_2,
+            "LengthOfEach": self.result_length,
+            "ReverseC": self.isReverse,
+            "Hamming": self.result
+        }
+
+        with open(current_export_file, "w") as file:
+            json.dump(bio_data, file, indent=4)
 
 
     def move_pages(self, direction):
@@ -205,8 +240,7 @@ class Hamming:
                 widget_2.destroy()
             # Reset self.tracker_label And Bounds
             self.start, self.stop = 0, (view_limit + 5)
-            self.tracker_label.configure(
-                    text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.result_length / (view_limit + 5))}") if self.result_length >= 1 else 0
+            self.tracker_label.configure(text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.result_length / (view_limit + 5))}") if self.result_length >= 1 else 0
         except tkinter.TclError:
             return
 
@@ -240,22 +274,26 @@ class Hamming:
         # Temporary string Variables
         temp_seq_1 = str()
         temp_seq_2 = str()
+        counter_1 = 1
         # Getting Sequences From Data
         for key, value in DNA_data.items():
-            if key == str(self.seq_1_entry.get()):
+            if str(counter_1) == str(self.seq_1_entry.get()):
+                self.read_index_1 = str(counter_1)
                 # After Getting The Data At Key
                 # Is Our User Requesting For Reverse Complement
                 if self.isReverse == "True":
                     temp_seq_1 += reverseComplement(str(value), self.sequence_type)
                 elif self.isReverse == "False":
                     temp_seq_1 += str(value)
-            elif key == str(self.seq_2_entry.get()):
+            elif str(counter_1) == str(self.seq_2_entry.get()):
+                self.read_index_2 = str(counter_1)
                 # After Getting The Data At Key
                 # Is Our User Requesting For Reverse Complement
                 if self.isReverse == "True":
                     temp_seq_2 += reverseComplement(str(value), self.sequence_type)
                 elif self.isReverse == "False":
                     temp_seq_2 += str(value)
+            counter_1 += 1
         # result Has The Hamming Distance
         result = n_distance(temp_seq_1, temp_seq_2)
         if result == -1 or result == -2:
@@ -269,39 +307,34 @@ class Hamming:
             # Making self.result_length Store The Result And Error Codes
             self.result_length = result
             # Error
-            self.error = CTkLabel(self.window, text="Sequence(s) Error", font=(window_font, window_font_size),
-                                  fg_color=color_scheme, text_color="red")
-            self.error.place(relx=0.4, rely=0.33)
+            self.error = CTkLabel(self.window, text="Sequence(s) Error", font=(window_font, window_font_size), fg_color=color_scheme, text_color="red")
+            self.error.place(relx=0.4, rely=0.35)
             try: self.window.after(1000, self.error.destroy)
             except tkinter.TclError: return
             return
         else:
             self.result_length = len(result)
+            self.result = result
             # Useful Variable For Updates
             hamming_count, intersection_count = 0, 0
             # We Want To Reset The Boundaries Only When New Sequences Are Hammed
             if isFromHammingCall:
                 self.start, self.stop = 0, (view_limit + 5)
-                self.tracker_label.configure(
-                    text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.result_length / (view_limit + 5))}") if self.result_length >= 1 else 0
-            """ Showing The Strands For Visual Comparison"""
+                self.tracker_label.configure(text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.result_length / (view_limit + 5))}") if self.result_length >= 1 else 0
+            """ Showing The Strands For Visual Comparison """
             for i in result[self.start:self.stop]:
                 if i[1] != i[2]:
                     hamming_count += 1
-                    CTkLabel(self.frame_5, text=f"{i[1]}\n{i[0]+1}", fg_color="white", text_color="black", height=self.frame_5.winfo_height(),
-                             width=50, corner_radius=5, font=(window_font, window_font_size)).grid(row=0, column=i[0],
-                                                                                              sticky='s', pady=1)
-                    CTkLabel(self.frame_6, text=f"{i[2]}\n{i[0]+1}", fg_color="white", text_color="black", height=self.frame_6.winfo_height(),
-                             width=50, corner_radius=5, font=(window_font, window_font_size)).grid(row=0, column=i[0],
-                                                                                              sticky='s', pady=1)
+                    CTkLabel(self.frame_5, text=f"{i[1]}\n{i[0]}", fg_color="white", text_color="black", height=self.frame_5.winfo_height(),
+                             width=50, corner_radius=5, font=(window_font, window_font_size)).grid(row=0, column=i[0], sticky='s', pady=1)
+                    CTkLabel(self.frame_6, text=f"{i[2]}\n{i[0]}", fg_color="white", text_color="black", height=self.frame_6.winfo_height(),
+                             width=50, corner_radius=5, font=(window_font, window_font_size)).grid(row=0, column=i[0], sticky='s', pady=1)
                 elif i[1] == i[2]:
                     intersection_count += 1
-                    CTkLabel(self.frame_5, text=f"{i[1]}\n{i[0]+1}", fg_color="black", text_color="white", height=self.frame_5.winfo_height(),
-                             width=50, corner_radius=5, font=(window_font, window_font_size)).grid(row=0, column=i[0],
-                                                                                              sticky='s', pady=1)
-                    CTkLabel(self.frame_6, text=f"{i[2]}\n{i[0]+1}", fg_color="black", text_color="white", height=self.frame_6.winfo_height(),
-                             width=50, corner_radius=5, font=(window_font, window_font_size)).grid(row=0, column=i[0],
-                                                                                              sticky='s', pady=1)
+                    CTkLabel(self.frame_5, text=f"{i[1]}\n{i[0]}", fg_color="black", text_color="white", height=self.frame_5.winfo_height(),
+                             width=50, corner_radius=5, font=(window_font, window_font_size)).grid(row=0, column=i[0], sticky='s', pady=1)
+                    CTkLabel(self.frame_6, text=f"{i[2]}\n{i[0]}", fg_color="black", text_color="white", height=self.frame_6.winfo_height(),
+                             width=50, corner_radius=5, font=(window_font, window_font_size)).grid(row=0, column=i[0], sticky='s', pady=1)
             try:
                 # Updating Dormant Labels; Hamming Distance, Length Of Each, Intersection
                 self.hamming_distance.configure(text=f"{hamming_count}|{round(((hamming_count/len(result[self.start:self.stop])) * 100), (rounder - 1))}%")

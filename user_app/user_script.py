@@ -4,6 +4,7 @@ from tkinter import *
 from customtkinter import *
 from interface.GUI_attr import *
 from decode.functions import *
+import json
 
 
 class User_Script:
@@ -22,6 +23,9 @@ class User_Script:
         self.desired_read_index_data = list()
         self.debugging = False
         self.stop_running_code = True
+        self.code_variables = dict()
+        # Did User Run Some Code
+        self.code_run = False
         # Length For Updated List In Normal Mode
         self.updatedList_length = 0
 
@@ -52,12 +56,19 @@ class User_Script:
         stop_code = CTkButton(mini_frame, text="Stop", font=(window_font, window_font_size), fg_color=color_scheme,
                               text_color=bright_colors[4], corner_radius=corner, hover_color=color_scheme,
                               command=lambda: self.stop_code())
-        stop_code.pack(side="left", padx=40)
+        stop_code.pack(side="left", padx=5)
+        sub_mini_frame = CTkFrame(mini_frame, fg_color=color_scheme)
+        sub_mini_frame.pack(side="right")
+        # Save Code Button
+        save_code_button = CTkButton(sub_mini_frame, text="Save", font=(window_font, window_font_size), fg_color=color_scheme,
+                                     text_color=bright_colors[4], corner_radius=corner, hover_color=color_scheme,
+                                     command=lambda: self.save_user_code())
+        save_code_button.pack(side="left", padx=5)
         # Run Button
-        self.run_button = CTkButton(mini_frame, text="Run", font=(window_font, window_font_size), fg_color=color_scheme,
-                               text_color=bright_colors[4], corner_radius=corner, hover_color=color_scheme, width=300,
-                               height=60, command=lambda: self.start_code())
-        self.run_button.pack(side="right", padx=40)
+        self.run_button = CTkButton(sub_mini_frame, text="Run", font=(window_font, window_font_size), fg_color=color_scheme,
+                               text_color=bright_colors[4], corner_radius=corner, hover_color=color_scheme,
+                                command=lambda: self.start_code())
+        self.run_button.pack(side="right", padx=5)
         # Mother Frame
         self.mother_frame_1 = CTkFrame(self.script_window, fg_color=color_scheme)
         self.mother_frame_1.pack(fill='both')
@@ -90,6 +101,10 @@ class User_Script:
                                       height=350)
         self.code_editor.tag_config("tag", background=bright_colors[3])
         self.code_editor.pack(side="left", expand=True, fill="both", padx=10, pady=5)
+        # Getting Previous Saved Code From A File
+        previous_code = self.retrieve_user_code()
+        if previous_code:
+            self.code_editor.insert("1.0", previous_code)
         # Information Frame
         self.frame_3 = CTkFrame(self.mother_frame_2, fg_color=bright_colors[3], height=350)
         self.frame_3.pack(side="right", expand=True, fill="both", padx=10, pady=5)
@@ -118,12 +133,64 @@ class User_Script:
                                     text_color=color_scheme, hover_color=color_scheme,
                                     command=lambda: self.navigate("move_right"), state="disabled")
         self.move_right.pack(side="right")
+        self.mother_frame_5 = CTkFrame(self.mother_frame_4, fg_color=color_scheme)
+        self.mother_frame_5.pack(side="bottom")
         # Menu Button
-        menu_button = CTkButton(self.mother_frame_4, text="Menu", font=(window_font, window_font_size - 10), fg_color=color_scheme,
+        menu_button = CTkButton(self.mother_frame_5, text="Menu", font=(window_font, window_font_size - 10), fg_color=color_scheme,
                                 text_color=bright_colors[4], hover_color=bright_colors[2],
                                 command=lambda: self.back_to_menu(username, firstname, lastname, menu_window, sign_window))
-        menu_button.pack(side="bottom")
+        menu_button.pack(side="left", padx=10)
+        # Export Button
+        self.export_button = CTkButton(self.mother_frame_5, text="Export", font=(window_font, window_font_size - 10), fg_color=color_scheme,
+                                  text_color=bright_colors[4], hover_color=bright_colors[2], command=lambda: self.export_window_data())
+        self.export_button.pack(side="right", padx=10)
         self.script_window.mainloop()
+
+
+    def save_user_code(self):
+
+        """ Saves User Code Into A File """
+
+        code = self.code_editor.get("1.0", "end")
+        if code is None:
+            return
+
+        with open(user_code_file, "w") as file:
+            file.write(code.strip())
+
+
+    @staticmethod
+    def retrieve_user_code():
+
+        """ Retrieves User Code From A File """
+
+        try:
+            with open(user_code_file, "r") as file:
+                return file.read()
+        except FileNotFoundError:
+            return None
+        except Exception:
+            return None
+
+
+    def export_window_data(self):
+
+        """ Exports Bioinformatic Data To JSON File """
+
+        if not self.code_run:
+            return
+
+        code = self.code_editor.get("1.0", "end").strip()
+        read_index = self.read_index
+        bio_data = {
+            "Read Index": read_index if read_index else None,
+            "User Code": code if code else None,
+            "Information": self.code_variables if self.code_variables is not None else None,
+            "User Code Results": list(zip(self.theData, self.theResults))
+        }
+
+        with open(current_export_file, "w") as file:
+            json.dump(bio_data, file, indent=4)
 
 
     def stop_code(self):
@@ -143,6 +210,9 @@ class User_Script:
     def back_to_menu(self, username, firstname, lastname, menu_window, sign_window):
 
         """ Goes Back To Menu """
+
+        # Save User Code
+        self.save_user_code()
 
         try:
             self.script_window.destroy()
@@ -193,11 +263,14 @@ class User_Script:
 
         # Get Read Index
         read_index = str(self.read_index_entry.get())
+        self.read_index = read_index
 
         """ Look For Read Index In DNA Data """
+        counter_1 = 1
         for key, value in self.DNA_data.items():
-            if key == read_index:
+            if str(counter_1) == read_index:
                 return value
+            counter_1 += 1
         return None
 
 
@@ -239,6 +312,9 @@ class User_Script:
             self.tempData = self.get_DNA_Data()
             if self.tempData is None:
                 return
+
+            # Prevents User Form Just Getting Read Index Without Running Code On It
+            self.code_run = False
 
             # Error Flags
             self.error_flags = {"out_of_bounds": 0,      # Indexing Out Of Bounds
@@ -363,6 +439,9 @@ class User_Script:
 
         """ Run The Script """
 
+        # Save Code
+        self.save_user_code()
+
         # Call Debugger If Debug Mode
         if self.debugging:
             self.run_debug_script()
@@ -370,6 +449,9 @@ class User_Script:
 
         # Indicate That Code Is Now Running
         self.stop_running_code = False
+
+        # User Did Run Some Code
+        self.code_run = True
 
         # Reset Boundaries
         self.start = 0
@@ -379,6 +461,7 @@ class User_Script:
         # Disable The Button
         self.run_button.configure(state="disabled")
         self.set_mode_button.configure(state="disabled")
+        self.export_button.configure(state="disabled")
 
         self.code_editor.configure(state="disabled")
         # Update The Window
@@ -390,6 +473,7 @@ class User_Script:
             # Enable The Disabled Buttons
             self.run_button.configure(state="normal")
             self.set_mode_button.configure(state="normal")
+            self.export_button.configure(state="normal")
 
             self.code_editor.configure(state="normal")
 
@@ -404,6 +488,7 @@ class User_Script:
             # Enable The Disabled Buttons
             self.run_button.configure(state="normal")
             self.set_mode_button.configure(state="normal")
+            self.export_button.configure(state="normal")
 
             self.code_editor.configure(state="normal")
 
@@ -516,9 +601,13 @@ class User_Script:
         # Drawing Results On Screen
         self.draw_updatedList(tempData, updatedList)
 
+        # Get Variables To Be Exported
+        self.code_variables = vars
+
         # Enable The Disabled Buttons
         self.run_button.configure(state="normal")
         self.set_mode_button.configure(state="normal")
+        self.export_button.configure(state="normal")
 
         self.code_editor.configure(state="normal")
 

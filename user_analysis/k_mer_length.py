@@ -4,6 +4,7 @@ from customtkinter import *
 from tkinter import *
 from DNAtoolkit.DNAtools import *
 from interface.GUI_attr import *
+import json
 
 
 class K_mer_Length:
@@ -21,6 +22,12 @@ class K_mer_Length:
         # Helpful Variables
         self.isReverse = "False"
         self.reverse_switch = 0
+        self.k_mer_dict_length = 0
+        self.read_index_value = None
+        self.k_mer_length = None
+        self.appearance_value = None
+        self.seq_length = None
+        self.result = None
         # Window
         self.window = Tk()
         self.window.title("K-mer Length")
@@ -102,11 +109,38 @@ class K_mer_Length:
         move_right = CTkButton(self.frame_4, text='>', fg_color=color_scheme, hover_color=color_scheme, text_color=bright_colors[4],
                                font=(window_font, window_font_size), command=lambda: self.move_pages("Right"))
         move_right.pack(side='right')
-        self.menu = CTkButton(self.window, text="Menu", text_color=bright_colors[4], fg_color=color_scheme,
+        # Mother Frame For Menu And Export Buttons
+        mother_frame_1 = CTkFrame(self.window, fg_color=color_scheme)
+        mother_frame_1.pack(fill='both')
+        self.menu = CTkButton(mother_frame_1, text="Menu", text_color=bright_colors[4], fg_color=color_scheme,
                                        hover_color=bright_colors[2], font=(window_font, window_font_size),
                                        corner_radius=corner, command=self.call_menu)
-        self.menu.pack(fill='both', padx=10, pady=10)
+        self.menu.pack(side="left", padx=10, pady=10)
+        export_button = CTkButton(mother_frame_1, text="Export", text_color=bright_colors[4], fg_color=color_scheme,
+                                  hover_color=bright_colors[2], font=(window_font, window_font_size),
+                                  corner_radius=corner, command=lambda: self.export_windows_data())
+        export_button.pack(side="right", padx=10, pady=10)
         self.window.mainloop()
+
+
+    def export_windows_data(self):
+
+        """ Exports Bioinformatic Data To JSON File """
+
+        if self.k_mer_dict_length < 1:
+            return
+
+        bio_data = {
+            "Read Index": self.read_index_value,
+            "K_mer Length": self.k_mer_length,
+            "Appearance(s)": self.appearance_value,
+            "Length": self.seq_length,
+            "ReverseComplement": self.isReverse,
+            "K_mers": self.result
+        }
+
+        with open(current_export_file, "w") as file:
+            json.dump(bio_data, file, indent=4)
 
 
     def move_pages(self, direction):
@@ -202,8 +236,9 @@ class K_mer_Length:
             return
         # Our Dictionary For Highest K-mer By Length
         k_mer_dict = dict()
+        counter_1 = 1
         for key, value in self.DNA_data.items():
-            if key == str(self.read_index_entry.get()):
+            if str(counter_1) == str(self.read_index_entry.get()):
                 if self.isReverse == "True":
                     k_mer_dict = highest_k_mer_len(reverseComplement(value, self.sequence_type), self.length_entry.get())
                 elif self.isReverse == "False":
@@ -218,7 +253,7 @@ class K_mer_Length:
                     # Error
                     error_label_1 = CTkLabel(self.window, text="Empty Seq", font=(window_font, window_font_size),
                                              fg_color=color_scheme, text_color=bright_colors[1])
-                    error_label_1.place(relx=0.4, rely=0.4)
+                    error_label_1.place(relx=0.4, rely=0.25)
                     try: self.window.after(1000, error_label_1.destroy)
                     except tkinter.TclError: return
                     return
@@ -238,6 +273,13 @@ class K_mer_Length:
                     return
                 # If No Errors
                 self.k_mer_dict_length = len(k_mer_dict.keys())
+                # Save For Global Usage
+                self.read_index_value = str(counter_1)
+                try: self.k_mer_length = int(self.length_entry.get())
+                except ValueError: self.k_mer_length = None
+                self.appearance_value = sum(list(k_mer_dict.values()))
+                self.seq_length = len(value)
+                self.result = k_mer_dict
                 # Reset Bounds And self.tracker_label If New K-mer Length Is Got
                 if isFrom_k_mer:
                     self.start, self.stop = 0, view_limit
@@ -256,3 +298,4 @@ class K_mer_Length:
                 except tkinter.TclError:
                     return
                 return
+            counter_1 += 1
