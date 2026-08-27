@@ -108,6 +108,8 @@ def open_folder(folder_path):
     try:
         if os.path.isdir(folder_path):
             return os.listdir(folder_path)
+        else:
+            return None
     # Any Exception Is An Error
     except Exception:
         return None

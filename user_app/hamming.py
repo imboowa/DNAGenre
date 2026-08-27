@@ -296,7 +296,7 @@ class Hamming:
             counter_1 += 1
         # result Has The Hamming Distance
         result = n_distance(temp_seq_1, temp_seq_2)
-        if result == -1 or result == -2:
+        if result == -1:
             try:
                 # Setting Label Values To None
                 self.hamming_distance.configure(text="None")
@@ -307,7 +307,23 @@ class Hamming:
             # Making self.result_length Store The Result And Error Codes
             self.result_length = result
             # Error
-            self.error = CTkLabel(self.window, text="Sequence(s) Error", font=(window_font, window_font_size), fg_color=color_scheme, text_color="red")
+            self.error = CTkLabel(self.window, text="Empty Seq(s)", font=(window_font, window_font_size), fg_color=color_scheme, text_color="red")
+            self.error.place(relx=0.4, rely=0.35)
+            try: self.window.after(1000, self.error.destroy)
+            except tkinter.TclError: return
+            return
+        elif result == -2:
+            try:
+                # Setting Label Values To None
+                self.hamming_distance.configure(text="None")
+                self.intersection.configure(text="None")
+                self.length_each.configure(text="None")
+            except tkinter.TclError:
+                return
+            # Making self.result_length Store The Result And Error Codes
+            self.result_length = result
+            # Error
+            self.error = CTkLabel(self.window, text="Unequal Length", font=(window_font, window_font_size), fg_color=color_scheme, text_color="red")
             self.error.place(relx=0.4, rely=0.35)
             try: self.window.after(1000, self.error.destroy)
             except tkinter.TclError: return

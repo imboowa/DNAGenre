@@ -28,7 +28,6 @@ class User_Script:
         self.code_run = False
         # Length For Updated List In Normal Mode
         self.updatedList_length = 0
-
         self.start = 0
         self.end = view_limit * 4
         # Used By navigate To See In Normal Mode
@@ -302,6 +301,7 @@ class User_Script:
 
             # Enable Code Editor
             self.code_editor.configure(state="normal")
+            self.read_index_entry.configure(state="normal")
         elif not self.debugging:
 
             # Get Code
@@ -338,6 +338,9 @@ class User_Script:
             self.vars["b"] = "0"
             self.vars["c"] = "0"
 
+            # dict To Store Labels And Index
+            self.labels = dict()
+
             # Flag For If Statements
             self.IF_FLAG: int = 1
             # Remembers Temporary Value For when
@@ -352,6 +355,9 @@ class User_Script:
 
             # Disable Code Editor
             self.code_editor.configure(state="disabled")
+
+            # Disable Read Index Entry
+            self.read_index_entry.configure(state="disabled")
 
 
     def draw_updatedList(self, tempData, updatedList):
@@ -439,13 +445,13 @@ class User_Script:
 
         """ Run The Script """
 
-        # Save Code
-        self.save_user_code()
-
         # Call Debugger If Debug Mode
         if self.debugging:
             self.run_debug_script()
             return
+
+        # Save Code
+        self.save_user_code()
 
         # Indicate That Code Is Now Running
         self.stop_running_code = False
@@ -463,6 +469,8 @@ class User_Script:
         self.set_mode_button.configure(state="disabled")
         self.export_button.configure(state="disabled")
 
+        self.read_index_entry.configure(state="disabled")
+
         self.code_editor.configure(state="disabled")
         # Update The Window
         self.script_window.update_idletasks()
@@ -474,6 +482,8 @@ class User_Script:
             self.run_button.configure(state="normal")
             self.set_mode_button.configure(state="normal")
             self.export_button.configure(state="normal")
+
+            self.read_index_entry.configure(state="normal")
 
             self.code_editor.configure(state="normal")
 
@@ -489,6 +499,8 @@ class User_Script:
             self.run_button.configure(state="normal")
             self.set_mode_button.configure(state="normal")
             self.export_button.configure(state="normal")
+
+            self.read_index_entry.configure(state="normal")
 
             self.code_editor.configure(state="normal")
 
@@ -519,6 +531,9 @@ class User_Script:
         vars["b"] = "0"
         vars["c"] = "0"
 
+        # dict To Store Labels And Indexes
+        labels = dict()
+
         # Flag For If Statements
         IF_FLAG: int = 1
         # Remembers Temporary Value For when
@@ -529,7 +544,7 @@ class User_Script:
         execCounter: int = 0
         while len(codeLines) > execCounter >= 0 and error_flags["no_errors"] and not self.debugging and not self.stop_running_code:
             try:
-                vars, error_flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList = executeLine(codeLines[execCounter], vars, error_flags, execCounter, tempIndex, tempValue, IF_FLAG, tempData, updatedList, len(codeLines))
+                vars, labels, error_flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList = executeLine(codeLines[execCounter], vars, labels, error_flags, execCounter, tempIndex, tempValue, IF_FLAG, tempData, updatedList, len(codeLines))
             except IndexError:
                 # User Did Not Give Full Arguments On A Function Call
                 error_flags["argument_error"] = 1
@@ -609,6 +624,8 @@ class User_Script:
         self.set_mode_button.configure(state="normal")
         self.export_button.configure(state="normal")
 
+        self.read_index_entry.configure(state="normal")
+
         self.code_editor.configure(state="normal")
 
         self.move_right.configure(state="normal")
@@ -629,7 +646,7 @@ class User_Script:
             # Highlight Line
             self.highlight_line(self.execCounter)
             try:
-                self.vars, self.error_flags, self.execCounter, self.tempIndex, self.tempValue, self.IF_FLAG, self.updatedList = executeLine(self.codeLines[self.execCounter], self.vars, self.error_flags, self.execCounter, self.tempIndex, self.tempValue, self.IF_FLAG, self.tempData, self.updatedList, len(self.codeLines))
+                self.vars, self.labels, self.error_flags, self.execCounter, self.tempIndex, self.tempValue, self.IF_FLAG, self.updatedList = executeLine(self.codeLines[self.execCounter], self.vars, self.labels, self.error_flags, self.execCounter, self.tempIndex, self.tempValue, self.IF_FLAG, self.tempData, self.updatedList, len(self.codeLines))
             except IndexError:
                 # User Did Not Give Full Arguments On A Function Call
                 self.error_flags["argument_error"] = 1

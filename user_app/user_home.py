@@ -118,11 +118,19 @@ class User_Home:
                                            scrollbar_fg_color=bright_colors[3], scrollbar_button_hover_color=bright_colors[3],
                                            corner_radius=corner, height=300, width=(self.user_home_window.winfo_width() - 40))
             self.frame_3_1.place(rely=0.5, relx=0.010)
+            # Sort Files
+            try:
+                self.folder_path_files = sorted(self.folder_path_files, key=lambda file: int(os.path.splitext(file)[0]))
+            except ValueError:
+                self.folder_path_files = sorted(self.folder_path_files, key=lambda file: str(os.path.splitext(file)[0]))
+            except Exception:
+                pass
             """ Show Files """
             for file in self.folder_path_files:
                 if folder_files_limit_1 == view_limit:
                     break
-                path_start_index = str(self.folder_path).rindex('/') + 1
+                try: path_start_index = str(self.folder_path).rindex('/') + 1
+                except ValueError: path_start_index = 0
                 temp_string = str(self.folder_path[path_start_index:]) + "/" + str(file)
                 file_label = CTkButton(self.frame_3_1,
                                        text=temp_string if len(temp_string) < string_threshold * 3 else f"{temp_string[:string_threshold * 3]}...",
@@ -397,6 +405,13 @@ class User_Home:
                     except tkinter.TclError: return
                 """ Put Folder Path Into Usage Database - Update Database """
                 insert_folder_path(usage_database_file, username, str(self.folder_entry.get()))
+                # Sort Files
+                try:
+                    folder_path_files_1 = sorted(folder_path_files_1, key=lambda file: int(os.path.splitext(file)[0]))
+                except ValueError:
+                    folder_path_files_1 = sorted(folder_path_files_1, key=lambda file: str(os.path.splitext(file)[0]))
+                except Exception:
+                    pass
                 # Update self.folder_path_files With New Folder Files
                 self.folder_path_files = folder_path_files_1
                 """ Viewport Controllers """
@@ -423,16 +438,23 @@ class User_Home:
                                            scrollbar_fg_color=bright_colors[3], corner_radius=corner,
                                            height=300, width=(self.user_home_window.winfo_width() - 40))
                 self.frame_3_1.place(rely=0.5, relx=0.010)
+                # Retrieve Inserted Data - Just In case User Deletes The Folder Path From self.folder_entry Label
+                new_folder_path, new_last_session = self.get_user_data(username)
+                # Is The Got Data Healthy
+                if new_folder_path is None or new_last_session is None:
+                    return
+                new_folder_path = str(new_folder_path)
                 """ Displaying The Files In The Folder From User """
                 for file in self.folder_path_files:
                     # Check First If View Limit Is Reached
                     if folder_files_limit_2 == view_limit:
                         break
-                    path_start_index = self.folder_entry.get().rindex('/') + 1
-                    temp_string = str(self.folder_entry.get()[path_start_index:]) + "/" + str(file)
+                    try: path_start_index = new_folder_path.rindex('/') + 1
+                    except ValueError: path_start_index = 0
+                    temp_string = new_folder_path[path_start_index:] + "/" + str(file)
                     file_label = CTkButton(self.frame_3_1, text=temp_string if len(temp_string) < string_threshold * 3 else f"{temp_string[:string_threshold * 3]}...", font=(window_font, window_font_size), fg_color=color_scheme,
                                            text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner,
-                                           command=lambda f='/'+file: self.start_DNA_analysis(str(self.folder_entry.get())+str(f)))
+                                           command=lambda f='/'+file: self.start_DNA_analysis(new_folder_path+str(f)))
                     file_label.pack(anchor='w', pady=5)
                     folder_files_limit_2 += 1
                 return

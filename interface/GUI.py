@@ -53,7 +53,7 @@ class App:
                     user_info_key = file.read()
             except FileNotFoundError:
                 label = CTkLabel(self.window, text="Decryption Failed", font=(window_font, window_font_size), fg_color=color_scheme, text_color=bright_colors[1])
-                label.place(rely=0.7,relx=0.40)
+                label.place(rely=0.7, relx=0.40)
                 self.window.after(1000, label.destroy)
                 return
             except Exception:
@@ -114,6 +114,7 @@ class App:
 
 
 
+# Prepares color_scheme Whenever App() Is Called Here
 if color_scheme == 'white':
     for i in range(len(bright_colors)):
         bright_colors[i] = dull_colors[i]

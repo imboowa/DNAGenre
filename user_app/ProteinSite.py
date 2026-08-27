@@ -197,19 +197,16 @@ class Protein:
             temp_open_reading_frames = gen_openReading_frames(value, seq_type)
             if temp_open_reading_frames != -1 and temp_open_reading_frames != -2:
                 key_value_codons[str(counter_1)] = temp_open_reading_frames
-                counter_1 += 1
             else:
-                """ Imagine There Are No Open Reading Frames Hence Let's Stop Process """
-                # Enable Buttons So That User Can Leave Window
-                self.search_button.configure(state='normal')
-                self.reverse_button.configure(state='normal')
-                self.read_index_entry.configure(state='normal')
-                self.isRunning = False
-                return
+                key_value_codons[str(counter_1)] = None
+            counter_1 += 1
         """ Read Index: List Of Tuples (Index, Proteins) """
         read_index_proteins_dict = dict()
         for key, value in key_value_codons.items():
             read_index_proteins_dict[key] = list()
+            # Skip None Objects Because Those Read Indexes Contain Invalid Data
+            if value is None:
+                continue
             for index, (i) in enumerate(value):
                 temp_proteins = proteins_from_reference(i)
                 if temp_proteins != -1:
@@ -299,6 +296,49 @@ class Protein:
                 else:
                     # Set self.desired_reverse_seq To A String So Python Does Not Error
                     self.desired_reverse_seq = ""
+
+                # Set All Frames To Indicate That This Read Index Has Invalid Data
+                if str(value) == '[]' and self.isReverseComplement == 'False':
+                    try:
+                        for widget_1 in self.reading_frame_1.winfo_children():
+                            widget_1.destroy()
+                        for widget_2 in self.reading_frame_2.winfo_children():
+                            widget_2.destroy()
+                        for widget_3 in self.reading_frame_3.winfo_children():
+                            widget_3.destroy()
+                    except tkinter.TclError:
+                        return
+                    label_1 = CTkLabel(self.reading_frame_1, text="Has Invalid Data", font=(window_font, (window_font_size + 20)),
+                                            fg_color=bright_colors[3], text_color=color_scheme)
+                    label_1.grid(row=0, column=0, sticky='w', padx=5, pady=5)
+                    label_2 = CTkLabel(self.reading_frame_2, text="Has Invalid Data", font=(window_font, (window_font_size + 20)),
+                                            fg_color=bright_colors[3], text_color=color_scheme)
+                    label_2.grid(row=0, column=0, sticky='w', padx=5, pady=5)
+                    label_3 = CTkLabel(self.reading_frame_3, text="Has Invalid Data", font=(window_font, (window_font_size + 20)),
+                                            fg_color=bright_colors[3], text_color=color_scheme)
+                    label_3.grid(row=0, column=0, sticky='w', padx=5, pady=5)
+                    return
+                elif str(value) == '[]' and self.isReverseComplement == 'True':
+                    try:
+                        for widget_1 in self.reading_frame_1.winfo_children():
+                            widget_1.destroy()
+                        for widget_2 in self.reading_frame_2.winfo_children():
+                            widget_2.destroy()
+                        for widget_3 in self.reading_frame_3.winfo_children():
+                            widget_3.destroy()
+                    except tkinter.TclError:
+                        return
+                    label_4 = CTkLabel(self.reading_frame_1, text="Has Invalid Data", font=(window_font, (window_font_size + 20)),
+                                            fg_color=bright_colors[3], text_color=color_scheme)
+                    label_4.grid(row=0, column=0, sticky='w', padx=5, pady=5)
+                    label_5 = CTkLabel(self.reading_frame_2, text="Has Invalid Data", font=(window_font, (window_font_size + 20)),
+                                       fg_color=bright_colors[3], text_color=color_scheme)
+                    label_5.grid(row=0, column=0, sticky='w', padx=5, pady=5)
+                    label_6 = CTkLabel(self.reading_frame_3, text="Has Invalid Data", font=(window_font, (window_font_size + 20)),
+                                       fg_color=bright_colors[3], text_color=color_scheme)
+                    label_6.grid(row=0, column=0, sticky='w', padx=5, pady=5)
+                    return
+
                 for i in value:
                     # Separating Frame From Protein(s)
                     frame, proteins = i.split("|")

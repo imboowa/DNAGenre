@@ -183,6 +183,8 @@ class Requirements_1:
             gc_result = gc_content(str(value))
             if gc_result != -1:
                 gc_per_subseq[str(counter_1)] = round(gc_result, rounder)
+            else:
+                gc_per_subseq[str(counter_1)] = 0.00
             counter_1 += 1
         # Making A Graph
         self.framer_2 = CTkFrame(self.frame_3, fg_color=color_scheme)
@@ -219,6 +221,8 @@ class Requirements_1:
             at_result = at_content(str(value), seq_type)
             if at_result != -1 and at_result != -2:
                 at_per_subseq[str(counter_2)] = round(at_result, rounder)
+            else:
+                at_per_subseq[str(counter_2)] = 0.00
             counter_2 += 1
         # Making A Graph
         self.framer_3 = CTkFrame(self.frame_3, fg_color=color_scheme)
@@ -351,6 +355,8 @@ class Requirements_1:
             gc_result = gc_content(str(value))
             if gc_result != -1:
                 gc_per_subseq[str(counter_1)] = round(gc_result, rounder)
+            else:
+                gc_per_subseq[str(counter_1)] = 0.00
             counter_1 += 1
 
         # Calculating AT/AU Per Key In The File
@@ -360,6 +366,8 @@ class Requirements_1:
             at_result = at_content(str(value), self.seq_type)
             if at_result != -1 and at_result != -2:
                 at_per_subseq[str(counter_2)] = round(at_result, rounder)
+            else:
+                at_per_subseq[str(counter_2)] = 0.00
             counter_2 += 1
 
         bio_data = {
@@ -441,6 +449,8 @@ class Requirements_1:
                     gc_result = gc_content(str(value))
                     if gc_result != -1:
                         gc_content_subseq_1[str(counter_1)] = round(gc_result, rounder)
+                    else:
+                        gc_content_subseq_1[str(counter_1)] = 0.00
                     counter_1 += 1
                 self.plot_2.cla()
                 self.plot_2.set_xlabel("Read Indexes")
@@ -462,6 +472,8 @@ class Requirements_1:
                     gc_result = gc_content(str(value))
                     if gc_result != -1:
                         gc_content_subseq_2[str(counter_2)] = round(gc_result, rounder)
+                    else:
+                        gc_content_subseq_2[str(counter_2)] = 0.00
                     counter_2 += 1
                 self.plot_2.cla()
                 self.plot_2.set_xlabel("Read Indexes")
@@ -483,6 +495,8 @@ class Requirements_1:
                     at_result = at_content(str(value), self.seq_type)
                     if at_result != -1 and at_result != -2:
                         at_content_subseq_1[str(counter_3)] = round(at_result, rounder)
+                    else:
+                        at_content_subseq_1[str(counter_3)] = 0.00
                     counter_3 += 1
                 self.plot_3.cla()
                 self.plot_3.set_title("AT Percent Per Read Index" if self.seq_type == list(NUCLEOTIDE_BASE.keys())[0] else "AU Percent Per Read Index")
@@ -504,6 +518,8 @@ class Requirements_1:
                     at_result = at_content(str(value), self.seq_type)
                     if at_result != -1 and at_result != -2:
                         at_content_subseq_2[str(counter_4)] = round(at_result, rounder)
+                    else:
+                        at_content_subseq_2[str(counter_4)] = 0.00
                     counter_4 += 1
                 self.plot_3.cla()
                 self.plot_3.set_title("AT Percent Per Read Index" if self.seq_type == list(NUCLEOTIDE_BASE.keys())[0] else "AU Percent Per Read Index")

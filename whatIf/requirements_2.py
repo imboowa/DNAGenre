@@ -27,8 +27,6 @@ class Requirements_2:
         self.window.eval("tk::PlaceWindow . center")
         self.window.propagate(True)
         self.window.resizable(False, False)
-        # Calling Proteinsynthesis In Separate Thread
-        self.window.after(100, self.start_thread)
         """ Heading """
         CTkLabel(self.window, text="Proteinsynthesis", font=(window_font, window_font_size), fg_color=color_scheme, text_color=text_color).pack(fill='both',pady=10)
         """ Frame For Read Index Entry, Search, Reverse """
@@ -72,6 +70,12 @@ class Requirements_2:
         self.filename_label = CTkLabel(self.frame_2, text=f"{str(self.new_filename)}" if len(str(self.new_filename)) <= string_threshold else f"{str(self.new_filename)[:10]}...",
                                        fg_color=bright_colors[2], text_color=bright_colors[4], font=(window_font, (window_font_size - 15)))
         self.filename_label.grid(row=0, column=9, sticky='w', padx=5, pady=5)
+        # Thread To Show Progress
+        self.progress_value = 0.0
+        self.isRunning = False
+        self.progress_bar = CTkProgressBar(self.frame_2, orientation=HORIZONTAL, height=15, width=100)
+        self.progress_bar.set(self.progress_value)
+        self.progress_bar.grid(row=0, column=10, sticky='w', padx=5, pady=5)
         """ Scrollable Frame For Protein Showcase """
         self.scroll_frame = CTkScrollableFrame(self.window, fg_color=bright_colors[3], scrollbar_fg_color=bright_colors[3],
                                                scrollbar_button_color=bright_colors[3], scrollbar_button_hover_color=bright_colors[3])
@@ -91,6 +95,8 @@ class Requirements_2:
                                        text_color=bright_colors[4], hover_color=bright_colors[2], corner_radius=corner, height=50,
                                        command=lambda: self.export_window_data())
         self.export_button.pack(side='left', padx=15, pady=10)
+        # Calling Proteinsynthesis In Separate Thread When Window Is Ready
+        self.window.after_idle(lambda: self.start_thread())
         self.window.mainloop()
 
 
@@ -173,9 +179,18 @@ class Requirements_2:
     def start_thread(self):
 
         """ Start Proteinsynthesis Thread """
-
-        protein_thread = threading.Thread(target=self.proteinsynthesis_thread, daemon=True)
-        protein_thread.start()
+        if not self.isRunning:
+            self.isRunning = True
+            # Disable Buttons That Need Proteinsythesis To Take Place
+            self.protein_search.configure(state="disabled")
+            self.reverse.configure(state="disabled")
+            self.export_button.configure(state="disabled")
+            self.read_index_entry.configure(state="disabled")
+            self.hamming_distance.configure(state="disabled")
+            protein_thread = threading.Thread(target=self.proteinsynthesis_thread, daemon=True)
+            protein_thread.start()
+            # Update GUI
+            self.update_GUI()
 
 
     def proteinsynthesis_thread(self):
@@ -190,18 +205,46 @@ class Requirements_2:
             if temp_ORF != -1 and temp_ORF != -2:
                 key_and_ORF[str(counter_1)] = temp_ORF
             else:
-                return
+                key_and_ORF[str(counter_1)] = None
+            self.progress_value = counter_1 / len(self.DNA_data.items())
             counter_1 += 1
+        # Finished First Process
+        self.progress_bar.set(0.0)
         # Getting Major Proteins From The Generated 6 Possible Frames
+        counter_2 = 1
         read_index_proteins = dict()
         for key, value in key_and_ORF.items():
             read_index_proteins[key] = list()
+            # Skip None Objects Because Those Read Indexes Contain Invalid Data
+            if value is None:
+                continue
             for index, i in enumerate(value):
                 temp_proteins = proteins_from_reference(i)
                 if temp_proteins != -1:
                     index_and_proteins = f"{index}|{str(temp_proteins)}"
                     read_index_proteins[key].append(index_and_proteins)
+            self.progress_value = counter_2 / len(key_and_ORF.items())
+            counter_2 += 1
+        # Finished Last Process
+        self.isRunning = False
         self.key_and_proteins = read_index_proteins
+
+
+    def update_GUI(self):
+
+        """ Updates GUI """
+
+        self.progress_bar.set(self.progress_value)
+        if self.isRunning:
+            self.window.after(1000, self.update_GUI)
+        else:
+            self.progress_bar.set(1.0)
+            # Enable Buttons That Were Disabled
+            self.protein_search.configure(state="normal")
+            self.reverse.configure(state="normal")
+            self.export_button.configure(state="normal")
+            self.read_index_entry.configure(state="normal")
+            self.hamming_distance.configure(state="normal")
 
 
     def show_proteins(self):
@@ -221,7 +264,7 @@ class Requirements_2:
             if str(counter_1) == str(self.read_index_entry.get()):
                 self.read_index = str(counter_1)
                 # Updating Label To Show User The Current Read Index
-                try: self.read_index_label.configure(text=f"{str(counter_1)[:2]}...," if len(str(counter_1)) > string_threshold else f"{str(counter_1)},")
+                try: self.read_index_label.configure(text=f"{str(counter_1)[:string_threshold]}...," if len(str(counter_1)) > string_threshold else f"{str(counter_1)},")
                 except tkinter.TclError: return
                 # Choose Open Reading Frame Choice From User
                 target_frame = self.current_frame
@@ -234,6 +277,11 @@ class Requirements_2:
                         for widget in self.scroll_frame.winfo_children():
                             widget.destroy()
                     except tkinter.TclError: return
+                # Show User That This Read Index Has Invalid Data
+                if str(value) == '[]':
+                    CTkLabel(self.scroll_frame, text="Has Invalid Data", font=(window_font, (window_font_size + 30), font_style), fg_color=bright_colors[3],
+                             text_color=color_scheme).pack(fill='both', padx=10, pady=10)
+                    return
                 # Finding Target Frame
                 for i in value:
                     frame, proteins = str(i).split("|")

@@ -139,13 +139,13 @@ def manageNucleotideCheck(vars: dict, dataList: list, flags: dict, var1: str, va
     return flags, -1
 
 
-def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tempIndex: int, tempValue: str, IF_FLAG: int, dataList: list, updatedList: list, codeLength: int) -> tuple[dict, dict, int, int, int, str, list]:
+def executeLine(lineContent: str, vars: dict, labels: dict, flags: dict, execCounter: int, tempIndex: int, tempValue: str, IF_FLAG: int, dataList: list, updatedList: list, codeLength: int) -> tuple[dict, dict, int, int, int, str, list]:
 
     """ Executes A Line Of Code """
 
     # Error Checking
     if not lineContent:
-        return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+        return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
     # Remove Newline Character
     lineContent = lineContent.strip("\n")
     # Get Command
@@ -155,13 +155,13 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
     if "" in tempCommand:
         flags["argument_error"] = 1
         flags["no_errors"] = False
-        return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+        return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
 
     # Printr To result list
     if tempCommand[0] == "printr" and IF_FLAG == 1:
         tempArg1: str = tempCommand[1]
         if not tempArg1:
-            return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
         else:
             tempStr: str = printr(vars, tempArg1)
             index: str = vars["c"]
@@ -173,7 +173,7 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
             except ValueError:
                 flags["not_integer"] = 1
                 flags["no_errors"] = False
-                return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
 
     # Initializing Or Setting Variables
     elif tempCommand[0] == "set" and IF_FLAG == 1:
@@ -183,16 +183,16 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
         if checkForVariable(tempArg1, defaults):
             flags["variable_access"] = 1
             flags["no_errors"] = False
-            return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
         else:
             if not tempArg1 or not tempArg2:
-                return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
             else:
                 vars = setVariable(vars, tempArg1, tempArg2)
 
     # Comments
     elif tempCommand[0] == "//" and IF_FLAG == 1:
-        return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+        return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
 
     elif tempCommand[0] == "add" and IF_FLAG == 1:
         tempResultVar = tempCommand[1]
@@ -202,14 +202,14 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
         if checkForVariable(tempResultVar, defaults):
             flags["variable_access"] = 1
             flags["no_errors"] = False
-            return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
         else:
             if not tempArg1 or not tempArg2 or not tempResultVar:
-                return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
             else:
                 flags, tempResult, value = mathOperations(tempCommand[0], vars, flags, tempResultVar, tempArg1, tempArg2)
                 if tempResult is None or value is None:
-                     return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                     return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
                 if tempResult in vars:
                     vars[tempResult] = str(value)
                 else:
@@ -225,14 +225,14 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
         if checkForVariable(tempResultVar, defaults):
             flags["variable_access"] = 1
             flags["no_errors"] = False
-            return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
         else:
             if not tempArg1 or not tempArg2 or not tempResultVar:
-                return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
             else:
                 flags, tempResult, value = mathOperations(tempCommand[0], vars, flags, tempResultVar, tempArg1, tempArg2)
                 if tempResult is None or value is None:
-                     return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                     return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
                 if tempResult in vars:
                     vars[tempResult] = str(value)
                 else:
@@ -248,14 +248,14 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
         if checkForVariable(tempResultVar, defaults):
             flags["variable_access"] = 1
             flags["no_errors"] = False
-            return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
         else:
             if not tempArg1 or not tempArg2 or not tempResultVar:
-                return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
             else:
                 flags, tempResult, value = mathOperations(tempCommand[0], vars, flags, tempResultVar, tempArg1, tempArg2)
                 if tempResult is None or value is None:
-                     return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                     return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
                 if tempResult in vars:
                     vars[tempResult] = str(value)
                 else:
@@ -271,14 +271,14 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
         if checkForVariable(tempResultVar, defaults):
             flags["variable_access"] = 1
             flags["no_errors"] = False
-            return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
         else:
             if not tempArg1 or not tempArg2 or not tempResultVar:
-                return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
             else:
                 flags, tempResult, value = mathOperations(tempCommand[0], vars, flags, tempResultVar, tempArg1, tempArg2)
                 if tempResult is None or value is None:
-                    return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                    return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
                 if tempResult in vars:
                     vars[tempResult] = str(value)
                 else:
@@ -289,7 +289,7 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
     elif tempCommand[0] == "when" and IF_FLAG == 1:
         tempCondition = tempCommand[1]
         if not tempCondition:
-            return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
         else:
             tempValue = tempCondition
             tempIndex = execCounter
@@ -297,18 +297,18 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
     elif tempCommand[0] == "end" and IF_FLAG == 1:
         # Handles Nested Loops Hence No Errors
         if not tempValue:
-            return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
         else:
             # Is tempValue A Variable
             if tempValue in vars:
                 try:
                     if int(vars[tempValue]) != 0:
                         execCounter = tempIndex - 1
-                    return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                    return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
                 except ValueError:
                     flags["not_integer"] = 1
                     flags["no_errors"] = False
-                    return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                    return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
             try:
                 # Is tempValue Just A Number
                 if int(tempValue) != 0:
@@ -324,7 +324,7 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
         tempConditionVar1 = tempCommand[1]
         tempConditionVar2 = tempCommand[2]
         if not tempConditionVar1 or not tempConditionVar2:
-            return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
         else:
             if tempConditionVar1 in vars:
                 tempConditionVar1 = vars[tempConditionVar1]
@@ -335,13 +335,13 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
             # Is User Checking Nucleotide Base
             if nuc_check_result == 2:
                 IF_FLAG = 0
-                return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
             elif nuc_check_result == 1:
                 IF_FLAG = 1
-                return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
             elif nuc_check_result == 0:
                 IF_FLAG = 0
-                return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
             elif nuc_check_result == -1:
                 try:
                     # Do They Match Whether Variables Or Values
@@ -363,14 +363,29 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
         # When Using branch Please Consider Comments Too As Valid Indexes In Code (Do Not Skipp Them)
         # Gives User Explicit Control Over Program Flow
         if len(tempCommand) == 2:
-            tempUserCounter: str = tempCommand[1]
+            # Is Second Argument A Variable
+            if tempCommand[1] in vars:
+                tempUserCounter = vars[tempCommand[1]]
+            else:
+                # Get Label's Value In dict
+                try:
+                    # Add 1 So That It Aligns With Label Index In Code Accurately
+                    tempUserCounter: str = int(labels[tempCommand[1]]) + 1
+                except ValueError:
+                    flags["not_integer"] = 1
+                    flags["no_errors"] = False
+                    return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+                except KeyError:
+                    # If Label Does Not Exist Then User Is Directing Program Flow Using A Line Of Code Index
+                    tempUserCounter: str = tempCommand[1]
         else:
             flags["argument_error"] = 1
             flags["no_errors"] = False
-            return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
         try:
             tempCounter = int(tempUserCounter)
-            if 1 <= tempCounter < codeLength:
+            # Subtract 1 While Checking Because User Is Entering Value X Plus 1 Hence Getting The Right Index For Lines Of Code In A List
+            if 1 <= (tempCounter - 1) < codeLength:
                 execCounter = tempCounter - 2
             else:
                 flags["out_of_bounds"] = 1
@@ -384,10 +399,14 @@ def executeLine(lineContent: str, vars: dict, flags: dict, execCounter: int, tem
         flags["no_errors"] = False
 
     else:
+        # Before Failed, Check If It Is A Label
+        if tempCommand[0][-1] == ":":
+            labels[tempCommand[0][:-1]] = execCounter
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
         # If Code Could Be Run Then Failed
         if IF_FLAG == 1:
             flags["bad_command"] = 1
             flags["no_errors"] = False
-            return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+            return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
 
-    return vars, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList
+    return vars, labels, flags, execCounter, tempIndex, tempValue, IF_FLAG, updatedList

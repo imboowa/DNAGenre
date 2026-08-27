@@ -148,23 +148,23 @@ class K_mer_Length:
         """ Navigates Pages """
 
         if direction == "Left":
-            if self.start >= view_limit:
-                self.start -= view_limit
-                self.stop -= view_limit
+            if self.start >= (view_limit + 5):
+                self.start -= (view_limit + 5)
+                self.stop -= (view_limit + 5)
                 self.get_k_mer(False)
                 try:
                     self.tracker_label.configure(text_color=bright_colors[5])
-                    self.tracker_label.configure(text=f"{(self.start // view_limit) + 1}/{math.ceil(self.k_mer_dict_length / view_limit)}") if self.k_mer_dict_length >= 1 else 0
+                    self.tracker_label.configure(text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.k_mer_dict_length / (view_limit + 5))}") if self.k_mer_dict_length >= 1 else 0
                 except tkinter.TclError:
                     return
         elif direction == "Right":
             if self.stop < self.k_mer_dict_length:
-                self.start += view_limit
-                self.stop += view_limit
+                self.start += (view_limit + 5)
+                self.stop += (view_limit + 5)
                 self.get_k_mer(False)
                 try:
                     self.tracker_label.configure(text_color=bright_colors[5])
-                    self.tracker_label.configure(text=f"{(self.start // view_limit) + 1}/{math.ceil(self.k_mer_dict_length / view_limit)}") if self.k_mer_dict_length >= 1 else 0
+                    self.tracker_label.configure(text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.k_mer_dict_length / (view_limit + 5))}") if self.k_mer_dict_length >= 1 else 0
                 except tkinter.TclError:
                     return
 
@@ -190,7 +190,7 @@ class K_mer_Length:
             for widget in self.frame_3.winfo_children():
                 widget.destroy()
             # Reset Bounds and self.tracker_label
-            self.start, self.stop = 0, view_limit
+            self.start, self.stop = 0, (view_limit + 5)
             self.k_mer_dict_length = 0
             self.tracker_label.configure(text=f"")
         except tkinter.TclError:
@@ -282,7 +282,7 @@ class K_mer_Length:
                 self.result = k_mer_dict
                 # Reset Bounds And self.tracker_label If New K-mer Length Is Got
                 if isFrom_k_mer:
-                    self.start, self.stop = 0, view_limit
+                    self.start, self.stop = 0, (view_limit + 5)
                     self.tracker_label.configure(text=f"{(self.start // (view_limit + 5)) + 1}/{math.ceil(self.k_mer_dict_length / (view_limit + 5))}") if self.k_mer_dict_length >= 1 else 0
                 for i, (x, y) in enumerate(list(k_mer_dict.items())[self.start: self.stop]):
                     CTkLabel(self.frame_3, text=str(x), text_color=color_scheme, fg_color=bright_colors[3],

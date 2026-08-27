@@ -33,10 +33,10 @@ class K_mer_Search:
         """ K_mer Analysis Header """
         k_mer_header = CTkLabel(self.window, text="K-mer Search", font=(window_font, window_font_size),
                                 fg_color=color_scheme, text_color=text_color)
-        k_mer_header.pack(fill="both", pady=5, side='top')
+        k_mer_header.pack(pady=5, side='top')
         """ Frame For Read Index and K_mer """
         self.frame_1 = CTkFrame(self.window, fg_color=color_scheme)
-        self.frame_1.pack(fill='both', pady=50, expand=True)
+        self.frame_1.pack(fill='both', expand=True)
         """ Putting Read Index Entry and K_mer Entry Into Frame """
         self.read_index_entry = CTkEntry(self.frame_1, placeholder_text="Enter Read Index", placeholder_text_color=bright_colors[0],
                                          text_color=bright_colors[5], border_color=bright_colors[2], border_width=border,

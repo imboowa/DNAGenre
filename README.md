@@ -1,14 +1,14 @@
 ## AutumnMiles: DNAGenre ##
-This project was aimed at being free, used by organizations, and a startup project for study purposes. It is aimed at
+This project is aimed at being free, used by organizations, and a startup project for study purposes. It is aimed at
 making DNA analysis faster and more insightful (visionary).
 
 
 ## Dive Into ##
 **About**
 
-DNAGenre is a bioinformatics (study of DNA using computers) oriented software that helps to read a DNA/RNA file and provide
+DNAGenre is a bioinformatics (study of DNA/RNA data using computers) oriented software that helps to read a DNA/RNA file and provide
 insight in DNA/RNA data. This software is different in away that for the start, it is educational, free to use, and will
-commonly be used in labs. The software logs in a user or signs up a user, then they can just tap a real DNA/RNA file, and
+commonly be used in labs. The software logs in a user or signs up a user, then they can just select a real DNA/RNA file, and
 the software will provide the insights of the DNA file. The problem the project solves is that it is educational and
 helps learners know what is bioinformatics under the hood.
 
@@ -19,16 +19,19 @@ helps learners know what is bioinformatics under the hood.
 **II.** `This README has @2 and 2. @2 was in the old versions while 2 is the latest version.`
 
 **Features**
-1. Login and User Authentication
-2. Reading Folder for sequence files
-3. Using real bioinformatic files (good with `txt` files in required format)
-4. Bioinformatic analysis
-5. Codon Analysis
-6. Protein Analysis
+1. Login and User Authentication.
+2. Reading Folder for sequence files.
+3. Using real bioinformatic files like **fastq**, **fasta**, (good with `txt` files in required format).
+4. Bioinformatic analysis.
+5. Codon Analysis.
+6. Protein Analysis.
 7. Simple Inbuilt Programming Language called `Decode`
 8. User can delete a created account.
-9. Show time on some processes.
+9. Show time or a progress bar on some processes.
 10. Able to process an entire folder of DNA/RNA files.
+11. User can compress DNA/RNA files that adhere to the guidelines using `MeloPress`
+12. User can export data using the `Export` button.
+13. Uses a simple algorithm to encrypt important files.
 
 **Note: Run only the `GUI.py` file to see the project in action.**
 
@@ -437,6 +440,148 @@ characters are `@` just type in a number). This is because I just realized that 
 but allow duplicate values. Imagine user file has duplicate keys for read index hence wrong data generated. I have decided
 to use numbers because numbers never repeat as a **counter** counts on.
 
+**requirements_2.py** and **ProteinSite.py**
+
+**1. Invalid Data For Read Indexes**
+```
+@1
+ATCGTGTCGATCATCTAGCTACACGATACAGGCATATCGATCCATGCTTAGCTAGCACAGACT
+@2
+CGGCATAGCGATGTTGGACACGATTTTAAGAGATATATATAGCTAGCTACTTCGATGTACACA
+@3
+TAGCTACACTAGCACAGACTTGGACACGATTTTAAGAGATATATATAGTAGCTACAATCGTAG
+@4
+TCGTAGCTAGGACGCGCATATATACAAGAAGTAACAAATAATATCGATAATCGACGCGTATTT
+@5
+GGGAAGAATTACAGGATACTTGGACACCGCATATAATTAGCTAGGATTTCTTGGACACGGCTA
+@6
+ACTTGGCCGTAAAACGACGCATATAATCGCATCGCGTTTACTTGGACCGCGTAAAAACGATTT
+@7
+CCGCGTATATATAATCGCGTAGGACACGAGCGTAGAGATCCCAACACGGGTTAATAGAAAAAG
+@8
+AAGAGATTGGGTTAAAGATCGATCTAGGAATAGCTAAATGCTAGATAAATACACACTTGGACA
+@9
+ACTTGGACCGCGTAAATATATGCAAGAGATCGCGGAATCTAACTTGGCGCGCTTAGTATTTAG
+@10
+CCTTGGACACGACTTGGACAGAATTCGATGATAGATAGACCACAGAATAGATCACCGCGCGCG
+@11
+@12
+@13
+```
+
+When time comes for showing proteins, the `self.draw_proteins(self, proteins_data)` function in `ProteinSite.py` and the
+`self.show_proteins(self)` function in `requirements.py` look for a Read Index and its data. If the algorithm does not find
+data for that current Read Index or the data cannot make a protein, then it marks it as `Has Invalid Data`.
+
+Below is a Read Index `1` that had valid DNA data to make proteins--even though it has no proteins.
+
+![Screenshot 2026-08-11 at 15.21.20.png](addons/Screenshot%202026-08-11%20at%2015.21.20.png)
+
+Below is a Read Index `13` that had invalid DNA data to make proteins.
+
+![Screenshot 2026-08-11 at 15.21.32.png](addons/Screenshot%202026-08-11%20at%2015.21.32.png)
+
+Note: Above is DNA with respect to `SeqType`.
+
+**DNAsite.py**
+
+**1. The Issue Of Read Index Embedded In The Data**
+
+```
+@1
+ATCGTGTCGATCATCTAGCTACACGATACAGGCATATCGATCCATGCTTAGCTAGCACAGACT
+@2
+CGGCATAGCGATGTTGGACACGATTTTAAGAGATATATATAGCTAGCTACTTCGATGTACACA
+@3
+TAGCTACACTAGCACAGACTTGGACACGATTTTAAGAGATATATATAGTAGCTACAATCGTAG
+@4
+TCGTAGCTAGGACGCGCATATATACAAGAAGTAACAAATAATATCGATAATCGACGCGTATTT
+@5
+GGGAAGAATTACAGGATACTTGGACACCGCATATAATTAGCTAGGATTTCTTGGACACGGCTA
+@6
+ACTTGGCCGTAAAACGACGCATATAATCGCATCGCGTTTACTTGGACCGCGTAAAAACGATTT
+@7
+CCGCGTATATATAATCGCGTAGGACACGAGCGTAGAGATCCCAACACGGGTTAATAGAAAAAG
+@8
+AAGAGATTGGGTTAAAGATCGATCTAGGAATAGCTAAATGCTAGATAAATACACACTTGGACA
+@9
+ACTTGGACCGCGTAAATATATGCAAGAGATCGCGGAATCTAACTTGGCGCGCTTAGTATTTAG
+@10
+CCTTGGACACGACTTGGACAGAATTCGATGATAGATAGACCACAGAATAGATCACCGCGCGCG
+@11
+@12
+SHOPXMZMZJJHGGHJIIIIKKRKKEKKEKRKRKJJKJKKLKLLMP::""(!*@(*!(!@*88
+```
+
+or
+
+```
+@1
+ATCGTGTCGATCATCTAGCTACACGATACAGGCATATCGATCCATGCTTAGCTAGCACAGACT
+@2
+CGGCATAGCGATGTTGGACACGATTTTAAGAGATATATATAGCTAGCTACTTCGATGTACACA
+@3
+TAGCTACACTAGCACAGACTTGGACACGATTTTAAGAGATATATATAGTAGCTACAATCGTAG
+@4
+TCGTAGCTAGGACGCGCATATATACAAGAAGTAACAAATAATATCGATAATCGACGCGTATTT
+@5
+GGGAAGAATTACAGGATACTTGGACACCGCATATAATTAGCTAGGATTTCTTGGACACGGCTA
+@6
+ACTTGGCCGTAAAACGACGCATATAATCGCATCGCGTTTACTTGGACCGCGTAAAAACGATTT
+@7
+CCGCGTATATATAATCGCGTAGGACACGAGCGTAGAGATCCCAACACGGGTTAATAGAAAAAG
+@8
+AAGAGATTGGGTTAAAGATCGATCTAGGAATAGCTAAATGCTAGATAAATACACACTTGGACA
+@9
+ACTTGGACCGCGTAAATATATGCAAGAGATCGCGGAATCTAACTTGGCGCGCTTAGTATTTAG
+@10
+CCTTGGACACGACTTGGACAGAATTCGATGATAGATAGACCACAGAATAGATCACCG@GCGCG
+```
+
+Since the entered `Read Index` value that is entered below--in this case is `@`
+
+![Screenshot 2025-08-05 at 11.26.39.png](addons/Screenshot%202025-08-05%20at%2011.26.39.png)
+
+is embedded in the last data
+`SHOPXMZMZJJHGGHJIIIIKKRKKEKKEKRKRKJJKJKKLKLLMP::""(!*@(*!(!@*88` or `CCTTGGACACGACTTGGACAGAATTCGATGATAGATAGACCACAGAATAGATCACCG@GCGCG
+`,that data is not considered as
+data but rather as a Read index since it has `@` in it. Its value (data) now becomes an empty string.
+
+**Here is output from my investigation.**
+
+{\
+ '@1': 'ATCGTGTCGATCATCTAGCTACACGATACAGGCATATCGATCCATGCTTAGCTAGCACAGACT',\
+ '@2': 'CGGCATAGCGATGTTGGACACGATTTTAAGAGATATATATAGCTAGCTACTTCGATGTACACA',\
+ '@3': 'TAGCTACACTAGCACAGACTTGGACACGATTTTAAGAGATATATATAGTAGCTACAATCGTAG',\
+ '@4': 'TCGTAGCTAGGACGCGCATATATACAAGAAGTAACAAATAATATCGATAATCGACGCGTATTT',\
+ '@5': 'GGGAAGAATTACAGGATACTTGGACACCGCATATAATTAGCTAGGATTTCTTGGACACGGCTA',\
+ '@6': 'ACTTGGCCGTAAAACGACGCATATAATCGCATCGCGTTTACTTGGACCGCGTAAAAACGATTT',\
+ '@7': 'CCGCGTATATATAATCGCGTAGGACACGAGCGTAGAGATCCCAACACGGGTTAATAGAAAAAG',\
+ '@8': 'AAGAGATTGGGTTAAAGATCGATCTAGGAATAGCTAAATGCTAGATAAATACACACTTGGACA',\
+ '@9': 'ACTTGGACCGCGTAAATATATGCAAGAGATCGCGGAATCTAACTTGGCGCGCTTAGTATTTAG',\
+ '@10': 'CCTTGGACACGACTTGGACAGAATTCGATGATAGATAGACCACAGAATAGATCACCGCGCGCG',\
+ '@11': '',\
+ '@12': '',\
+ 'SHOPXMZMZJJHGGHJIIIIKKRKKEKKEKRKRKJJKJKKLKLLMP::""(!*@(\*!(!@*88': ''\
+}\
+\
+or
+
+{\
+ '@1': 'ATCGTGTCGATCATCTAGCTACACGATACAGGCATATCGATCCATGCTTAGCTAGCACAGACT',\
+ '@2': 'CGGCATAGCGATGTTGGACACGATTTTAAGAGATATATATAGCTAGCTACTTCGATGTACACA',\
+ '@3': 'TAGCTACACTAGCACAGACTTGGACACGATTTTAAGAGATATATATAGTAGCTACAATCGTAG',\
+ '@4': 'TCGTAGCTAGGACGCGCATATATACAAGAAGTAACAAATAATATCGATAATCGACGCGTATTT',\
+ '@5': 'GGGAAGAATTACAGGATACTTGGACACCGCATATAATTAGCTAGGATTTCTTGGACACGGCTA',\
+ '@6': 'ACTTGGCCGTAAAACGACGCATATAATCGCATCGCGTTTACTTGGACCGCGTAAAAACGATTT',\
+ '@7': 'CCGCGTATATATAATCGCGTAGGACACGAGCGTAGAGATCCCAACACGGGTTAATAGAAAAAG',\
+ '@8': 'AAGAGATTGGGTTAAAGATCGATCTAGGAATAGCTAAATGCTAGATAAATACACACTTGGACA',\
+ '@9': 'ACTTGGACCGCGTAAATATATGCAAGAGATCGCGGAATCTAACTTGGCGCGCTTAGTATTTAG',\
+ '@10': '',\
+ 'CCTTGGACACGACTTGGACAGAATTCGATGATAGATAGACCACAGAATAGATCACCG@GCGCG': ''\
+}
+
+
 ## Usage ##
 `Big Note`
 
@@ -499,12 +644,27 @@ and so much database problems. I have put good measures to prevent this by not a
 **3. File Creation and File Reading tutorial**
 
 ![Screenshot 2025-08-16 at 19.19.29.png](addons/Screenshot%202025-08-16%20at%2019.19.29.png)
-When entering a folder name to create, by default I have redirected the folder creation to the `Desktop`. All created
+**I.** When entering a folder name to create, by default I have redirected the folder creation to the `Desktop`. All created
 folder names without a full path (absolute file path) to where to create them will be put in the Desktop. If there is an
 absolute file path, that is where the folder creation will happen.
 
 When reading a folder, it is encouraged to enter the absolute folder path to where the folder is hence reading it healthily.
 If you do not provide an absolute folder path, the program with error at you.
+
+**II.** If user (you) ever needs to see the full file name if it could work respective of your file length after the
+folder name is discarded, use this trick.
+
+Below is a scenario whereby if the folder name is discarded the filename that remains is less than or equal to 25 characters.
+
+![Screenshot 2026-08-22 at 14.57.24.png](addons/Screenshot%202026-08-22%20at%2014.57.24.png)
+
+When entering the folder to display its contents and user (you) do this, that is why the folder content is displayed like this.
+
+![Screenshot 2026-08-22 at 14.57.41.png](addons/Screenshot%202026-08-22%20at%2014.57.41.png)
+
+Add `/` for Mac or `\\` for Windows to achieve the result below.
+
+![Screenshot 2026-08-22 at 14.58.12.png](addons/Screenshot%202026-08-22%20at%2014.58.12.png)
 
 **4. Is It A DNA File, RNA File OR Not**
 
@@ -681,6 +841,41 @@ the other loop that ran overwrote or reset important variables needed for this `
 and program continues without errors. The program does not run as intended since one loop can run at a time NOT loop
 inside a loop.
 
+**Solution**\
+This code is supposed to subtract from `d` 10 times while adding 1 to `e` but during each iteration of this--what I have
+just explained--it counts down from 5 to 0. Using `when` loops cannot cut this but using `branch` can get the job done. With
+a new feature called a **label** (is a marker in code) plus **code indexing** (using the index of a line of code as a 'jump to')
+user (you) can jump around in code, produce loops, and sophisticated
+programs.
+
+![Screenshot 2026-08-12 at 23.38.29.png](addons/Screenshot%202026-08-12%20at%2023.38.29.png)
+
+**Full Code**
+```
+set d 10
+set e 0
+
+label_1:
+set f 5
+
+label_2:
+sub f f 1
+if f 0
+branch 14
+done
+
+branch label_2
+sub d d 1
+add e e 1
+
+if d 0
+stop
+done
+
+branch label_1
+```
+
+
 **Cannot Handle Nested If Statements Logically**
 
 If statements have many twists and turns. In this scenario user sets up an if statement inside an if statement. An if
@@ -689,6 +884,16 @@ program is running, if it is then `done` is skipped. If the program is NOT runni
 not running to running and if there is code following then that code will always be run.
 
 ![Screenshot 2026-01-12 at 20.35.40.png](addons/Screenshot%202026-01-12%20at%2020.35.40.png)
+
+**Solution**
+
+Below is the usage of `branch` which is demonstrating its versatility in `Nested Loop Crisis` to `Nested If Statements Crisis`.
+It makes the code easier to follow, debug, and predictable.
+
+**Note: Technically this is a nested if statement.**
+
+![Screenshot 2026-08-12 at 23.51.59.png](addons/Screenshot%202026-08-12%20at%2023.51.59.png)
+
 
 **Infinite Loops**
 
@@ -700,16 +905,293 @@ the same time.
 
 ![Screenshot 2026-01-12 at 20.40.16.png](addons/Screenshot%202026-01-12%20at%2020.40.16.png)
 
+
+**Using `Branch` Is Powerful But Tricky**
+
+```
+@1
+TTTTTTGGGCGTGAGTGCGGATCGATCGATGATCGATCGATCGCTATTAG
+@2
+GTGGCGTGAGTGCGGATCGATCGATGATCGATTCGATCGATCGCGCGAAA
+@3
+TCTTGATCGATCGATCGCTATTAGACGGCATGATCGATTCGATCGATCGC
+@4
+ATCGTACCAGTACATACGATAGCCTCGTGATTCGATCGATGTGGCGTGAG
+@5
+GTGGCAATATAGTGAGAGTAGAGTGCGGATCGAAATCGCTATCTAAGCTC
+@6
+CTAGACAGCTACAGTCCATGCGTGGCGTGAGCGATAGCTATCGATGACTC
+@7
+GGTGAGTGCGGATCCGCTAGCTACCACATACGGGATAAAGCTAGTCTCTA
+@8
+AGCTACGATTTATATCGGCTAGCCGTTATATAGCCGGACACAGATAGTAC
+@9
+GCTCGATAGAGTCCAGATCCATCAGACAGGGAATATATTACAGATACAGG
+@10
+GTTACACAAGGATCGCTACAGATATCGGTACGCTAAATATCGCGCCTTAG
+@11
+ACGGCATCGATCGATAGAGCTAGCCCGCGAAAATATAGCTGCGGATCGAT
+@12
+AGTCGATTCTCTAGATTGCGGATCGGCGACGGTAGAGTAACAACAGTAGA
+@13
+GAGGTAGAGAAACTAGAGTCGAGTGTCGGTCCGTTATATAGCATCAGACA
+@14
+GGGGTGAGTGAGTGCGGATCGACGATAGCCTCGGGCAATATAGTTAACCA
+@15
+GAGTGCGGATCGAGGTGAGTGAGTGCAATATAGTTAACCATAGTTAACCA
+@16
+GCTAGCCGTTATATAGCCGTCGCTACAGATATGGATCGACGAGAGTGCAG
+@17
+CGGATTTATATCGGCTAGCCGAGATTTATATCGGCTAGCCCCGGTACGAC
+@18
+GAGTGAGTGCGGATCGAGGTGAGTGAGTGCAGGATCGAGGTGAGTGAGTG
+@19
+CACCGCTAGCTCCGCCTCGGGCAATATAGTATAGCCTCGGGCAATATAGT
+@20
+GTTACACAAGTACATACGATAGCCTCGTACGATAGCCTCGTGTAGCCCGG
+@21
+TTTTTTGGGCGTGAGTGCGGATCGATCGATGATCGATCGATCGCTATTAG
+@22
+GTGGCGTGAGTGCGGATCGATCGATGATCGATTCGATCGATCGCGCGAAA
+@23
+TCTTGATCGATCGATCGCTATTAGACGGCATGATCGATTCGATCGATCGC
+@24
+ATCGTACCAGTACATACGATAGCCTCGTGATTCGATCGATGTGGCGTGAG
+@25
+GTGGCAATATAGTGAGAGTAGAGTGCGGATCGAAATCGCTATCTAAGCTC
+@26
+CTAGACAGCTACAGTCCATGCGTGGCGTGAGCGATAGCTATCGATGACTC
+@27
+GGTGAGTGCGGATCCGCTAGCTACCACATACGGGATAAAGCTAGTCTCTA
+@28
+AGCTACGATTTATATCGGCTAGCCGTTATATAGCCGGACACAGATAGTAC
+@29
+GCTCGATAGAGTCCAGATCCATCAGACAGGGAATATATTACAGATACAGG
+@30
+GTTACACAAGGATCGCTACAGATATCGGTACGCTAAATATCGCGCCTTAG
+@31
+ACGGCATCGATCGATAGAGCTAGCCCGCGAAAATATAGCTGCGGATCGAT
+@32
+AGTCGATTCTCTAGATTGCGGATCGGCGACGGTAGAGTAACAACAGTAGA
+@33
+GAGGTAGAGAAACTAGAGTCGAGTACGATAGCCTCGGATAGCCTCGAGTG
+@34
+GGGGTGAGTGAGTGCGGATCGACGATAGCCTCGGGCAATATAGTTAACCA
+@35
+GAGTGCGGATCGAGGTGAGTGAGTGCAATATAGTTAACCATAGTTAACCA
+@36
+GCTAGCCGTTATATAGCCGTCGCTACAGATATGGATCGAAGCCTCGGTCA
+@37
+CGGATTTATATCAGCCTCGATATCGGCTAGCCCCGGTACGACAGCCTCGA
+@38
+CAGGATTGCGGATCGAGGTGAGTGAGTGCAGGATCGAGGTGAAGTGAGTG
+@39
+CACCGCTAGCTCCGAGCCTCGCTCGGGCAATATAGCCTCGCCAGCCTCAG
+@40
+TAAAAGCCTCGACATACGATAGCCTCGTACGATAGCCTCGTGTAGCCCGG
+@41
+TTTTTTGGGCGTGAGTGCGGATCGATCGATGATCGATCGATCGCTATTAG
+@42
+GTGGCGTGAGTGCGGATCGATCGATGATCGATTCGATCGATCGCGCGAAA
+@43
+TCTTGATCGATCGATCGCTATTAGACGGCATGATCGATTCGATCGATCGC
+@44
+ATCGTACCAGTACATACGATAGCCTCGTGATTCGATCGATGTGGCGTGAG
+@45
+GTGGCAATATAGTGAGAGTAGAGTGCGGATCGAAATCGCTATCTAAGCTC
+@46
+CTAGACAGCTACAGTCCATGCGTGGCGTGAGCGATAGCTATCGATGACTC
+@47
+GGTGAGTGCGGATCCGCTAGCTACCACATACGGGATAAAGCTAGTCTCTA
+@48
+AGCTACGATTTATATCGGCTAGCCGTTATATAGCCGGACACAGATAGTAC
+@49
+GCTCGATAGAGTCCAGATCCATCAGACAGGGAATATATTACAGATACAGG
+@50
+CAGGATAAGGATCGCTACAGATATCGGTACGCTAAATATCGCGCCTTAGT
+```
+
+Using `branch` is a very crucial decision when writing readable and viable code but can be a pain too if not
+used appropriately. Let's try code that is using `branch` inappropriately (Bad code) and code that is using `branch`
+appropriately (Good code).
+
+**Good code**\
+`set x a`\
+`// AT counter`\
+`set y 0`
+
+`label_1:`
+
+`if - A`\
+`branch 22`\
+`done`
+
+`sub x x 1`\
+`add c c 1`
+
+`if c a`\
+`stop`\
+`done`
+
+`if x 0`\
+`stop`\
+`done`\
+`branch label_1`
+
+`if c a`\
+`stop`\
+`done`
+
+`printr 1`\
+`add c c 1`
+
+`if c a`\
+`stop`\
+`done`
+
+`if - T`\
+`printr 1`\
+`add y y 1`\
+`branch 9`\
+`done`
+
+`sub c c 1`\
+`printr 0`\
+`branch 9`
+
+This code is "Good code" because it respects the law of `branch`. The law states that a label must be declared and already
+stored in a dict with its index--like the jump to point. This code always allows `label_1:` to be stored with its index
+and when it is called, there is no error.
+
+In the DNA data above, this "Good code" has passed runs tested on all Read Indexes. Read Index **4** or `@4` has the catch
+and I show this later.
+
+**Bad code**\
+`set x a`\
+`// AT counter`\
+`set y 0`
+
+`label_1:`
+
+`if - A`\
+`branch 23`\
+`label_2:`\
+`done`
+
+`sub x x 1`\
+`add c c 1`
+
+`if c a`\
+`stop`\
+`done`
+
+`if x 0`\
+`stop`\
+`done`\
+`branch label_1`
+
+`if c a`\
+`stop`\
+`done`
+
+`printr 1`\
+`add c c 1`
+
+`if c a`\
+`stop`\
+`done`
+
+`if - T`\
+`printr 1`\
+`add y y 1`\
+`branch label_2`\
+`done`
+
+`sub c c 1`\
+`printr 0`\
+`branch label_2`
+
+In the "Bad code" when Read Index **4** or `@4` is tested, since its data starts with `AT...` the code commands that when
+`if - A` is true--which is true--`branch 23`. The catch is clear here that `label_2:` was not stored in available labels
+which will cause an error when the program reaches `branch label_2` since `label_2` was not stored with its index.
+
+This indicates that when using labels, user (you) must make a situation for this label to first be stored or declared like
+the "Good code" implements it, then user (you) can call the label whenever user (you) wish.
+
+**It works well with other Read Indexes**
+
+![Screenshot 2026-08-13 at 10.58.49.png](addons/Screenshot%202026-08-13%20at%2010.58.49.png)
+
+**But fails on pitfall(s)**
+
+![Screenshot 2026-08-13 at 10.56.50.png](addons/Screenshot%202026-08-13%20at%2010.56.50.png)
+
+**While on the other hand, the "Good code" nails both scenarios**
+
+![Screenshot 2026-08-13 at 11.15.58.png](addons/Screenshot%202026-08-13%20at%2011.15.58.png)
+
+![Screenshot 2026-08-13 at 11.11.47.png](addons/Screenshot%202026-08-13%20at%2011.11.47.png)
+
+
+**"Functions"**
+
+In Decode, user (you) can implement "Functions" using `branch`, labels, `if` statements, and setting variables.
+
+`set m 0`\
+`set n 0`
+
+`label_1:`\
+`if m 1`\
+`printr 1`\
+`branch n`\
+`done`\
+`set m 1`
+
+`set n 14`\
+`branch label_1`
+
+`set z 0`\
+`add z z 1`\
+`sub m m 1`\
+`if m -1`\
+`branch 22`\
+`done`\
+`branch 15`
+
+`set m 1`\
+`add c c 1`
+
+`set n 27`\
+`branch label_1`\
+`stop`
+
+The program starts with variables `m` and `n` then creates a label called `label_1`.\
+User (you) must put code in the label inside an `if` statement and deliberately set the condition to **not run** (False).
+Then `set m 1` will make the condition **True** next time.\
+Now `n` stores where the "function" will "return" to.
+Call the "function" `label_1`.
+
+Since the condition was made **True** by `set m 1`, the "function" will `printr 1` then "return".\
+When the "function returns", it will return at `set z 0` and the code execution will continue.\
+After `branch 22` jumps to `set m 1` the condition in the "function" `label_1` is made **True** and the program moves
+ahead in data by 1 `add c c 1`; then sets the **return to point** to code index 27 and calls the "function" `label_1`\
+After the "function" ends, it returns to code index 27 which has `stop`
+
+
 ## Example Usage For Decode Code That Shows Only "AT" Nucleotides In DNAGenre
 
 `set x a`\
 `// AT counter`\
 `set y 0`
 
+`if c a`\
+`stop`\
+`done`
+
 `when x`
 
 `if - A`\
-`branch 19`\
+`branch 23`\
 `done`
 
 `sub x x 1`\
@@ -735,12 +1217,12 @@ the same time.
 `if - T`\
 `printr 1`\
 `add y y 1`\
-`branch 9`\
+`branch 13`\
 `done`
 
 `sub c c 1`\
 `printr 0`\
-`branch 9`
+`branch 13`
 
 **Notes**\
 **I.** `y` counts how many times `AT` has been found in the sequence but never considers the last `A` because that last `A`
@@ -765,6 +1247,67 @@ a simple task done.
 
 
 **VI.** DNAGenre saves user code in a file called `user_code.txt` for future use.
+
+## Updated Version For Decode Code That Shows Only "AT" Nucleotides In DNAGenre
+
+`set x a`\
+`set y 0`\
+`set m 0`\
+`set n 0`
+
+`label_1:`\
+`if c a`\
+`stop`\
+`done`\
+`if m 1`\
+`branch n`\
+`done`
+
+`when x`
+
+`if - A`\
+`branch 28`\
+`done`
+
+`sub x x 1`\
+`add c c 1`
+
+`set n 27`\
+`set m 1`\
+`branch label_1`
+
+`end`
+
+`set n 32`\
+`set m 1`\
+`branch label_1`
+
+`printr 1`\
+`add c c 1`
+
+`set n 38`\
+`branch label_1`
+
+`if - T`\
+`printr 1`\
+`add y y 1`\
+`branch 18`\
+`done`
+
+`sub c c 1`\
+`printr 0`\
+`branch 18`
+
+
+**No Data In Read Indexes**
+
+The selected Read Index `11` in this scenario has no data at all. In Decode whenever user (you) tries to access the nucleotide in
+data at index `c`, `c` must be within bounds of the length of that data. Since there is no data at all at Read Index `11`, accessing nucleotide at index `c`--even
+though `c` has a value of `0` for now--causes an `out_of_bounds` error.
+
+**Note: This also happens if Read Index has invalid data.**
+
+![Screenshot 2026-08-12 at 13.14.37.png](addons/Screenshot%202026-08-12%20at%2013.14.37.png)
 
 **13. Encryption And Decryption**
 
@@ -800,19 +1343,29 @@ This is because rewriting the entire code base by having every **function** or *
 In DNAGenre, I chose to use **2-bit compression** because it was simple to learn and fitted the project. 2-bit compression is when
 a program uses 2-bits in a byte to store a full byte like in byte `00000000`; DNAGenre can store 4 bytes `A,T/U,G,C` into a single
 byte because it can pack `A,T,G,C` into a single byte while in **DNA mode** or pack `A,U,G,C` into a single byte while in **RNA mode**.
-This has given DNAGenre good compression averaging 70% compression of valid data.
+This has given DNAGenre good compression of valid data.
 
-Some bits may look similar, for example, `TAAA`'s bits look like the `@`'s bits and `AACC`'s bits look like `\n`'s bits
-so I also added **markers**. I use the character `@` as a marker that guides the program where to allow a newline;
-`\n` (newline character) that guides the program where to allow a `@`. This solves the problem of conflicting bytes and
-makes the program produce trustworthy ouput.
+**MeloPress** gets read index by read index and compresses that read index and writes the result to a file with a **file magic** and **file header**.
+This makes it slow but results are very trustworthy.
+
+DNAGenre's **MeloPress** can compress files with an improper length. All it does is that it compresses as usual but when writing that file of that
+read index, it indicates systemically in the **file header** that this very file has an improper length.\
+If user (you) tries to decompress a file in **compressed chunks folder** as standalone by using the `Decompress`
+button, **MeloPress** will decompress only that file hence make sure to  `D Chunk` the first file in **compressed chunks folder** to
+decompress the entire files in the **compressed chunks folder** into one file and `Decompress` any valid file for standalone decompression.
 
 The `Compress` button allows user (you) to compress a file with some DNA/RNA data in it but when that data in decompressed, that
 invalid data is lost and only the valid data--DNA/RNA--remains.
 
 The `Decompress` button allows user (you) to decompress a file with compressed data.
 
-The `Make DNAGenre` button allows user to take any file and make it adhere to DNAGenre format (Check Usage Under File Format) .
+The `Make DNAGenre` button allows user to take any file and make it adhere to DNAGenre format (Check Usage Under File Format).
+
+The `D Chunk` button allows user to decompress files in **compressed chunk folder** into one file (Check Description About DNAGenre's MeloPress).
+
+### Layout
+
+![Screenshot 2026-08-22 at 09.56.56.png](addons/Screenshot%202026-08-22%20at%2009.56.56.png)
 
 **I.** User (you) can open any file to start compress it.
 ![Screenshot 2026-08-08 at 12.46.47.png](addons/Screenshot%202026-08-08%20at%2012.46.47.png)
@@ -827,37 +1380,104 @@ The `Make DNAGenre` button allows user to take any file and make it adhere to DN
 ![Screenshot 2026-08-08 at 12.50.13.png](addons/Screenshot%202026-08-08%20at%2012.50.13.png)
 
 ### Warning
-Imagine user wants to compress an invalid file like below.
 
-![Screenshot 2026-08-08 at 16.25.23.png](addons/Screenshot%202026-08-08%20at%2016.25.23.png)
+**1. Imagine User Wants To Work With An Incompatible File Like Below.**
 
-DNAGenre will flag this invalid file as `Improper length` because there is no valid
-DNA/RNA data that nullifies a certain variable that keeps track of divisibility by 4 since 4 nucleotides are needed to compress
-into 1 byte. By default, that variable is set to **invalid length** to counter this incident.
+![Screenshot 2026-08-12 at 16.28.51.png](addons/Screenshot%202026-08-12%20at%2016.28.51.png)
 
-![Screenshot 2026-08-08 at 16.33.52.png](addons/Screenshot%202026-08-08%20at%2016.33.52.png)
+In my function that prepares DNA/RNA data from a selected file uses a dictionary. A Python Dictionary does not allow
+duplicate keys but allows duplicate values. In such a file that seems to have `@` in each "Read Index", these "Read Indexes"
+are duplicates of each other in a literal sense which makes the Python Dictionary to overwrite previous data for "Read Index"
+`@`.
 
-If user outsmarts DNAGenre by putting invalid data with valid data into the same file. DNAGenre will compress that data but
-there is a caveat which will make sense later on.
+**This makes DNAGenre consider this as the valid data to work with.**
 
-![Screenshot 2026-08-08 at 16.38.16.png](addons/Screenshot%202026-08-08%20at%2016.38.16.png)
+{'@': 'GAAGCTAGCTATTAGCTAGAGACCAGTAGCTCAGAGAGTAAATTGTAGCTAGCTAAGCGCCTTT'}
 
-After compression, a magic header, file header, and the bytes are embedded in the invalid file.
+![Screenshot 2026-08-12 at 16.33.49.png](addons/Screenshot%202026-08-12%20at%2016.33.49.png)
 
-![bytes.png](addons/bytes.png)
+If user decides to continue with this file in such a format, below is what happens.
 
-When the invalid file is opened, all user (you) can see is the magic header, file header, and renderable bytes.
+![Screenshot 2026-08-12 at 16.34.10.png](addons/Screenshot%202026-08-12%20at%2016.34.10.png)
 
-![Screenshot 2026-08-08 at 16.39.43.png](addons/Screenshot%202026-08-08%20at%2016.39.43.png)
+```
+{
+    "Seq(s) Length": 64,
+    "Nucleotide Count": {
+        "A": 20,
+        "T": 16,
+        "G": 16,
+        "C": 12
+    },
+    "Mean Nuc Count": 16.0,
+    "Median Nuc Count": 16.0,
+    "Mode Nuc Count": 16,
+    "Range Nuc Count": 8,
+    "AC Percentage": 50.0,
+    "AT Percentage": 56.25,
+    "AU Percentage": 0.0,
+    "AG Percentage": 56.25,
+    "CT Percentage": 43.75,
+    "CU Percentage": 0.0,
+    "CG Percentage": 43.75,
+    "TG Percentage": 50.0,
+    "UG Percentage": 0.0,
+    "GC Content Per Read Index": {
+        "1": 43.75
+    },
+    "AT Content Per Read Index": {
+        "1": 56.25
+    },
+    "AU Content Per Read Index": 0.0,
+    "P(A)": 0.31,
+    "P(T)": 0.25,
+    "P(U)": 0.0,
+    "P(G)": 0.25,
+    "P(C)": 0.19,
+    "P(Sequence Start is A)": 0.0,
+    "P(Sequence Start is T)": 0.0,
+    "P(Sequence Start is U)": 0.0,
+    "P(Sequence Start is G)": 1.0,
+    "P(Sequence Start is C)": 0.0,
+    "P(Sequence End is A)": 0.0,
+    "P(Sequence End is T)": 1.0,
+    "P(Sequence End is U)": 0.0,
+    "P(Sequence End is G)": 0.0,
+    "P(Sequence End is C)": 0.0
+}
+```
 
-After decompression, it is now clear that the invalid data was not compressed and only the valid data adhering to the
-rules of compression--compressed without errors--was compressed and decompressed.
+**Note:**\
+**I.** Only valid data is considered and in this case only this\
+{'@': 'GAAGCTAGCTATTAGCTAGAGACCAGTAGCTCAGAGAGTAAATTGTAGCTAGCTAAGCGCCTTT'}\
+**is what was and is considered.**
 
-![Screenshot 2026-08-08 at 16.40.09.png](addons/Screenshot%202026-08-08%20at%2016.40.09.png)
+**II.** The only solution is to use `Make DNAGenre` button at this stage after decompression or even
+to make the file have the compatible format.
 
-User can also format the data from decompression or elsewhere into DNAGenre format (Check Usage Under File Format).
+Before `Make DNAGenre`
+![Screenshot 2026-08-12 at 16.28.51.png](addons/Screenshot%202026-08-12%20at%2016.28.51.png)
 
-![Screenshot 2026-08-08 at 16.41.16.png](addons/Screenshot%202026-08-08%20at%2016.41.16.png)
+After `Make DNAGenre`
+
+![Screenshot 2026-08-12 at 17.00.16.png](addons/Screenshot%202026-08-12%20at%2017.00.16.png)
+
+**2. Compressing A File With Improper File Length**
+
+![Screenshot 2026-08-22 at 10.45.53.png](addons/Screenshot%202026-08-22%20at%2010.45.53.png)
+
+After compression, **MeloPress** produces files that store chunks of the main uncompressed file--these 
+chunks store compressed data of the main file though.
+
+![Screenshot 2026-08-22 at 10.47.49.png](addons/Screenshot%202026-08-22%20at%2010.47.49.png)
+![Screenshot 2026-08-22 at 10.48.09.png](addons/Screenshot%202026-08-22%20at%2010.48.09.png)
+
+Pressing `D Chunks` decompresses the files in the respective **compressed chunks folder**. Always look for the first file
+that is often labeled `1.fgh` and `D Chunk` that file.
+![Screenshot 2026-08-22 at 10.48.45.png](addons/Screenshot%202026-08-22%20at%2010.48.45.png)
+
+After `D Chunk` decompresses the files in **compressed chunks folder**, it produces one file that has the decompressed data.
+![Screenshot 2026-08-22 at 10.51.51.png](addons/Screenshot%202026-08-22%20at%2010.51.51.png)
 
 
 ### Big Notes
@@ -880,6 +1500,20 @@ to use numbers because numbers never repeat as a **counter** counts on.
 \
 \
 ![Screenshot 2026-07-27 at 21.24.51.png](addons/Screenshot%202026-07-27%20at%2021.24.51.png)
+
+
+**III.** The reason there is no button that takes user (you) back to sign in window is because **DNAGenre** treats every account on disk as a virtual machine.
+Every user starts fresh and uses their state. If that user (you) wants to switch users or sign in another user, they must close the app (state) and
+begin a new state. This guarantees that variables, state, and sensitive data is not accidentally leaked to another signed-in user.
+
+**IV.** When compression and decompression execute "unnecessary data" is lost like read index descriptions etc. while important data like the DNA/RNA nucleotides
+(data) is preserved. **MeloPress** can only compress **A,T/U,G,C** characters including the special characters **newline** and `@`. This makes the program discard
+invalid characters and preserve valid characters.
+
+**V.** **MeloPress** is very slow at compressing but very fast at decompressing. There was a method of using **markers** (Check previous
+GitHub Versions) that allowed **MeloPress** to compress data faster but produced inaccurate results in some scenarios. This current approach is slow but produces
+very trustworthy results.
+
 
 
 ## Tech Stack ##
