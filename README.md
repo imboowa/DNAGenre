@@ -12,7 +12,7 @@ commonly be used in labs. The software logs in a user or signs up a user, then t
 the software will provide the insights of the DNA file. The problem the project solves is that it is educational and
 helps learners know what is bioinformatics under the hood.
 
-**Notes**
+### Some Notes
 
 **I.** `This project was 35% AI and 65% me.`
 
