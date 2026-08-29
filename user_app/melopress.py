@@ -388,6 +388,10 @@ class MeloPress:
         if self.get_state_header_info(filename) == "Compressed":
             return 4
 
+        # Is This A Compressed File
+        if os.path.splitext(filename)[-1] == ".fgh":
+            return None
+
         # Get Prepared Data
         result = self.prepare_data_compression(filename)
         if result == "Unobtained":
@@ -549,6 +553,10 @@ class MeloPress:
         if self.get_state_header_info(filename) != "Compressed":
             return 1
 
+        # FIle Must Be A .fgh File
+        if os.path.splitext(filename)[-1] != ".fgh":
+            return None
+
         # Open File
         try:
             with open(filename, "rb") as file:
@@ -673,6 +681,10 @@ class MeloPress:
         """ Decompresses Compressed Chunks Of Bioinformatic Data """
 
         if self.get_state_header_info(filename) != "Compressed":
+            return None
+
+        # Check File Extension Too
+        if os.path.splitext(filename)[-1] != ".fgh":
             return None
 
         # Open Given File

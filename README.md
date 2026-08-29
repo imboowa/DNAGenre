@@ -1,4 +1,4 @@
-## AutumnMiles: DNAGenre ##
+## DNAGenre ##
 This project is aimed at being free, used by organizations, and a startup project for study purposes. It is aimed at
 making DNA analysis faster and more insightful (visionary).
 
@@ -7,7 +7,7 @@ making DNA analysis faster and more insightful (visionary).
 **About**
 
 DNAGenre is a bioinformatics (study of DNA/RNA data using computers) oriented software that helps to read a DNA/RNA file and provide
-insight in DNA/RNA data. This software is different in away that for the start, it is educational, free to use, and will
+insights in DNA/RNA data. This software is different in away that for the start, it is educational, free to use, and will
 commonly be used in labs. The software logs in a user or signs up a user, then they can just select a real DNA/RNA file, and
 the software will provide the insights of the DNA file. The problem the project solves is that it is educational and
 helps learners know what is bioinformatics under the hood.
@@ -18,10 +18,14 @@ helps learners know what is bioinformatics under the hood.
 
 **II.** `This README has @2 and 2. @2 was in the old versions while 2 is the latest version.`
 
+**III.** **Run only the `GUI.py` file to see the project in action.**
+
+**IV.** **Check out the [website](https://sites.google.com/view/dnagenre/dnagenre-home) to get the executable (application) and more information.**
+
 **Features**
 1. Login and User Authentication.
 2. Reading Folder for sequence files.
-3. Using real bioinformatic files like **fastq**, **fasta**, (good with `txt` files in required format).
+3. Using real bioinformatic files like **fastq**, **fasta**, (good with **txt** files in required format).
 4. Bioinformatic analysis.
 5. Codon Analysis.
 6. Protein Analysis.
@@ -33,7 +37,6 @@ helps learners know what is bioinformatics under the hood.
 12. User can export data using the `Export` button.
 13. Uses a simple algorithm to encrypt important files.
 
-**Note: Run only the `GUI.py` file to see the project in action.**
 
 ## Bugs Found ##
 **DataTools.py**
@@ -58,7 +61,7 @@ def clean_data(filepath, label_char):
     return DNAdict
 ```
 
-**Note: This function has a bug and as we go on, we `will` see the bug.**
+**Note: This function has a bug and as we go on, we will see the bug.**
 
 **1. Imagine A File Like This**
 ```
@@ -92,8 +95,6 @@ else sets `label` to `''` (so our previous `?`:`'TTGGCGTGAGTGCGGATCGATCGATGATCGA
 lost and now is `'?'`:`''` and the next line of code does add to the current dict key hence 
 `'?'`:`'GGGGCGTGAGTGCGGATCGATCGATGATCGATCGATCGCTATTAGACGGCATCGATCGATCGA'`) and the code go on smoothly as intended.
 
-**Note: This function has a bug and as we go on, we **will** see the bug.**
-
 **2. Imagine Another Like This**
 ```
 TTGGCGTGAGTGCGGATCGATCGATGATCGATCGATCGCTATTAGACGGCATCGATCGATCGA
@@ -111,8 +112,8 @@ GGGGCGTGAGTGCGGATCGATCGATGATCGATCGATCGCTATTAGACGGCATCGATCGATCGA
 ```
 When `clean_data` function is run, it will function as explained earlier but when reaches this part
 `@1ATGGCGTGAGTGCGGATCGATCGATGATCGATCGATCGCTATTAGACGGCATCGATCGATCGA` this code `if label_char in str(i):`runs, this 
-creates the paradox of having keys equal to `@1ATGGCGTGAGTGCGGATCGATCGATGATCGATCGATCGCTATTAGACGGCATCGATCGATCGA`and 
-values equal to `''` hence a result of `Read Index plus nucleotide chars`:`''`respectively.
+creates the paradox of having keys equal to `@1ATGGCGTGAGTGCGGATCGATCGATGATCGATCGATCGCTATTAGACGGCATCGATCGATCGA` and 
+values equal to `''` hence a result of `Read Index plus nucleotide chars`:`''` respectively.
 
 **3. Imagine Another Third Last One Like This**
 ```
@@ -680,7 +681,7 @@ other stuff in the file, then the file would be valid to be analyzed.
 When entering the `Read Index`, please enter a character that is most-common in all the read indexes for better and
 reasonable results.
 ![Screenshot 2025-08-05 at 11.26.39.png](addons/Screenshot%202025-08-05%20at%2011.26.39.png)
-This where part two of file validation occurs, when you enter the file, it will also ask you to enter a sequence type
+This is where part two of file validation occurs, when you enter the file, it will also ask you to enter a sequence type
 either it is `DNA` or `RNA`. If all do not match what it has from the file then you cannot proceed to analysis.
 
 **Note:**\
@@ -773,8 +774,8 @@ be found will be shown.
 
 **App Hack:**
 
-    You can see how many nucleotides are there in the `Read Index` by entering the 
-    nucleotide base (like `A` in order to get how many `A` are there)
+    You can see how many nucleotides are there in the "Read Index" by entering the 
+    nucleotide base (like "A" in order to get how many "A" are there)
 
 ![Screenshot 2025-08-16 at 21.57.00.png](addons/Screenshot%202025-08-16%20at%2021.57.00.png)
 
@@ -801,7 +802,7 @@ Enter the Read Index as shown on the left of the screen and enter a valid k-mer 
 
 **12. Decode**
 
-Decode is a primitive programming language that will help users complete more custom tasks that are not premade in the
+Decode is a primitive programming language that will help users (you) complete more custom tasks that are not premade in the
 app. In this case it has just features like `setting variables` `comments` mathematical operations like
 `addition` `subtraction` `division` `multiplication` and `loops` `logcial statements` `printr`. All of these can help a user
 get a simple task done like `GC Content` `Nucleotide Count` `AT Content` `Some Mathematical Algorithms`.
@@ -1335,8 +1336,7 @@ the data inside them (the files to be encrypted) is deemed as the data to be enc
 that data in those files is encrypted again which proves that data is lost.
 
 **II.** During a time when user (you) is using the program, the data in these files `user_database.db`, `usage_database.db`, and `user_code.txt` is unencrypted (literal plain text).
-This is because rewriting the entire code base by having every **function** or **file.read()** from these files decrypt and use the data then encrypt that file's data was going to be hassle
-(but I will do this in a later version to tighten security) hence decryption at the beginning then use literal plain text till user (you) ends the program as instructed finally the file's data can be encrypted.
+Decryption at the beginning then use literal plain text till user (you) ends the program as instructed finally the file's data can be encrypted.
 
 **14. Compression**
 
@@ -1504,15 +1504,20 @@ to use numbers because numbers never repeat as a **counter** counts on.
 
 **III.** The reason there is no button that takes user (you) back to sign in window is because **DNAGenre** treats every account on disk as a virtual machine.
 Every user starts fresh and uses their state. If that user (you) wants to switch users or sign in another user, they must close the app (state) and
-begin a new state. This guarantees that variables, state, and sensitive data is not accidentally leaked to another signed-in user.
+begin a new state. This guarantees that variables, state, and sensitive data are not accidentally leaked to another signed-in user.
 
-**IV.** When compression and decompression execute "unnecessary data" is lost like read index descriptions etc. while important data like the DNA/RNA nucleotides
-(data) is preserved. **MeloPress** can only compress **A,T/U,G,C** characters including the special characters **newline** and `@`. This makes the program discard
-invalid characters and preserve valid characters.
+**IV.** When compression and decompression execute, "unnecessary data" is lost like read index descriptions etc. While important data like the DNA/RNA nucleotides
+(data) is preserved. **MeloPress** can only compress **A,T/U,G,C** characters **not including the special characters**: **newline** and `@`--because they are added later
+as designs for readability. This makes the program discard invalid characters and preserve valid characters.
 
 **V.** **MeloPress** is very slow at compressing but very fast at decompressing. There was a method of using **markers** (Check previous
 GitHub Versions) that allowed **MeloPress** to compress data faster but produced inaccurate results in some scenarios. This current approach is slow but produces
 very trustworthy results.
+
+**VI.** Since there are different combinations for a byte, a user (you) can just make a `.fgh` file. Following this then adds the file magic `#H9`. After that,
+these bytes could bypass security: (`F`-symbol, `01000110`-bin, `46`-hex, `106`-oct, `70`-dec, `Uppercase F`-description); (`ACK`-symbol, `00000110`-bin, `06`-hex,
+`006`-oct, `6`-dec, `Acknowledge`-description) etc. With this well crafted, user (you) can bypass security and achieve results like DNAGenre saying that this file
+is compressed and yet it is not. I use file headers which are not perfect in my scenario but if anyone has a better way, please reach out through the contacts in the contact section.
 
 
 
@@ -1544,7 +1549,7 @@ When I say `Hey, What's up` the model tunes its attention to a 'sweet mode' and 
 inbuilt ethical restrictions you may see that when it is nice but not when it is angry)
 
 When I add `I would love a well-polished college essay` the word `I would love` sharpens it niceness and the word
-`a well-polished essay` makes it pick a good essay out of those in it brain.
+`a well-polished essay` makes it pick a good essay out of those in its brain.
 
 When I add `like those college essays in the early 2000s` it takes the models attention to college essays written in
 the early 2000s (I do this because college essays by then have changed over time and this makes humans not even close
