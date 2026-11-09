@@ -669,26 +669,31 @@ class User_Script:
         # Showcasing Variables
         row_counter = 0
         column_counter = 0
-        for key, value in self.vars.items():
-            if len(str(key)) <= string_threshold - 5 and len(str(value)) <= string_threshold - 5:
-                CTkLabel(frame_1, text=f"{key}::{value}", font=(window_font, window_font_size - 10), text_color=bright_colors[5],
-                         fg_color=color_scheme, corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
-            elif len(str(key)) > string_threshold - 5 and len(str(value)) > string_threshold - 5:
-                CTkLabel(frame_1, text=f"{key[:string_threshold - 5]}...::{value[:string_threshold - 5]}...",
-                         text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
-                         corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
-            elif len(str(key)) > string_threshold - 5:
-                CTkLabel(frame_1, text=f"{key[:string_threshold - 5]}...::{value}",
-                         text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
-                         corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
-            elif len(str(value)) > string_threshold - 5:
-                CTkLabel(frame_1, text=f"{key}::{value[:string_threshold - 5]}...",
-                         text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
-                         corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
-            column_counter += 1
-            if column_counter == 2:
-                row_counter += 1
-                column_counter = 0
+        try:
+            for key, value in self.vars.items():
+                if len(str(key)) <= string_threshold - 5 and len(str(value)) <= string_threshold - 5:
+                    CTkLabel(frame_1, text=f"{key}::{value}", font=(window_font, window_font_size - 10), text_color=bright_colors[5],
+                             fg_color=color_scheme, corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
+                elif len(str(key)) > string_threshold - 5 and len(str(value)) > string_threshold - 5:
+                    CTkLabel(frame_1, text=f"{key[:string_threshold - 5]}...::{value[:string_threshold - 5]}...",
+                             text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
+                             corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
+                elif len(str(key)) > string_threshold - 5:
+                    CTkLabel(frame_1, text=f"{key[:string_threshold - 5]}...::{value}",
+                             text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
+                             corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
+                elif len(str(value)) > string_threshold - 5:
+                    CTkLabel(frame_1, text=f"{key}::{value[:string_threshold - 5]}...",
+                             text_color=bright_colors[5], font=(window_font, window_font_size - 10), fg_color=color_scheme,
+                             corner_radius=corner).grid(row=row_counter, column=column_counter, padx=10, pady=5, sticky="w")
+                column_counter += 1
+                if column_counter == 2:
+                    row_counter += 1
+                    column_counter = 0
+        except RuntimeError:
+            # Python Or OS Throws This Error
+            self.error_flags["internal_error"] = 1
+            self.error_flags["no_errors"] = False
         # Showcasing Errors
         if not self.error_flags["no_errors"]:
             # Get Error

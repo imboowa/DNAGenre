@@ -362,6 +362,7 @@ class Protein:
                             color_1 = colors_1[color_counter_1]
                             row_counter_1, col_counter_1 = 0, 0
                             i_1 = 0
+                            # proteins Is A String
                             for letter_1 in proteins:
                                 # We Want Proteins That Are From 'M' Codon To '_' Stop Codon (No Duplicates In Showcase)
                                 if letter_1 == "M" and proteins[i_1 - 1] == '\'':
@@ -372,9 +373,11 @@ class Protein:
                                     color_counter_1 -= 1
                                     row_counter_1 += 1
                                     col_counter_1 = 0
+                                    # Indexes Nucleotides In Current Protein
+                                    count_1 = 0
                                 if letter_1 in DNA_Codons.values():
                                     # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
-                                    if letter_1 == "M" and col_counter_1 > 0:
+                                    if letter_1 == "M" and count_1 > 0:
                                         letter_label_1 = CTkLabel(self.reading_frame_1, text=str(letter_1), font=(window_font, (window_font_size + 20)),
                                                                   fg_color="white", text_color="black", corner_radius=corner)
                                         letter_label_1.grid(row=row_counter_1, column=col_counter_1, sticky='w', padx=5, pady=5)
@@ -388,6 +391,7 @@ class Protein:
                                     if (((letter_label_1.winfo_width() * col_counter_1) + (10 * col_counter_1)) + 20) >= self.reading_frame_1.winfo_width():
                                         row_counter_1 += 1
                                         col_counter_1 = 0
+                                    count_1 += 1
                                 i_1 += 1
                     elif int(frame) == 1 and self.isReverseComplement == "False":
                         try:
@@ -409,6 +413,7 @@ class Protein:
                             color_2 = colors_2[color_counter_2]
                             row_counter_2, col_counter_2 = 0, 0
                             i_2 = 0
+                            # proteins Is A String
                             for letter_2 in proteins:
                                 # We Want Proteins That Are From 'M' Codon To '_' Stop Codon (No Duplicates In Showcase)
                                 if letter_2 == "M" and proteins[i_2 - 1] == '\'':
@@ -419,9 +424,11 @@ class Protein:
                                     color_counter_2 -= 1
                                     row_counter_2 += 1
                                     col_counter_2 = 0
+                                    # Indexes Nucleotides In Current Protein
+                                    count_2 = 0
                                 if letter_2 in DNA_Codons.values():
                                     # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
-                                    if letter_2 == "M" and col_counter_2 > 0:
+                                    if letter_2 == "M" and count_2 > 0:
                                         letter_label_2 = CTkLabel(self.reading_frame_2, text=str(letter_2), font=(window_font, (window_font_size + 20)),
                                                                   fg_color="white", text_color="black", corner_radius=corner)
                                         letter_label_2.grid(row=row_counter_2, column=col_counter_2, sticky='w', padx=5, pady=5)
@@ -435,6 +442,7 @@ class Protein:
                                     if (((letter_label_2.winfo_width() * col_counter_2) + (10 * col_counter_2)) + 20) >= self.reading_frame_2.winfo_width():
                                         row_counter_2 += 1
                                         col_counter_2 = 0
+                                    count_2 += 1
                                 i_2 += 1
                     elif int(frame) == 2 and self.isReverseComplement == "False":
                         try:
@@ -456,6 +464,7 @@ class Protein:
                             color_3 = colors_3[color_counter_3]
                             row_counter_3, col_counter_3 = 0, 0
                             i_3 = 0
+                            # proteins Is A String
                             for letter_3 in proteins:
                                 # We Want Proteins That Are From 'M' Codon To '_' Stop Codon (No Duplicates In Showcase)
                                 if letter_3 == "M" and proteins[i_3 - 1] == '\'':
@@ -466,9 +475,11 @@ class Protein:
                                     color_counter_3 -= 1
                                     row_counter_3 += 1
                                     col_counter_3 = 0
+                                    # Indexes Nucleotides In Current Protein
+                                    count_3 = 0
                                 if letter_3 in DNA_Codons.values():
                                     # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
-                                    if letter_3 == "M" and col_counter_3 > 0:
+                                    if letter_3 == "M" and count_3 > 0:
                                         letter_label_3 = CTkLabel(self.reading_frame_3, text=str(letter_3), font=(window_font, (window_font_size + 20)),
                                                                   fg_color="white", text_color="black", corner_radius=corner)
                                         letter_label_3.grid(row=row_counter_3, column=col_counter_3, sticky='w', padx=5, pady=5)
@@ -482,6 +493,7 @@ class Protein:
                                     if (((letter_label_3.winfo_width() * col_counter_3) + (10 * col_counter_3)) + 20) >= self.reading_frame_3.winfo_width():
                                         row_counter_3 += 1
                                         col_counter_3 = 0
+                                    count_3 += 1
                                 i_3 += 1
                     elif int(frame) == 3 and self.isReverseComplement == "True":
                         try:
@@ -515,6 +527,7 @@ class Protein:
                             color_1 = colors_1[color_counter_4]
                             row_counter_4, col_counter_4 = 0, 0
                             i_4 = 0
+                            # proteins Is A String
                             for letter_4 in proteins:
                                 # We Want Proteins That Are From 'M' Codon To '_' Stop Codon (No Duplicates In Showcase)
                                 if letter_4 == "M" and proteins[i_4 - 1] == '\'':
@@ -525,9 +538,11 @@ class Protein:
                                     color_counter_4 -= 1
                                     row_counter_4 += 1
                                     col_counter_4 = 0
+                                    # Indexes Nucleotides In Current Protein
+                                    count_4 = 0
                                 if letter_4 in DNA_Codons.values():
                                     # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
-                                    if letter_4 == "M" and col_counter_4 > 0:
+                                    if letter_4 == "M" and count_4 > 0:
                                         letter_label_4 = CTkLabel(self.reading_frame_1, text=str(letter_4), font=(window_font, (window_font_size + 20)),
                                                                   fg_color="white", text_color="black", corner_radius=corner)
                                         letter_label_4.grid(row=row_counter_4, column=col_counter_4, sticky='w', padx=5, pady=5)
@@ -542,6 +557,7 @@ class Protein:
                                             10 * col_counter_4)) + 20) >= self.reading_frame_1.winfo_width():
                                         row_counter_4 += 1
                                         col_counter_4 = 0
+                                    count_4 += 1
                                 i_4 += 1
                     elif int(frame) == 4 and self.isReverseComplement == "True":
                         try:
@@ -575,6 +591,7 @@ class Protein:
                             color_2 = colors_2[color_counter_5]
                             row_counter_5, col_counter_5 = 0, 0
                             i_5 = 0
+                            # proteins Is A String
                             for letter_5 in proteins:
                                 # We Want Proteins That Are From 'M' Codon To '_' Stop Codon (No Duplicates In Showcase)
                                 if letter_5 == "M" and proteins[i_5 - 1] == '\'':
@@ -585,9 +602,11 @@ class Protein:
                                     color_counter_5 -= 1
                                     row_counter_5 += 1
                                     col_counter_5 = 0
+                                    # Indexes Nucleotides In Current Protein
+                                    count_5 = 0
                                 if letter_5 in DNA_Codons.values():
                                     # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
-                                    if letter_5 == "M" and col_counter_5 > 0:
+                                    if letter_5 == "M" and count_5 > 0:
                                         letter_label_5 = CTkLabel(self.reading_frame_2, text=str(letter_5), font=(window_font, (window_font_size + 20)),
                                                                   fg_color="white", text_color="black", corner_radius=corner)
                                         letter_label_5.grid(row=row_counter_5, column=col_counter_5, sticky='w', padx=5, pady=5)
@@ -602,6 +621,7 @@ class Protein:
                                             10 * col_counter_5)) + 20) >= self.reading_frame_3.winfo_width():
                                         row_counter_5 += 1
                                         col_counter_5 = 0
+                                    count_5 += 1
                                 i_5 += 1
                     elif int(frame) == 5 and self.isReverseComplement == "True":
                         try:
@@ -635,6 +655,7 @@ class Protein:
                             color_3 = colors_3[color_counter_6]
                             row_counter_6, col_counter_6 = 0, 0
                             i_6 = 0
+                            # proteins Is A String
                             for letter_6 in proteins:
                                 # We Want Proteins That Are From 'M' Codon To '_' Stop Codon (No Duplicates In Showcase)
                                 if letter_6 == "M" and proteins[i_6 - 1] == '\'':
@@ -645,9 +666,11 @@ class Protein:
                                     color_counter_6 -= 1
                                     row_counter_6 += 1
                                     col_counter_6 = 0
+                                    # Indexes Nucleotides In Current Protein
+                                    count_6 = 0
                                 if letter_6 in DNA_Codons.values():
                                     # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
-                                    if letter_6 == "M" and col_counter_6 > 0:
+                                    if letter_6 == "M" and count_6 > 0:
                                         letter_label_6 = CTkLabel(self.reading_frame_3, text=str(letter_6), font=(window_font, (window_font_size + 20)),
                                                                   fg_color="white", text_color="black", corner_radius=corner)
                                         letter_label_6.grid(row=row_counter_6, column=col_counter_6, sticky='w', padx=5, pady=5)
@@ -662,5 +685,6 @@ class Protein:
                                             10 * col_counter_6)) + 20) >= self.reading_frame_3.winfo_width():
                                         row_counter_6 += 1
                                         col_counter_6 = 0
+                                    count_6 += 1
                                 i_6 += 1
                 return

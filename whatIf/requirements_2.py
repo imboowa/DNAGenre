@@ -312,14 +312,17 @@ class Requirements_2:
                             color_counter = 0
                             row_counter, column_counter = 0, 0
                             index_counter = 0
+                            # proteins Is A String
                             for letter in proteins:
                                 if letter == 'M' and proteins[index_counter - 1] == '\'':
                                     row_counter += 1
                                     column_counter = 0
                                     color_counter = (color_counter + 1) % len(colors_1)
+                                    # Indexes Nucleotides In Current Protein
+                                    count_1 = 0
                                 if letter in DNA_Codons.values():
                                     # Only Highlight "M" Inside Protein To Show User That There Is A Start Codon Inside
-                                    if letter == "M" and column_counter > 0:
+                                    if letter == "M" and count_1 > 0:
                                         letter_label = CTkLabel(self.scroll_frame, text=str(letter), font=(window_font, (window_font_size + 20)),
                                                                 fg_color="white", text_color="black", corner_radius=corner)
                                         letter_label.grid(row=row_counter, column=column_counter, sticky="w", padx=5, pady=5)
@@ -332,6 +335,7 @@ class Requirements_2:
                                     if (((letter_label.winfo_width() * column_counter) + (10 * column_counter)) + 50) >= self.scroll_frame.winfo_width():
                                         row_counter += 1
                                         column_counter = 0
+                                    count_1 += 1
                                 index_counter += 1
                         break
                 return

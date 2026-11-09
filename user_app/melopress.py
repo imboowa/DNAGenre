@@ -98,8 +98,14 @@ class MeloPress:
         decompress_chunks_button = CTkButton(frame_4, text="D Chunk", fg_color=color_scheme, text_color=bright_colors[4],
                                              hover_color=bright_colors[2], corner_radius=corner, font=(window_font, window_font_size),
                                              command=lambda: self.start_decompression_chunks(filename, frame_2))
-        decompress_chunks_button.pack(side="right", padx=230)
-        make_DNAGenre = CTkButton(mother_frame_1, text="Make DNAGenre", fg_color=color_scheme, text_color=bright_colors[4],
+        decompress_chunks_button.pack(side="right", padx=10, pady=10)
+        frame_5 = CTkFrame(mother_frame_1, fg_color=color_scheme)
+        frame_5.pack(side="right", fill="both", expand=True, pady=10, padx=25)
+        prep_c = CTkButton(frame_5, text="Prep C", fg_color=color_scheme, text_color=bright_colors[4],
+                           hover_color=bright_colors[2], corner_radius=corner, font=(window_font, window_font_size),
+                           command=lambda: self.handle_format_comrpession(filename, frame_2))
+        prep_c.pack(side="left", padx=25, pady=10)
+        make_DNAGenre = CTkButton(frame_5, text="Make DNAGenre", fg_color=color_scheme, text_color=bright_colors[4],
                                   hover_color=bright_colors[2], corner_radius=corner, font=(window_font, window_font_size),
                                   command=lambda: self.handle_file_formating(filename, frame_2))
         make_DNAGenre.pack(side="right", padx=10, pady=10)
@@ -228,6 +234,28 @@ class MeloPress:
         except tkinter.TclError: return
 
 
+    def handle_format_comrpession(self, filename, frame: CTkFrame):
+
+        """ Receives Errors From self.format_compression And Displays Them """
+
+        if self.format_compression(filename) == 0:
+            label_1 = CTkLabel(frame, text="Successful Prep", text_color=bright_colors[3], fg_color=color_scheme, font=(window_font, window_font_size - 10))
+            self.state_label_value.configure(text=f"{self.get_state_header_info(filename)}")
+            self.seq_type_label_value.configure(text=f"{self.get_seq_type_header_info(filename)}")
+            try: filebytes = os.path.getsize(filename)
+            except OSError: filebytes = "Unobtained"
+            except Exception: filebytes = "Unobtained"
+            self.filebytes_label_value.configure(text=f"{str(filebytes)[:string_threshold]}..." if len(str(filebytes)) > string_threshold else f"{str(filebytes)}")
+            self.update_file_content(filename, self.text_box)
+        else:
+            label_1 = CTkLabel(frame, text="Prep Error", text_color=bright_colors[1], fg_color=color_scheme, font=(window_font, window_font_size - 10))
+
+        label_1.place(relx=0.44, rely=0.05)
+
+        try: self.window.after(1000, label_1.destroy)
+        except tkinter.TclError: return
+
+
     @staticmethod
     def format_for_DNAGenre(filename):
 
@@ -311,6 +339,24 @@ class MeloPress:
             result.append([special_char, temp_sequence_1])
 
         return result
+
+
+    def format_compression(self, filename):
+
+        """ Make A Fasta, Fastq Or Any Valid DNA/RNA File Ready For Compression """
+
+        # Check For Errors
+        result = self.prepare_data_compression(filename)
+        if result == "Unobtained":
+            return -1
+
+        # Write To File
+        with open(filename, "w") as file:
+            for i in result:
+                for j in i:
+                    file.write(j + "\n")
+
+        return 0
 
 
     def start_compression(self, filename, frame: CTkFrame):
@@ -553,7 +599,7 @@ class MeloPress:
         if self.get_state_header_info(filename) != "Compressed":
             return 1
 
-        # FIle Must Be A .fgh File
+        # File Must Be A .fgh File
         if os.path.splitext(filename)[-1] != ".fgh":
             return None
 
@@ -575,34 +621,40 @@ class MeloPress:
         # Is The File Length Indivisible By 4
         # How Many Bytes Are Allowed At The End Of A File With File Length That Is Indivisible By 4
         # Is This A Head File--File That Is The First In Compressed Chunks Folder From A Big File Due To Improper Length Incident
-        sequence_type_byte = f"{file_data[3]:08b}"
+        # Is This A Segment File
+        file_header = f"{file_data[3]:08b}"
         # Improper File Header
         if file_magic != b"#H9":
             return 2
-        if sequence_type_byte[-1] == "0":
+        if file_header[-1] == "0":
             seq_type = "DNA"
-        elif sequence_type_byte[-1] == "1":
+        elif file_header[-1] == "1":
             seq_type = "RNA"
         else:
             return 2
 
         consider_improper_file_length = False
         acceptable_length = "00"
-        if sequence_type_byte[-4] == "1":
+        if file_header[-4] == "1":
             consider_improper_file_length = True
             # Get The Count Of How Many Nucleotides Are Allowed At The End Of Improper Length Files
-            acceptable_length = sequence_type_byte[-6:-4]
+            acceptable_length = file_header[-6:-4]
             if acceptable_length == "00": acceptable_length = 0
             elif acceptable_length == "01": acceptable_length = 1
             elif acceptable_length == "10": acceptable_length = 2
             elif acceptable_length == "11": acceptable_length = 3
 
+        # Check If File Is A Segment File
+        if file_header[-8] == "1": is_a_segment_file = True
+        else: is_a_segment_file = False
+
         output = bytearray()
         # Append The Formating Characters
         special_character = ord("@")
         newline_character = ord("\n")
-        output.append(special_character)
-        output.append(newline_character)
+        if not is_a_segment_file:
+            output.append(special_character)
+            output.append(newline_character)
 
         # Starting To Decompress At Index 4 Because Indexes 0,1,2,3 Have File Magic And File Header
         counter_1 = 4
@@ -635,7 +687,7 @@ class MeloPress:
                 elif result == 0xC0:
                     # Handle G
                     output += b"G"
-                # Just In Case
+                # Just In Case - Not Needed
                 else:
                     return None
 

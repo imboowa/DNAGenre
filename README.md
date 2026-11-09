@@ -1,6 +1,6 @@
 ## DNAGenre ##
 This project is aimed at being free, used by organizations, and a startup project for study purposes. It is aimed at
-making DNA analysis faster and more insightful (visionary).
+making DNA/RNA analysis faster and more insightful (visionary).
 
 
 ## Dive Into ##
@@ -1242,7 +1242,7 @@ and repeats this for the next two `A`s hence `AAAA` is highlighted.\
 like `AA`, `AAAA`, `AAAAAA` but not `AAA`, `AAAAA`, `AAAAAAA` though it works well for one-length k-mer like `A`.
 
 
-**V.** As I was doing these 39 lines of code, I realized after debugging that checking bounds is key, my language is verbose,
+**V.** As I was doing these 43 lines of code, I realized after debugging that checking bounds is key, my language is verbose,
 and spacing makes the language more readable. It was tough to write this one and I realize clearly that it is worse than Assembly but at least it got
 a simple task done.
 
@@ -1519,13 +1519,19 @@ these bytes could bypass security: (`F`-symbol, `01000110`-bin, `46`-hex, `106`-
 `006`-oct, `6`-dec, `Acknowledge`-description) etc. With this well crafted, user (you) can bypass security and achieve results like DNAGenre saying that this file
 is compressed and yet it is not. I use file headers which are not perfect in my scenario but if anyone has a better way, please reach out through the contacts in the contact section.
 
+**VII.** DNAGenre's MeloPress is not completely compatible with *MeloPress*. Both compress input data differently though they both decompress it similarly. DNAGenre's MeloPress looks at the entire input data at once which contributes to its poor execution time while *MeloPress* looks at the input data in chunks (manageable pieces) which contributes to its mindblowing execution time.
+
+**VIII.** Use `Prep C` to format invalid data for compression. It "intelligently" separates invalid data from valid data which could be used in compression for both DNAGenre's MeloPress and *MeloPress*.
+
+**IX.** Use `Make DNAGenre` to format data for DNAGenre's operations and not for compression or decompression.
 
 
 ## Tech Stack ##
 ```
 Pycharm - Code Editor
-ChatGPT - AI Assistant
 Google's AI Mode - AI Assistant
+ChatGPT - Code Analysis
+Google - Research
 ```
 
 I am very fluent with prompting most Large Language Models(LLMs) because I use patterns in my prompts, simple prompts and
